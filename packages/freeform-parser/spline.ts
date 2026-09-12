@@ -1,9 +1,8 @@
 import type { FreeformInkPoint } from "libfreeform";
 
-/** Uniform cubic B-spline, with repeated endpoint controls.
- * Apple documents the uniform cubic basis but not endpoint extension rules.
- * Callers must report this endpoint policy as an approximation until compared
- * against PKStrokePath.interpolatedPoints on the source drawing.
+/** Uniform cubic B-spline with linearly extrapolated endpoint controls.
+ * Compared against Apple PKStrokePath interpolation on a macOS runner.
+ * This validates centerline sampling, not erasure masks or brush rendering.
  */
 export function sampleSpline(
   controls: readonly FreeformInkPoint[],
@@ -18,11 +17,14 @@ export function sampleSpline(
   )
     throw new Error("Invalid spline controls.");
   if (controls.length === 1) return [{ ...controls[0] }];
-  const at = (index: number) =>
-    controls[Math.max(0, Math.min(controls.length - 1, index))];
+  const at = (index: number): FreeformInkPoint => {
+    if (index >= 0 && index < controls.length) return controls[index];
+    const edge = index < 0 ? controls[0] : controls[controls.length - 1];
+    const next = index < 0 ? controls[1] : controls[controls.length - 2];
+    return { ...edge, x: 2 * edge.x - next.x, y: 2 * edge.y - next.y };
+  };
   const result: FreeformInkPoint[] = [];
-  // Two extra spans make the repeated endpoint controls reach both endpoints.
-  for (let span = -1; span < controls.length; span++) {
+  for (let span = 0; span < controls.length - 1; span++) {
     for (let step = 0; step < subdivisions; step++) {
       const t = step / subdivisions,
         t2 = t * t,

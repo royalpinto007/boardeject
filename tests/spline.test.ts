@@ -1,5 +1,21 @@
 import { expect, it } from "vitest";
 import { sampleSpline } from "../packages/freeform-parser/spline";
+import reference from "./fixtures/apple/pencilkit-reference.json";
+
+it("matches Apple PencilKit centerline samples including both endpoints", () => {
+  const actual = sampleSpline(reference.controls, 8);
+  expect(actual).toHaveLength(reference.samples.length);
+  actual.forEach((point, index) => {
+    expect(point.x + reference.transform.tx).toBeCloseTo(
+      reference.samples[index].x,
+      4,
+    );
+    expect(point.y + reference.transform.ty).toBeCloseTo(
+      reference.samples[index].y,
+      4,
+    );
+  });
+});
 
 it("evaluates the cubic basis rather than connecting control points", () => {
   const p = sampleSpline(
@@ -12,8 +28,8 @@ it("evaluates the cubic basis rather than connecting control points", () => {
     8,
   );
   // Span 1 at t=0: (P0 + 4 P1 + P2) / 6.
-  expect(p[16].x).toBeCloseTo(6);
-  expect(p[16].y).toBeCloseTo(4);
+  expect(p[8].x).toBeCloseTo(6);
+  expect(p[8].y).toBeCloseTo(4);
   expect(p[0]).toMatchObject({ x: 0, y: 0 });
   expect(p.at(-1)).toMatchObject({ x: 18, y: 6 });
 });

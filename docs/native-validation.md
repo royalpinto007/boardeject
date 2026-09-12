@@ -10,9 +10,11 @@ The ink fixture is useful binary parser evidence; its provenance is not sufficie
 to describe it as a real user drawing.
 
 [Apple's PencilKit explanation](https://developer.apple.com/videos/play/wwdc2020/10148/)
-documents uniform cubic B-spline paths. BoardEject now samples that basis instead
-of connecting raw controls. Repeated endpoint controls are an explicit
-approximation, not a verified reconstruction of Apple's endpoint policy.
+documents uniform cubic B-spline paths. Comparison with the Apple framework
+artifact from Actions run 34703744158 exposed extra endpoint spans in our
+sampler. It now uses linearly extrapolated endpoint controls and matches all
+25 native reference positions within 0.0001 points. The checked-in reference
+and regression test validate this four-control centerline case, not all ink.
 
 [Upstream format notes](https://github.com/can1357/libfreeform/blob/main/docs/FORMAT.md)
 mark native group semantics inferred. BoardEject validates nesting, identities,
@@ -39,6 +41,8 @@ transform applied. The uniform-basis tests cannot substitute for that reference.
 
 ## Release status
 
-No Mac or new captures are available in this environment. End-to-end native
-fidelity is therefore not validated. Passing unit tests, a compiling helper,
-or the synthetic demo must not clear this gate. No deployment or release occurs.
+GitHub's macOS runner provides usable Apple framework reference data even
+without a personal Mac. No additional real Freeform captures were found in
+upstream's current fixture tree or forks. End-to-end native fidelity remains
+unvalidated. The website is deployed as a development preview; a stable release
+must not be inferred from passing unit tests or the synthetic demo.

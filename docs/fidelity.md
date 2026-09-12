@@ -37,7 +37,7 @@ use explicit decoded model inputs, not captured native records. They must not
 be represented as proof of end-to-end Freeform support.
 
 - Nonidentity native group transforms (membership is implemented)
-- Exact PencilKit endpoint policy, masks and variable-width strokes (uniform spline sampling is implemented)
+- PencilKit masks and variable-width strokes (centerline endpoint sampling now matches a checked-in Apple framework reference; broader stroke cases remain unvalidated)
 - Native embedded image extraction and safe format conversion
 - Editable native tables and merged cells
 - Rich text runs, font matching, path shapes and routing
