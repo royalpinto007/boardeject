@@ -47,26 +47,26 @@ it("applies the full stroke affine transform to rendered samples", () => {
   });
   expect(issues[0].severity).toBe("approximation");
 });
-it("does not mistake spline controls for rendered stroke points", () => {
+it("samples spline controls and reports the endpoint approximation", () => {
   const issues: Issue[] = [];
-  expect(
-    convertInk(
-      [
-        {
-          inkType: "pen",
-          inkIdentifier: "pen",
-          pointRole: "splineControl",
-          points: [
-            { x: 1, y: 2 },
-            { x: 3, y: 4 },
-          ],
-          transform: { a: 1, b: 0, c: 0, d: 1, tx: 0, ty: 0 },
-          rawData: new Uint8Array(),
-        },
-      ],
-      "ink",
-      issues,
-    ),
-  ).toEqual([]);
-  expect(issues[0].severity).toBe("unsupported");
+  const result = convertInk(
+    [
+      {
+        inkType: "pen",
+        inkIdentifier: "pen",
+        pointRole: "splineControl",
+        points: [
+          { x: 1, y: 2 },
+          { x: 3, y: 4 },
+        ],
+        transform: { a: 1, b: 0, c: 0, d: 1, tx: 0, ty: 0 },
+        rawData: new Uint8Array(),
+      },
+    ],
+    "ink",
+    issues,
+  );
+  expect(result).toHaveLength(1);
+  expect(result[0].kind === "ink" && result[0].points.length > 2).toBe(true);
+  expect(issues[0].severity).toBe("approximation");
 });

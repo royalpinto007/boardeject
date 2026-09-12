@@ -1,5 +1,6 @@
 import type { FreeformInkStroke } from "libfreeform";
 import type { BoardNode, Issue } from "../board-model/index";
+import { sampleSpline } from "./spline";
 
 export function embeddedImage(
   bytes: Uint8Array,
@@ -28,12 +29,12 @@ export function convertInk(
 ): BoardNode[] {
   if (strokes.length > 10000) throw new Error("Too many ink strokes.");
   return strokes.flatMap((stroke, index): BoardNode[] => {
-    if (stroke.visibleRanges?.length || stroke.pointRole !== "renderedSample") {
+    if (stroke.visibleRanges?.length) {
       issues.push({
         itemId: id,
         severity: "unsupported",
         message:
-          "Masked ink or PencilKit spline controls require a validated sampler. Stroke omitted.",
+          "Masked ink requires validated clipping semantics. Stroke omitted.",
       });
       return [];
     }
@@ -45,8 +46,27 @@ export function convertInk(
       });
       return [];
     }
+    if (stroke.pointRole === "splineControl" && stroke.points.length > 12500) {
+      issues.push({
+        itemId: id,
+        severity: "unsupported",
+        message: "Spline exceeds the sampling limit.",
+      });
+      return [];
+    }
+    const samples =
+      stroke.pointRole === "splineControl"
+        ? sampleSpline(stroke.points)
+        : stroke.points;
+    if (stroke.pointRole === "splineControl")
+      issues.push({
+        itemId: id,
+        severity: "approximation",
+        message:
+          "Uniform cubic PencilKit spline sampled with repeated endpoint controls. Endpoint behavior awaits comparison with Apple interpolation.",
+      });
     const t = stroke.transform;
-    const points = stroke.points.map((p): [number, number] => [
+    const points = samples.map((p): [number, number] => [
       t.a * p.x + t.c * p.y + t.tx,
       t.b * p.x + t.d * p.y + t.ty,
     ]);
@@ -62,10 +82,27 @@ export function convertInk(
       });
       return [];
     }
-    const x = Math.min(...points.map((p) => p[0])),
-      y = Math.min(...points.map((p) => p[1]));
-    const width = Math.max(...points.map((p) => p[0])) - x,
-      height = Math.max(...points.map((p) => p[1])) - y;
+    let x = Infinity,
+      y = Infinity,
+      maxX = -Infinity,
+      maxY = -Infinity;
+    for (const p of points) {
+      x = Math.min(x, p[0]);
+      y = Math.min(y, p[1]);
+      maxX = Math.max(maxX, p[0]);
+      maxY = Math.max(maxY, p[1]);
+    }
+    const width = maxX - x,
+      height = maxY - y;
+    const widths = samples
+      .map((p) => p.width)
+      .filter(
+        (n): n is number => n !== undefined && Number.isFinite(n) && n > 0,
+      );
+    const meanWidth = widths.length
+      ? widths.reduce((a, b) => a + b, 0) / widths.length
+      : 2;
+    const scale = Math.sqrt(Math.abs(t.a * t.d - t.b * t.c));
     issues.push({
       itemId: id,
       severity: "approximation",
@@ -82,7 +119,7 @@ export function convertInk(
           stroke: /^#[0-9a-f]{6}$/i.test(stroke.color?.hex ?? "")
             ? stroke.color!.hex
             : "#202622",
-          strokeWidth: 2,
+          strokeWidth: Math.max(0.1, Math.min(100, meanWidth * scale)),
           opacity: 100,
         },
         groups: [id],
