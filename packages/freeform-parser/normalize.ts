@@ -1,4 +1,6 @@
 import type { FreeformPasteboard, FreeformPaint } from "libfreeform";
+import { embeddedImage, convertInk } from "./media";
+import { convertTable } from "./table";
 import type {
   Board,
   BoardNode,
@@ -24,6 +26,15 @@ export function normalize(pasteboard: FreeformPasteboard): Board {
       issue(`${name}: ${tier.value.kind}. ${tier.value.message}`);
   }
   if (pasteboard.native.status !== "decoded") {
+    if (pasteboard.drawing.status === "decoded") {
+      board.sourceItems = pasteboard.drawing.value.strokes.length;
+      board.nodes = convertInk(
+        pasteboard.drawing.value.strokes,
+        "drawing",
+        board.issues,
+      );
+      return board;
+    }
     issue(
       "No decoded native board. Rendered PDF/image flavors are not editable board data.",
     );
@@ -199,6 +210,23 @@ export function normalize(pasteboard: FreeformPasteboard): Board {
         message:
           "Connector becomes a straight arrow with default arrowhead and centered binding.",
       });
+    } else if (kind.kind === "table") {
+      board.nodes.push(...convertTable(kind, base, board.issues));
+    } else if (kind.kind === "image") {
+      const asset = kind.assetId
+        ? (native.assets[kind.assetId] ?? pasteboard.assets[kind.assetId])
+        : undefined;
+      const image = asset?.bytes ? embeddedImage(asset.bytes) : undefined;
+      if (!image || kind.crop || kind.mask) {
+        issue(
+          "Image bytes missing, unsafe/unsupported format, or unsupported crop/mask.",
+          id,
+        );
+        continue;
+      }
+      board.nodes.push({ ...base, kind: "image", ...image });
+    } else if (kind.kind === "ink") {
+      board.nodes.push(...convertInk(kind.strokes, id, board.issues));
     } else {
       issue(
         `${kind.kind} conversion is not yet validated. Element omitted.`,

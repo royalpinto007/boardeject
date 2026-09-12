@@ -28,6 +28,11 @@ promise.
 
 ## Not yet implemented or validated
 
+Adapter tests now cover embedded PNG/JPEG data, affine-transformed rendered ink
+samples, and complete axis-aligned table grids with merged cells. These tests
+use explicit decoded model inputs, not captured native records. They must not
+be represented as proof of end-to-end Freeform support.
+
 - Full native group transforms and hierarchy
 - PencilKit B-spline sampling and variable-width strokes
 - Native embedded image extraction and safe format conversion
