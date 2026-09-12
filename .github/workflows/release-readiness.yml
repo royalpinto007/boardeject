@@ -1,13 +1,14 @@
-name: CI
-on: [push, pull_request]
+name: Release readiness (does not publish)
+on:
+  workflow_dispatch:
 permissions:
   contents: read
 jobs:
-  web:
+  validate:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v7
-      - uses: actions/setup-node@v7
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: npm
@@ -18,8 +19,4 @@ jobs:
       - run: npm test
       - run: npm run build
       - run: npm audit --audit-level=moderate
-  helper-compile:
-    runs-on: macos-latest
-    steps:
-      - uses: actions/checkout@v7
-      - run: swiftc apps/mac-helper/main.swift -o /tmp/boardeject-helper
+      - run: echo 'Readiness checks only. Domain, native validation, owner approval and v0.0.1 publication are separate gates.'

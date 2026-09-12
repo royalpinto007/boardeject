@@ -266,6 +266,13 @@ function App() {
             Apple Freeform → Copy board → BoardEject → Editable Excalidraw
           </span>
           <p>No account. No uploads. No lock-in.</p>
+          <a
+            href="https://www.buymeacoffee.com/royalpinto007"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Buy me a coffee ↗
+          </a>
         </footer>
       </main>
     </>

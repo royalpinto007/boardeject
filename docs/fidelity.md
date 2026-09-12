@@ -10,6 +10,9 @@ BoardEject is an incomplete private development preview, not a released exporter
 - The converter produces individual text, shape and freedraw objects.
 - Synthetic arrows have reciprocal Excalidraw element bindings.
 - Synthetic grouped objects retain group identifiers.
+- Nested identity-transform native group graphs preserve membership and reject cycles.
+- Binary ink controls are decoded and sampled into editable freedraw elements.
+- Valid drawing data survives an independently unsupported native board version.
 
 ## Important native parser limitations
 
@@ -28,8 +31,13 @@ promise.
 
 ## Not yet implemented or validated
 
-- Full native group transforms and hierarchy
-- PencilKit B-spline sampling and variable-width strokes
+Adapter tests now cover embedded PNG/JPEG data, affine-transformed rendered ink
+samples, and complete axis-aligned table grids with merged cells. These tests
+use explicit decoded model inputs, not captured native records. They must not
+be represented as proof of end-to-end Freeform support.
+
+- Nonidentity native group transforms (membership is implemented)
+- Exact PencilKit endpoint policy, masks and variable-width strokes (uniform spline sampling is implemented)
 - Native embedded image extraction and safe format conversion
 - Editable native tables and merged cells
 - Rich text runs, font matching, path shapes and routing
@@ -39,3 +47,6 @@ promise.
 The example board is synthetic. It is a converter demonstration, not a captured
 Apple Freeform board. No simulated Freeform UI or copy footage should be used in
 the demo.
+
+See [native-validation.md](native-validation.md) for the source evidence and
+the exact real captures needed to clear the remaining fidelity gate.

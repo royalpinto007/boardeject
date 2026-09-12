@@ -1,4 +1,7 @@
 import type { FreeformPasteboard, FreeformPaint } from "libfreeform";
+import { embeddedImage, convertInk } from "./media";
+import { convertTable } from "./table";
+import { groupMembership } from "./groups";
 import type {
   Board,
   BoardNode,
@@ -23,7 +26,17 @@ export function normalize(pasteboard: FreeformPasteboard): Board {
     if (tier.status === "failed")
       issue(`${name}: ${tier.value.kind}. ${tier.value.message}`);
   }
+  const hasDrawing = pasteboard.drawing.status === "decoded";
+  if (pasteboard.drawing.status === "decoded") {
+    board.sourceItems = pasteboard.drawing.value.strokes.length;
+    board.nodes = convertInk(
+      pasteboard.drawing.value.strokes,
+      "drawing",
+      board.issues,
+    );
+  }
   if (pasteboard.native.status !== "decoded") {
+    if (hasDrawing) return board;
     issue(
       "No decoded native board. Rendered PDF/image flavors are not editable board data.",
     );
@@ -33,12 +46,19 @@ export function normalize(pasteboard: FreeformPasteboard): Board {
   board.sourceItems = native.items.length;
   if (native.compatibility.kind !== "supported") {
     issue(
-      "Native format compatibility is not supported. Export is withheld rather than guessing missing content.",
+      "Native format compatibility is not supported. Native objects are withheld; independently decoded drawing strokes may still be exported.",
     );
     return board;
   }
   if (native.items.length > 10000)
     throw new Error("Board exceeds the 10,000 item limit.");
+  let memberships: Map<string, string[]>;
+  try {
+    memberships = groupMembership(native.items);
+  } catch (error) {
+    issue(error instanceof Error ? error.message : "Invalid group hierarchy.");
+    return board;
+  }
   const color = (
     paint: FreeformPaint | undefined,
     fallback: string,
@@ -66,13 +86,14 @@ export function normalize(pasteboard: FreeformPasteboard): Board {
     return fallback;
   };
   for (const item of native.items) {
+    if (
+      hasDrawing &&
+      (item.kind.kind === "ink" || item.className === "CRLFreehandDrawingItem")
+    )
+      continue;
     const id = item.uuid;
     const frame = item.geometry.frame;
     if (item.kind.kind === "group") {
-      issue(
-        "Group transforms and hierarchy need validated native fixtures.",
-        id,
-      );
       continue;
     }
     if (
@@ -88,8 +109,7 @@ export function normalize(pasteboard: FreeformPasteboard): Board {
     if (
       item.geometry.transform ||
       item.geometry.horizontalFlip ||
-      item.geometry.verticalFlip ||
-      item.parentId
+      item.geometry.verticalFlip
     ) {
       issue(
         "Transformed or nested geometry needs a validated coordinate mapping. Element omitted.",
@@ -118,7 +138,8 @@ export function normalize(pasteboard: FreeformPasteboard): Board {
         severity: "approximation",
         message: "Shadows and custom stroke dashes are omitted.",
       });
-    const base = { id, bounds, appearance, groups: [] };
+    const groups = memberships.get(id) ?? [];
+    const base = { id, bounds, appearance, groups };
     const kind = item.kind;
     if (kind.kind === "shape") {
       const presets: Record<string, "rectangle" | "ellipse" | "diamond"> = {
@@ -152,14 +173,14 @@ export function normalize(pasteboard: FreeformPasteboard): Board {
           ...base,
           id: `${id}-background`,
           kind: "rectangle",
-          groups: [id],
+          groups: [id, ...groups],
         });
       board.nodes.push({
         ...base,
         kind: "text",
         text: kind.text.plain,
         fontSize: Math.max(8, Math.min(500, kind.text.runs[0]?.fontSize ?? 20)),
-        groups: kind.kind === "stickyNote" ? [id] : [],
+        groups: kind.kind === "stickyNote" ? [id, ...groups] : groups,
       });
       board.issues.push({
         itemId: id,
@@ -199,6 +220,28 @@ export function normalize(pasteboard: FreeformPasteboard): Board {
         message:
           "Connector becomes a straight arrow with default arrowhead and centered binding.",
       });
+    } else if (kind.kind === "table") {
+      board.nodes.push(...convertTable(kind, base, board.issues));
+    } else if (kind.kind === "image") {
+      const asset = kind.assetId
+        ? (native.assets[kind.assetId] ?? pasteboard.assets[kind.assetId])
+        : undefined;
+      const image = asset?.bytes ? embeddedImage(asset.bytes) : undefined;
+      if (!image || kind.crop || kind.mask) {
+        issue(
+          "Image bytes missing, unsafe/unsupported format, or unsupported crop/mask.",
+          id,
+        );
+        continue;
+      }
+      board.nodes.push({ ...base, kind: "image", ...image });
+    } else if (kind.kind === "ink") {
+      board.nodes.push(
+        ...convertInk(kind.strokes, id, board.issues).map((node) => ({
+          ...node,
+          groups: [...node.groups, ...groups],
+        })),
+      );
     } else {
       issue(
         `${kind.kind} conversion is not yet validated. Element omitted.`,

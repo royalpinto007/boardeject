@@ -11,3 +11,27 @@ test-results/
 __pycache__/
 *.boardeject
 !examples/*.boardeject
+
+# Internal planning and agent state never belong in the public source tree.
+.agents/
+.agent/
+.codex/
+.claude/
+.codebase-memory/
+AGENTS.md
+CLAUDE.md
+**/x-launch*
+**/launch-notes*
+**/launch-scripts/
+private-prompts/
+scratch/
+tmp/
+captures/
+native-validation-output/
+artifacts/
+*.pem
+*.key
+*.p12
+*.mobileprovision
+.vscode/
+.idea/
