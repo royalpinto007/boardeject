@@ -1,0 +1,6 @@
+node_modules
+dist
+apps/web/public/vendor
+examples/*.boardeject
+examples/*.excalidraw
+tests/fixtures/upstream

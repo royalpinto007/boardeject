@@ -1,0 +1,12 @@
+node_modules/
+dist/
+.DS_Store
+.env*
+!.env.example
+*.log
+.build/
+coverage/
+test-results/
+__pycache__/
+*.boardeject
+!examples/*.boardeject
