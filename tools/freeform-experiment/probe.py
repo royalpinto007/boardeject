@@ -54,6 +54,7 @@ else:
         ui_action("new-board", 'click menu item "New Board" of menu "File" of menu bar item "File" of menu bar 1\ndelay 2\nreturn entire contents of front window')
         run("board-screen", ["screencapture", "-x", str(output / "board.png")])
         for case, action in [
+            ("bound-connectors", 'click menu item "Rectangle" of menu "Shape" of menu item "Shape" of menu "Insert" of menu bar item "Insert" of menu bar 1\nkey code 123 using shift down\nclick menu item "Oval" of menu "Shape" of menu item "Shape" of menu "Insert" of menu bar item "Insert" of menu bar 1\nkey code 124 using shift down\nkeystroke "a" using command down\nclick menu item "Connection Line" of menu "Insert" of menu bar item "Insert" of menu bar 1'),
             ("rich-text", 'click menu item "Text Box" of menu "Insert" of menu bar item "Insert" of menu bar 1\nkeystroke "BoardEject native text 123"\nkeystroke "a" using command down\nkeystroke "b" using command down\nkey code 53'),
             ("table-values", 'click menu item "Table" of menu "Insert" of menu bar item "Insert" of menu bar 1\nkeystroke "Cell A1"\nkey code 48\nkeystroke "Cell B1"\nkey code 53'),
             ("nested-transformed-group", 'click menu item "Rectangle" of menu "Shape" of menu item "Shape" of menu "Insert" of menu bar item "Insert" of menu bar 1\nclick menu item "Oval" of menu "Shape" of menu item "Shape" of menu "Insert" of menu bar item "Insert" of menu bar 1\nkeystroke "a" using command down\nclick menu item "Group" of menu "Arrange" of menu bar item "Arrange" of menu bar 1\nclick menu item "Rectangle" of menu "Shape" of menu item "Shape" of menu "Insert" of menu bar item "Insert" of menu bar 1\nkeystroke "a" using command down\nclick menu item "Group" of menu "Arrange" of menu bar item "Arrange" of menu bar 1\nkey code 124 using shift down'),
@@ -64,6 +65,9 @@ else:
             ui_action(case + "-copy", 'key code 53\nkeystroke "a" using command down\nkeystroke "c" using command down\ndelay 1\nreturn entire contents of front window')
             run(case + "-dump", [str(dumper), str(output / case)])
             run(case + "-screen", ["screencapture", "-x", str(output / (case + ".png"))])
+        ui_action("ink-controls", 'return {name of every menu item of menu "Insert" of menu bar item "Insert" of menu bar 1, entire contents of front window}')
+        results["inkLimitation"] = "No pen/eraser creation command was observed in the macOS Insert menu. No fabricated PKDrawing is injected. Variable-width/erasure capture remains unverified."
+        results["transformLimitation"] = "Nested grouping and keyboard translation attempted. Rotation and scale are not yet driven or verified by this UI recipe."
 
 results["cases"] = {name: ("UI commands attempted; inspect logs and manifest, not verified" if name + "-edit" in results else "not attempted") for name in ["nested-transformed-group", "bound-connectors", "rich-text", "table-values", "variable-width-erased-ink"]}
 results["capturesVerified"] = False
