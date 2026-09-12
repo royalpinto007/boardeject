@@ -45,6 +45,24 @@ else:
         # Discover actual menus before attempting version-dependent UI commands.
         script("menu-inventory", 'tell application "System Events"\n tell process "Freeform"\n return entire contents of menu bar 1\n end tell\nend tell')
         results["nextStep"] = "UI access passed. Inspect actual menus and onboarding state before adding test-case interactions. No semantic capture is claimed by this probe."
+        def ui_action(name, action):
+            return script(name, 'tell application "System Events"\n tell process "Freeform"\n' + action + '\n end tell\nend tell')
+
+        dumper = output / "pasteboard-dump"
+        run("compile-dumper", ["xcrun", "swiftc", "tools/freeform-experiment/dump.swift", "-o", str(dumper)], 90)
+        ui_action("new-board", 'click menu item "New Board" of menu "File" of menu bar item "File" of menu bar 1\ndelay 2\nreturn entire contents of front window')
+        run("board-screen", ["screencapture", "-x", str(output / "board.png")])
+        for case, action in [
+            ("rich-text", 'click menu item "Text Box" of menu "Insert" of menu bar item "Insert" of menu bar 1\nkeystroke "BoardEject native text 123"\nkeystroke "a" using command down\nkeystroke "b" using command down\nkey code 53'),
+            ("table-values", 'click menu item "Table" of menu "Insert" of menu bar item "Insert" of menu bar 1\nkeystroke "Cell A1"\nkey code 48\nkeystroke "Cell B1"\nkey code 53'),
+            ("nested-transformed-group", 'click menu item "Rectangle" of menu "Shape" of menu item "Shape" of menu "Insert" of menu bar item "Insert" of menu bar 1\nclick menu item "Oval" of menu "Shape" of menu item "Shape" of menu "Insert" of menu bar item "Insert" of menu bar 1\nkeystroke "a" using command down\nclick menu item "Group" of menu "Arrange" of menu bar item "Arrange" of menu bar 1\nclick menu item "Rectangle" of menu "Shape" of menu item "Shape" of menu "Insert" of menu bar item "Insert" of menu bar 1\nkeystroke "a" using command down\nclick menu item "Group" of menu "Arrange" of menu bar item "Arrange" of menu bar 1\nkey code 124 using shift down'),
+        ]:
+            ui_action(case + "-new", 'click menu item "New Board" of menu "File" of menu bar item "File" of menu bar 1\ndelay 1')
+            run(case + "-clear", [str(dumper), str(output / case), "--clear"])
+            ui_action(case + "-edit", action)
+            ui_action(case + "-copy", 'key code 53\nkeystroke "a" using command down\nkeystroke "c" using command down\ndelay 1\nreturn entire contents of front window')
+            run(case + "-dump", [str(dumper), str(output / case)])
+            run(case + "-screen", ["screencapture", "-x", str(output / (case + ".png"))])
 
 results["cases"] = {name: "not attempted: capability probe only" for name in ["nested-transformed-group", "bound-connectors", "rich-text", "table-values", "variable-width-erased-ink"]}
 results["capturesVerified"] = False
