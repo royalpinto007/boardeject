@@ -50,6 +50,7 @@ else:
 
         dumper = output / "pasteboard-dump"
         run("compile-dumper", ["xcrun", "swiftc", "tools/freeform-experiment/dump.swift", "-o", str(dumper)], 90)
+        ui_action("onboarding", 'if exists static text "Welcome to Freeform" of group 1 of front window then\n click at {510, 635}\n delay 2\nend if\nreturn entire contents of front window')
         ui_action("new-board", 'click menu item "New Board" of menu "File" of menu bar item "File" of menu bar 1\ndelay 2\nreturn entire contents of front window')
         run("board-screen", ["screencapture", "-x", str(output / "board.png")])
         for case, action in [
@@ -64,7 +65,7 @@ else:
             run(case + "-dump", [str(dumper), str(output / case)])
             run(case + "-screen", ["screencapture", "-x", str(output / (case + ".png"))])
 
-results["cases"] = {name: "not attempted: capability probe only" for name in ["nested-transformed-group", "bound-connectors", "rich-text", "table-values", "variable-width-erased-ink"]}
+results["cases"] = {name: ("UI commands attempted; inspect logs and manifest, not verified" if name + "-edit" in results else "not attempted") for name in ["nested-transformed-group", "bound-connectors", "rich-text", "table-values", "variable-width-erased-ink"]}
 results["capturesVerified"] = False
 (output / "summary.json").write_text(json.dumps(results, indent=2))
 print(json.dumps(results, indent=2))
