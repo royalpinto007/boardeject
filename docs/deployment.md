@@ -6,11 +6,12 @@ This deployment is not a versioned release or a claim of complete native fidelit
 ```sh
 npm ci
 npm run build
-npx wrangler pages deploy dist --project-name boardeject --branch main --force
+npx wrangler pages deploy dist --project-name boardeject --branch main
 ```
 
-Wrangler 4.131.1 requires `--force` to select the existing Pages implementation
-instead of delegating to Workers. Supply `CLOUDFLARE_API_TOKEN` and
+The Pages project already exists. Initial project creation used `--force` to
+avoid Wrangler's Workers delegation; subsequent deployments do not need it.
+Supply `CLOUDFLARE_API_TOKEN` and
 `CLOUDFLARE_ACCOUNT_ID` through the environment. Never commit credentials or
 put them in frontend environment variables. No board-processing server is deployed.
 
