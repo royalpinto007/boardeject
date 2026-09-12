@@ -4,6 +4,11 @@ from playwright.sync_api import sync_playwright
 
 def open_example(page, base="http://127.0.0.1:4190"):
     page.goto(base + "/?debug")
+    page.locator(".hero").wait_for()
+    for link in page.locator('a[href^="https://"]').all():
+        assert link.get_attribute("target") == "_blank"
+        assert "noopener" in (link.get_attribute("rel") or "")
+    assert page.locator('a[href="#import"]').get_attribute("target") is None
     page.get_by_role("button", name="Try example board").click()
     page.get_by_role("button", name="Open in Excalidraw").click()
     page.wait_for_function("() => typeof window.boardejectSnapshot === 'function'")

@@ -96,6 +96,8 @@ function App() {
           <a href="#demo">See it work</a>
           <a
             href="https://github.com/royalpinto007/boardeject"
+            target="_blank"
+            rel="noopener noreferrer"
             className="nav-source"
           >
             GitHub ↗
@@ -172,7 +174,11 @@ function App() {
               Bring a capture from the macOS helper. Inspect what converted, see
               what didn’t, and download your editable board.
             </p>
-            <a href="https://github.com/royalpinto007/boardeject/blob/main/docs/clipboard.md">
+            <a
+              target="_blank"
+              rel="noopener noreferrer"
+              href="https://github.com/royalpinto007/boardeject/blob/main/docs/clipboard.md"
+            >
               Set up the macOS helper ↗
             </a>
             <p className="fine">
@@ -371,10 +377,16 @@ function App() {
             <a
               className="button"
               href="https://github.com/royalpinto007/boardeject/issues"
+              target="_blank"
+              rel="noopener noreferrer"
             >
               Find a contributor issue ↗
             </a>
-            <a href="https://github.com/royalpinto007/boardeject/blob/main/docs/fidelity.md">
+            <a
+              target="_blank"
+              rel="noopener noreferrer"
+              href="https://github.com/royalpinto007/boardeject/blob/main/docs/fidelity.md"
+            >
               Read the support details ↗
             </a>
           </div>
@@ -390,7 +402,11 @@ function App() {
             <p>Your board. Your format.</p>
           </div>
           <div className="footer-links">
-            <a href="https://github.com/royalpinto007/boardeject">
+            <a
+              target="_blank"
+              rel="noopener noreferrer"
+              href="https://github.com/royalpinto007/boardeject"
+            >
               Source code ↗
             </a>
             <a
