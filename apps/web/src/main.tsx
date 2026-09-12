@@ -80,6 +80,9 @@ function App() {
   }
   return (
     <>
+      <a className="skip-link" href="#main-content">
+        Skip to content
+      </a>
       {editing && board && (
         <Suspense fallback={<p role="status">Opening Excalidraw…</p>}>
           <Editor document={convert(board)} onClose={() => setEditing(false)} />
@@ -99,7 +102,7 @@ function App() {
           </a>
         </nav>
       </header>
-      <main className="landing">
+      <main className="landing" id="main-content" tabIndex={-1}>
         <section className="hero" aria-labelledby="hero-title">
           <div className="hero-copy">
             <a className="preview-badge" href="#preview-status">
