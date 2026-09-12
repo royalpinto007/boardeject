@@ -1,0 +1,41 @@
+# Fidelity and evidence
+
+BoardEject is an incomplete private development preview, not a released exporter.
+
+## What has actually been tested
+
+- libfreeform 1.0.0 decodes the upstream binary regression fixtures.
+- Invalid envelopes and duplicate clipboard types are rejected.
+- Unknown/unsupported native versions do not produce fabricated output.
+- The converter produces individual text, shape and freedraw objects.
+- Synthetic arrows have reciprocal Excalidraw element bindings.
+- Synthetic grouped objects retain group identifiers.
+
+## Important native parser limitations
+
+The upstream `native-mixed` fixture exposes three identities but no geometry.
+The upstream `real-board` capture declares minimum version 7, which the decoder
+marks unsupported. Its decoded data lacks several text bodies, connector
+relationships, table cell data and image bytes. BoardEject withholds export of
+this capture. It does not infer omitted text or turn unknown presets into
+rectangles.
+
+The native adapter currently accepts only explicit supported versions, bounded
+canvas-space geometry, a small explicit shape-preset mapping, recovered plain
+text, and connectors with recovered endpoints. These adapter paths still need
+per-element native fixtures and real-device validation. They are not a support
+promise.
+
+## Not yet implemented or validated
+
+- Full native group transforms and hierarchy
+- PencilKit B-spline sampling and variable-width strokes
+- Native embedded image extraction and safe format conversion
+- Editable native tables and merged cells
+- Rich text runs, font matching, path shapes and routing
+- Full affine, flipped and nested geometry
+- Actual Freeform Cmd+C capture and macOS helper execution
+
+The example board is synthetic. It is a converter demonstration, not a captured
+Apple Freeform board. No simulated Freeform UI or copy footage should be used in
+the demo.
