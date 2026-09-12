@@ -1,0 +1,39 @@
+name: Apple native validation
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  native:
+    runs-on: macos-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Inspect runner
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/boardeject-native"
+          sw_vers | tee "$RUNNER_TEMP/boardeject-native/macos.txt"
+          xcodebuild -version | tee "$RUNNER_TEMP/boardeject-native/xcode.txt"
+          if test -d /System/Applications/Freeform.app || test -d /Applications/Freeform.app; then
+            echo 'Freeform.app is present (not launched).'
+          else
+            echo 'Freeform.app is absent on this runner.'
+          fi
+      - name: Compile and run Apple framework validation
+        shell: bash
+        run: |
+          set -euo pipefail
+          xcrun swiftc tools/native-validation/main.swift -o "$RUNNER_TEMP/boardeject-native-tool" 2>&1 | tee "$RUNNER_TEMP/boardeject-native/compile.log"
+          "$RUNNER_TEMP/boardeject-native-tool" "$RUNNER_TEMP/boardeject-native" 2>&1 | tee "$RUNNER_TEMP/boardeject-native/run.log"
+      - name: Upload native evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: boardeject-native-${{ github.run_id }}
+          path: ${{ runner.temp }}/boardeject-native/
+          if-no-files-found: error
+          retention-days: 14
