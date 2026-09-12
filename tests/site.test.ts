@@ -29,7 +29,7 @@ describe("public website essentials", () => {
   it("provides server-readable sharing metadata and a 1200 by 630 PNG", () => {
     expect(html).toContain('property="og:image"');
     expect(html).toContain('name="twitter:card"');
-    expect(html).toContain("<noscript>");
+    expect(html).toMatch(/<noscript\s*>/);
     const png = readFileSync(asset("social-preview.png"));
     expect(png.readUInt32BE(16)).toBe(1200);
     expect(png.readUInt32BE(20)).toBe(630);
