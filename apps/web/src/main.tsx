@@ -1,14 +1,17 @@
-import { useRef, useState } from "react";
+import { lazy, Suspense, useRef, useState } from "react";
 import { createRoot } from "react-dom/client";
 import { exampleBoard } from "../../../examples/board";
 import type { Board } from "../../../packages/board-model/index";
 import { convert } from "../../../packages/excalidraw-converter/index";
 import "./style.css";
+Object.assign(window, { EXCALIDRAW_ASSET_PATH: "/vendor/excalidraw/" });
+const Editor = lazy(() => import("./editor"));
 
 function App() {
   const [board, setBoard] = useState<Board>();
   const [status, setStatus] = useState("");
   const [busy, setBusy] = useState(false);
+  const [editing, setEditing] = useState(false);
   const file = useRef<HTMLInputElement>(null);
   function parse(source: string) {
     if (source.length > 45 * 1024 * 1024) {
@@ -16,7 +19,7 @@ function App() {
       return;
     }
     setBusy(true);
-    setStatus("Decoding locally…");
+    setStatus("Reading your board…");
     const worker = new Worker(new URL("./worker.ts", import.meta.url), {
       type: "module",
     });
@@ -66,11 +69,16 @@ function App() {
   }
   return (
     <>
+      {editing && board && (
+        <Suspense fallback={<p role="status">Opening Excalidraw…</p>}>
+          <Editor document={convert(board)} onClose={() => setEditing(false)} />
+        </Suspense>
+      )}
       <header>
         <a href="/" className="brand">
           <span aria-hidden="true">↗</span> BoardEject
         </a>
-        <span className="local">● Local-first / private preview</span>
+        <span className="local">Your ideas. No lock-in.</span>
       </header>
       <main>
         <div className="eyebrow">AN EXIT FOR YOUR IDEAS</div>
@@ -227,7 +235,14 @@ function App() {
                     )}
                   </svg>
                 </div>
-                <button onClick={download}>Download .excalidraw ↓</button>
+                <div className="actions">
+                  <button onClick={() => setEditing(true)}>
+                    Open in Excalidraw ↗
+                  </button>
+                  <button className="secondary" onClick={download}>
+                    Download .excalidraw ↓
+                  </button>
+                </div>
                 <p className="fine">
                   Open the downloaded file in Excalidraw. This preview is not an
                   editor.

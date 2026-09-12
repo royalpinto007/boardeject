@@ -24,6 +24,7 @@ const nodes: BoardNode[] = [
     {
       ...node(`card-${index}`, 50 + index * 260, 130, 190, 120, "#eaf3ec"),
       kind: "rectangle",
+      groups: [`label-group-${index}`],
     },
     {
       ...node(`label-${index}`, 75 + index * 260, 172, 145, 34),
