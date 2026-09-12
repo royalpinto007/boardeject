@@ -26,16 +26,18 @@ def prove_editability(page, demo=False):
     page.mouse.down()
     if demo:
         for step in range(1, 61):
-            page.mouse.move(x, y - 90 * step / 60)
+            page.mouse.move(x, y + 45 * step / 60)
             page.wait_for_timeout(25)
     else:
-        page.mouse.move(x, y - 90, steps=35)
+        page.mouse.move(x, y + 45, steps=35)
     page.mouse.up()
     page.wait_for_timeout(350)
     after = page.evaluate("window.boardejectSnapshot().elements")
     old = {e["id"]: e for e in before}
     new = {e["id"]: e for e in after}
-    assert new["card-1"]["y"] < old["card-1"]["y"] - 50
+    assert new["card-1"]["y"] > old["card-1"]["y"] + 40
+    assert new["card-1"]["y"] > new["title"]["y"] + new["title"]["height"] + 20
+    assert new["card-1"]["y"] + new["card-1"]["height"] < new["scribble"]["y"] - 20
     assert new["arrow-0"]["points"] != old["arrow-0"]["points"]
     assert new["arrow-0"]["endBinding"]["elementId"] == "card-1"
     if demo:
