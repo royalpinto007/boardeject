@@ -6,7 +6,7 @@ def open_example(page, base="http://127.0.0.1:4190"):
     page.goto(base + "/?debug")
     page.get_by_role("button", name="Try example board").click()
     page.get_by_role("button", name="Open in Excalidraw").click()
-    page.wait_for_function("typeof window.boardejectSnapshot === 'function'")
+    page.wait_for_function("() => typeof window.boardejectSnapshot === 'function'")
     page.wait_for_timeout(600)
 
 
@@ -66,6 +66,9 @@ if __name__ == "__main__":
         assert not errors, errors
         assert not remote, remote
         page.get_by_role("button", name="BoardEject").click()
+        page.locator("video").evaluate("video => video.play()")
+        page.wait_for_timeout(500)
+        assert page.locator("video").evaluate("video => video.currentTime > 0 && video.videoWidth > 0 && !video.error")
         for width in (360, 768, 1280):
             page.set_viewport_size({"width": width, "height": 900})
             assert page.evaluate("document.documentElement.scrollWidth <= innerWidth")

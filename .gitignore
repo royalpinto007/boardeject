@@ -2,6 +2,7 @@ node_modules/
 .wrangler/
 .dev.vars*
 apps/web/public/vendor/
+apps/web/public/media/
 dist/
 .DS_Store
 .env*

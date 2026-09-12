@@ -13,6 +13,17 @@ function App() {
   const [busy, setBusy] = useState(false);
   const [editing, setEditing] = useState(false);
   const file = useRef<HTMLInputElement>(null);
+  function example() {
+    setBoard(exampleBoard);
+    setStatus(
+      "Synthetic example loaded. This demonstrates editable output, not a captured Freeform board.",
+    );
+    window.setTimeout(
+      () =>
+        document.getElementById("result")?.scrollIntoView({ block: "center" }),
+      0,
+    );
+  }
   function parse(source: string) {
     if (source.length > 45 * 1024 * 1024) {
       setStatus("Capture is too large. Maximum 45 MiB.");
@@ -74,102 +85,147 @@ function App() {
           <Editor document={convert(board)} onClose={() => setEditing(false)} />
         </Suspense>
       )}
-      <header>
+      <header className="site-header">
         <a href="/" className="brand">
           <span aria-hidden="true">↗</span> BoardEject
         </a>
-        <span className="local">Your ideas. No lock-in.</span>
-      </header>
-      <main>
-        <aside className="import" aria-label="Development preview">
-          <strong>Development preview. Help build the escape route.</strong>
-          <p>
-            Try the editable sample today. Native Freeform conversion is
-            incomplete: groups, ink and clipboard fidelity still need
-            validation. Keep your original board.
-          </p>
-          <a href="https://github.com/royalpinto007/boardeject/issues">
-            Explore contributor issues ↗
-          </a>
-          {" · "}
-          <a href="https://github.com/royalpinto007/boardeject/blob/main/docs/fidelity.md">
-            Supported features and limitations
-          </a>
-        </aside>
-        <div className="eyebrow">AN EXIT FOR YOUR IDEAS</div>
-        <h1>
-          Your board.
-          <br />
-          <span>Your format.</span>
-        </h1>
-        <p className="intro">
-          Copy your ideas out of Apple Freeform.
-          <br />
-          Keep them editable in Excalidraw.
-        </p>
-        <section className="import" aria-label="Import board">
-          <div className="import-icon" aria-hidden="true">
-            ↥
-          </div>
-          <h2>Bring your board with you.</h2>
-          <p>
-            Import a clipboard capture from the macOS helper.
-            <br />
-            Your board stays on this device.
-          </p>
-          <div className="actions">
-            <button disabled={busy} onClick={clipboard}>
-              Import Freeform Clipboard <span>↗</span>
-            </button>
-            <button
-              className="secondary"
-              disabled={busy}
-              onClick={() => file.current?.click()}
-            >
-              Choose capture file
-            </button>
-          </div>
-          <input
-            hidden
-            ref={file}
-            type="file"
-            accept=".boardeject,application/json"
-            onChange={async (event) => {
-              const selected = event.target.files?.[0];
-              if (!selected) return;
-              if (selected.size > 45 * 1024 * 1024) {
-                setStatus("Capture exceeds 45 MiB.");
-                return;
-              }
-              parse(await selected.text());
-              event.target.value = "";
-            }}
-          />
-          <p className="fine">
-            macOS helper required. Real Freeform clipboard validation is
-            pending.
-          </p>
-        </section>
-        <p role="status" className="status">
-          {status}
-        </p>
-        <div className="try">
-          <span>No Mac? Explore the output.</span>
-          <button
-            className="text-button"
-            disabled={busy}
-            onClick={() => {
-              setBoard(exampleBoard);
-              setStatus(
-                "Synthetic example loaded. This demonstrates the converter, not a captured Freeform board.",
-              );
-            }}
+        <nav aria-label="Main navigation">
+          <a href="#demo">See it work</a>
+          <a
+            href="https://github.com/royalpinto007/boardeject"
+            className="nav-source"
           >
-            Try example board ↗
-          </button>
+            GitHub ↗
+          </a>
+        </nav>
+      </header>
+      <main className="landing">
+        <section className="hero" aria-labelledby="hero-title">
+          <div className="hero-copy">
+            <a className="preview-badge" href="#preview-status">
+              <span /> Open-source · Development preview{" "}
+              <span aria-hidden="true">↗</span>
+            </a>
+            <h1 id="hero-title">
+              Your board.
+              <br />
+              <span>Your format.</span>
+            </h1>
+            <p className="intro">
+              An editable escape route from Apple Freeform to Excalidraw. Keep
+              working on your ideas, not a picture of them.
+            </p>
+            <div className="actions hero-actions">
+              <button onClick={example} disabled={busy}>
+                Try example board <span aria-hidden="true">↗</span>
+              </button>
+              <a className="button secondary" href="#import">
+                Import your board <span aria-hidden="true">↓</span>
+              </a>
+            </div>
+            <p className="hero-note">
+              No account. No uploads. Your board stays yours.
+            </p>
+          </div>
+          <figure className="demo" id="demo">
+            <div className="demo-bar">
+              <span className="demo-dot" />{" "}
+              <span>An editable board, in action</span>
+              <span className="file-tag">.excalidraw</span>
+            </div>
+            <video
+              controls
+              muted
+              playsInline
+              preload="metadata"
+              poster="/media/demo-poster.png"
+              aria-label="Demo: moving a card, following connectors, and editing text in Excalidraw"
+            >
+              <source src="/media/demo.mp4" type="video/mp4" />
+              <a href="/media/demo.mp4">Watch the board editing demo</a>
+            </video>
+            <figcaption>
+              <strong>Move a card. The arrow follows.</strong>
+              <span>Real app recording · Synthetic example board</span>
+            </figcaption>
+          </figure>
+        </section>
+        <div className="flow" aria-label="Conversion workflow">
+          <span>Apple Freeform</span>
+          <span aria-hidden="true">→</span>
+          <span>Copy + macOS helper</span>
+          <span aria-hidden="true">→</span>
+          <strong>BoardEject</strong>
+          <span aria-hidden="true">→</span>
+          <span>Editable Excalidraw</span>
         </div>
+        <section className="workspace" id="import" aria-label="Import board">
+          <div className="workspace-copy">
+            <h2>
+              A new format. <br />
+              Not a fresh start.
+            </h2>
+            <p>
+              Bring a capture from the macOS helper. Inspect what converted, see
+              what didn’t, and download your editable board.
+            </p>
+            <a href="https://github.com/royalpinto007/boardeject/blob/main/docs/clipboard.md">
+              Set up the macOS helper ↗
+            </a>
+            <p className="fine">
+              Browser paste alone can’t read Apple’s native Freeform clipboard.
+              The helper bridges that gap.
+            </p>
+          </div>
+          <div className="import">
+            <div className="import-icon" aria-hidden="true">
+              ↥
+            </div>
+            <h3>Import a Freeform capture</h3>
+            <p>Import a clipboard capture from the macOS helper.</p>
+            <div className="actions">
+              <button disabled={busy} onClick={clipboard}>
+                Import Freeform Clipboard <span>↗</span>
+              </button>
+              <button
+                className="secondary"
+                disabled={busy}
+                onClick={() => file.current?.click()}
+              >
+                Choose capture file
+              </button>
+            </div>
+            <input
+              hidden
+              ref={file}
+              type="file"
+              accept=".boardeject,application/json"
+              onChange={async (event) => {
+                const selected = event.target.files?.[0];
+                if (!selected) return;
+                if (selected.size > 45 * 1024 * 1024) {
+                  setStatus("Capture exceeds 45 MiB.");
+                  return;
+                }
+                parse(await selected.text());
+                event.target.value = "";
+              }}
+            />
+            <p className="fine">
+              macOS helper required. Real Freeform clipboard validation is
+              pending.
+            </p>
+            <p role="status" className="status">
+              {status}
+            </p>
+          </div>
+        </section>
         {board && (
-          <section className="result">
+          <section
+            className="result"
+            id="result"
+            aria-label="Conversion result"
+          >
             <div className="result-heading">
               <div className="eyebrow">
                 {board.source === "synthetic-example"
@@ -276,18 +332,76 @@ function App() {
             </details>
           </section>
         )}
-        <footer>
-          <span>
-            Apple Freeform → Copy board → BoardEject → Editable Excalidraw
-          </span>
-          <p>No account. No uploads. No lock-in.</p>
-          <a
-            href="https://www.buymeacoffee.com/royalpinto007"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Buy me a coffee ↗
-          </a>
+        <section
+          className="contribute"
+          id="preview-status"
+          aria-labelledby="preview-title"
+        >
+          <div className="contribute-heading">
+            <span className="preview-badge">Built in the open</span>
+            <h2 id="preview-title">Help build the escape route.</h2>
+            <p>
+              The editable example works today. Native Freeform conversion is
+              still a development preview, not a finished exporter.
+            </p>
+          </div>
+          <div className="fidelity-grid">
+            <div>
+              <span className="state-label">Try now</span>
+              <h3>Real editable output</h3>
+              <p>
+                Move shapes, edit text, and watch bound arrows follow in the
+                synthetic example. Export a standard .excalidraw file.
+              </p>
+            </div>
+            <div>
+              <span className="state-label">Needs validation</span>
+              <h3>Native board fidelity</h3>
+              <p>
+                Groups, PencilKit ink and real clipboard captures still need
+                validation. Keep your original board; unsupported elements are
+                reported.
+              </p>
+            </div>
+          </div>
+          <div className="contribute-links">
+            <a
+              className="button"
+              href="https://github.com/royalpinto007/boardeject/issues"
+            >
+              Find a contributor issue ↗
+            </a>
+            <a href="https://github.com/royalpinto007/boardeject/blob/main/docs/fidelity.md">
+              Read the support details ↗
+            </a>
+          </div>
+        </section>
+        <footer className="site-footer">
+          <div>
+            <a href="/" className="brand">
+              BoardEject
+              <span className="footer-arrow" aria-hidden="true">
+                ↗
+              </span>
+            </a>
+            <p>Your board. Your format.</p>
+          </div>
+          <div className="footer-links">
+            <a href="https://github.com/royalpinto007/boardeject">
+              Source code ↗
+            </a>
+            <a
+              href="https://www.buymeacoffee.com/royalpinto007"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Buy me a coffee ↗
+            </a>
+          </div>
+          <p className="footer-disclaimer">
+            Independent open-source project. Not affiliated with Apple or
+            Excalidraw.
+          </p>
         </footer>
       </main>
     </>
