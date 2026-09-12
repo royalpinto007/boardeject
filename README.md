@@ -2,6 +2,8 @@
 
 **Your board. Your format.**
 
+[Try the development preview](https://boardeject.dev) · [Help with open issues](https://github.com/royalpinto007/boardeject/issues)
+
 [Buy me a coffee](https://www.buymeacoffee.com/royalpinto007)
 
 Turn Apple Freeform boards into editable Excalidraw files.
@@ -82,8 +84,9 @@ Excalidraw and demonstrate converter output, not the unverified Freeform copy st
 - Add a one-click native helper onboarding flow.
 - Publish v0.0.1 after owner approval and domain setup.
 
-The repository stays private for now. No release, package publication or domain
-deployment is authorized yet.
+The public repository and website are a contributor preview, not a stable release.
+No v0.0.1 or package release has been published. Native fidelity validation is
+the release gate. Contributions and non-sensitive test captures are welcome.
 
 ## Contributing and credits
 

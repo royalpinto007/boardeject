@@ -81,6 +81,21 @@ function App() {
         <span className="local">Your ideas. No lock-in.</span>
       </header>
       <main>
+        <aside className="import" aria-label="Development preview">
+          <strong>Development preview. Help build the escape route.</strong>
+          <p>
+            Try the editable sample today. Native Freeform conversion is
+            incomplete: groups, ink and clipboard fidelity still need
+            validation. Keep your original board.
+          </p>
+          <a href="https://github.com/royalpinto007/boardeject/issues">
+            Explore contributor issues ↗
+          </a>
+          {" · "}
+          <a href="https://github.com/royalpinto007/boardeject/blob/main/docs/fidelity.md">
+            Supported features and limitations
+          </a>
+        </aside>
         <div className="eyebrow">AN EXIT FOR YOUR IDEAS</div>
         <h1>
           Your board.

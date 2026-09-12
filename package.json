@@ -31,19 +31,20 @@
     "lodash-es": "4.18.1"
   },
   "dependencies": {
-    "libfreeform": "1.0.0",
     "@excalidraw/excalidraw": "0.18.1",
+    "libfreeform": "1.0.0",
     "react": "18.3.1",
     "react-dom": "18.3.1"
   },
   "devDependencies": {
+    "@types/node": "26.5.0",
     "@types/react": "19.3.0",
     "@types/react-dom": "19.3.0",
-    "@types/node": "26.5.0",
+    "oxlint": "1.82.0",
+    "prettier": "3.9.6",
     "typescript": "7.0.2",
     "vite": "8.3.0",
     "vitest": "5.0.0",
-    "oxlint": "1.82.0",
-    "prettier": "3.9.6"
+    "wrangler": "^4.131.1"
   }
 }

@@ -1,6 +1,6 @@
 # Fidelity and evidence
 
-BoardEject is an incomplete private development preview, not a released exporter.
+BoardEject is an open-source development preview, not a stable released exporter.
 
 ## What has actually been tested
 
