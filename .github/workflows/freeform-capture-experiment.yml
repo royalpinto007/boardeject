@@ -1,0 +1,25 @@
+name: Freeform UI capture experiment
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  probe:
+    runs-on: macos-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Probe actual Freeform session
+        env:
+          CAPTURE_OUTPUT: ${{ runner.temp }}/freeform-capture-experiment
+        run: python3 tools/freeform-experiment/probe.py
+      - name: Upload experimental evidence only
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: freeform-experiment-${{ github.run_id }}
+          path: ${{ runner.temp }}/freeform-capture-experiment/
+          retention-days: 7
+          if-no-files-found: error
