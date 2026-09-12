@@ -2,6 +2,8 @@
 
 **Your board. Your format.**
 
+[Buy me a coffee](https://www.buymeacoffee.com/royalpinto007)
+
 Turn Apple Freeform boards into editable Excalidraw files.
 
 An editable escape route, not another whiteboard. No account, no board uploads,
