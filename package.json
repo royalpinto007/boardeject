@@ -4,7 +4,9 @@
   "private": true,
   "type": "module",
   "license": "MIT",
-  "engines": {"node": ">=22.12"},
+  "engines": {
+    "node": ">=22.12"
+  },
   "scripts": {
     "dev": "vite --host 127.0.0.1 --port 5190",
     "build": "tsc --noEmit && vite build",
@@ -17,6 +19,29 @@
     "demo": "python3 scripts/record_demo.py",
     "fixtures": "node --experimental-strip-types scripts/export-example.ts"
   },
-  "dependencies": {"libfreeform": "1.0.0", "@excalidraw/excalidraw": "0.18.1", "react": "19.3.0", "react-dom": "19.3.0"},
-  "devDependencies": {"@types/react":"19.3.0", "@types/react-dom":"19.3.0", "@types/node":"22.19.15", "typescript":"7.0.2", "vite":"8.3.0", "vitest":"5.0.0", "oxlint":"1.82.0", "prettier":"3.9.6"}
+  "overrides": {
+    "@excalidraw/excalidraw": {
+      "nanoid": "3.3.19"
+    },
+    "@excalidraw/mermaid-to-excalidraw": {
+      "nanoid": "5.1.16"
+    },
+    "lodash-es": "4.18.1"
+  },
+  "dependencies": {
+    "libfreeform": "1.0.0",
+    "@excalidraw/excalidraw": "0.18.1",
+    "react": "18.3.1",
+    "react-dom": "18.3.1"
+  },
+  "devDependencies": {
+    "@types/react": "19.3.0",
+    "@types/react-dom": "19.3.0",
+    "@types/node": "22.19.15",
+    "typescript": "7.0.2",
+    "vite": "8.3.0",
+    "vitest": "5.0.0",
+    "oxlint": "1.82.0",
+    "prettier": "3.9.6"
+  }
 }
