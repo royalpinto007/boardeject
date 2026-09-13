@@ -50,6 +50,8 @@ else:
 
         dumper = output / "pasteboard-dump"
         run("compile-dumper", ["xcrun", "swiftc", "tools/freeform-experiment/dump.swift", "-o", str(dumper)], 90)
+        dragger = output / "mouse-drag"
+        run("compile-dragger", ["xcrun", "swiftc", "tools/freeform-experiment/drag.swift", "-o", str(dragger)], 90)
         ui_action("onboarding", 'if exists static text "Welcome to Freeform" of group 1 of front window then\n click at {510, 635}\n delay 2\nend if\nreturn entire contents of front window')
         ui_action("new-board", 'click menu item "New Board" of menu "File" of menu bar item "File" of menu bar 1\ndelay 2\nreturn entire contents of front window')
         run("board-screen", ["screencapture", "-x", str(output / "board.png")])
@@ -61,13 +63,27 @@ else:
         ]:
             ui_action(case + "-new", 'click menu item "New Board" of menu "File" of menu bar item "File" of menu bar 1\ndelay 1')
             run(case + "-clear", [str(dumper), str(output / case), "--clear"])
-            ui_action(case + "-edit", action)
+            # Menu insertion schedules focus changes. Wait before typing or selecting.
+            paced = "\n".join(line + ("\ndelay 0.6" if line.startswith(("click ", "keystroke ", "key code ")) else "") for line in action.splitlines())
+            ui_action(case + "-edit", paced)
             ui_action(case + "-copy", 'key code 53\nkeystroke "a" using command down\nkeystroke "c" using command down\ndelay 1\nreturn entire contents of front window')
             run(case + "-dump", [str(dumper), str(output / case)])
             run(case + "-screen", ["screencapture", "-x", str(output / (case + ".png"))])
+            if case == "nested-transformed-group":
+                # Coordinates observed in run 34717407645; screenshots must confirm.
+                for stage, coordinates in [
+                    ("scaled", ["658", "570", "608", "520"]),
+                    ("rotated", ["608", "321", "648", "420", "--command"]),
+                ]:
+                    label = case + "-" + stage
+                    run(label + "-drag", [str(dragger), *coordinates])
+                    run(label + "-clear", [str(dumper), str(output / label), "--clear"])
+                    ui_action(label + "-copy", 'keystroke "c" using command down\ndelay 1')
+                    run(label + "-dump", [str(dumper), str(output / label)])
+                    run(label + "-screen", ["screencapture", "-x", str(output / (label + ".png"))])
         ui_action("ink-controls", 'return {name of every menu item of menu "Insert" of menu bar item "Insert" of menu bar 1, entire contents of front window}')
         results["inkLimitation"] = "No pen/eraser creation command was observed in the macOS Insert menu. No fabricated PKDrawing is injected. Variable-width/erasure capture remains unverified."
-        results["transformLimitation"] = "Nested grouping and keyboard translation attempted. Rotation and scale are not yet driven or verified by this UI recipe."
+        results["transformLimitation"] = "Nested grouping, translation, resize and command-drag rotation attempted. Coordinates are runner-layout-specific; compare stage screenshots and payload geometry before declaring success."
 
 results["cases"] = {name: ("UI commands attempted; inspect logs and manifest, not verified" if name + "-edit" in results else "not attempted") for name in ["nested-transformed-group", "bound-connectors", "rich-text", "table-values", "variable-width-erased-ink"]}
 results["capturesVerified"] = False
