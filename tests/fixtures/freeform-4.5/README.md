@@ -58,3 +58,10 @@ a narrow single-object fallback, with explicit image-effect/text approximations.
 Standalone CRL and unrelated version-7 layouts remain unsupported. See
 [fidelity details](../../../docs/fidelity.md). Track
 [issue #14](https://github.com/royalpinto007/boardeject/issues/14).
+
+`text-multiline-combined` comes from [run 34769628939](https://github.com/royalpinto007/boardeject/actions/runs/34769628939),
+recipe commit `7b45754`. Manifest sizes/hashes were verified and the screenshot
+confirms `First Bold` followed by `Both` on the next line, with the final run
+in Helvetica-BoldOblique. Only the unchanged CRL and content JSON are retained.
+The separate size-change attempt still had 18-point runs and is excluded.
+It is not evidence for native size-change support.

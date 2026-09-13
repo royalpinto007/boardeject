@@ -17,6 +17,50 @@ distinguishes native evidence from tested converter behavior.
 
 ## Important native parser limitations
 
+### Why splitting text cannot preserve native mixed styles
+
+The installed Excalidraw 0.18.1 `ExcalidrawTextElement` has one font size,
+numeric font-family ID, alignment and line height. It has no weight, italic,
+per-character runs, native baseline, or glyph-position fields. Its
+[font renderer](https://github.com/excalidraw/excalidraw/blob/v0.18.1/packages/excalidraw/utils.ts#L100)
+constructs the canvas font from size and family only. Splitting a bold/italic
+run into another text element does not add these missing capabilities. Grouping
+does not provide inline reflow or shared baselines when users edit those pieces.
+Custom fonts would require modifying the destination editor and would not travel
+as standard editable text in the downloaded file. Outlining or rasterizing text
+would cease to be text editing.
+
+We therefore retain one coherent editable element with original line breaks and
+keep exact native run descriptors in customData. The genuine multiline fixture
+includes Helvetica-BoldOblique; both bold and italic flags now survive metadata
+conversion. They are not visually rendered. Original font family, kerning,
+baseline, per-run size changes and layout are not claimed to match. Adapter
+tests cover output size/alignment variations, but the attempted native font-size
+shortcut changed nothing and is not promoted as proof.
+
+### Shadow comparison and remaining checklist
+
+`tools/freeform-experiment/compare_shadow.py` compares SVG alpha to the genuine
+Freeform baseline PNG from run 34768466926, without adding the temporary render
+to Git. For that 64×48 image at 2x, the opaque image starts at (6,0) within the
+140×108 render. Across 2,832 pixels outside the source rectangle, sigma 1.5 has
+mean absolute alpha error 7.138/255 versus 9.880/255 for sigma 3. This is a
+single-case improvement, not pixel equality or a general native-radius formula.
+The converter uses 1.5 only for the captured radius 3 / offset 2 / opacity 0.25
+case; other parameters remain approximate. Original mask/pixels and shadow
+offset, color and opacity remain in the SVG. The board is never rasterized.
+
+Absent shadow data produces no invented shadow (adapter regression only).
+An unknown shadow representation still causes safe rejection.
+
+Issue #14 remains open:
+
+- Obtain a genuine no-shadow capture and verify its representation.
+- Validate additional blur radii/directions/colors against native renders.
+- Obtain genuine per-run font-size changes and additional paragraph alignments.
+- Confirm inline layout expectations with a destination model that can represent
+  weight/slant and run metrics, or accept the documented editable approximation.
+
 ### Verified single-object image and text fallback
 
 The content-language sidecar in the new native fixtures now supports a narrow
