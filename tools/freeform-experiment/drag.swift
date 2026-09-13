@@ -6,10 +6,10 @@ let args = CommandLine.arguments
 guard args.count >= 5, let x1 = Double(args[1]), let y1 = Double(args[2]),
       let x2 = Double(args[3]), let y2 = Double(args[4]), CGPreflightPostEventAccess() else { exit(2) }
 let flags: CGEventFlags = args.contains("--command") ? .maskCommand : []
-func event(_ type: CGEventType, _ point: CGPoint) {
+func event(_ type: CGEventType, _ point: CGPoint, clicks: Int64 = 1) {
     let e = CGEvent(mouseEventSource: nil, mouseType: type, mouseCursorPosition: point, mouseButton: .left)!
     e.flags = flags
-    if args.contains("--double") { e.setIntegerValueField(.mouseEventClickState, value: 2) }
+    e.setIntegerValueField(.mouseEventClickState, value: clicks)
     e.post(tap: .cghidEventTap)
     Thread.sleep(forTimeInterval: 0.025)
 }
@@ -17,6 +17,8 @@ event(.mouseMoved, CGPoint(x: x1, y: y1))
 if args.contains("--double") {
     event(.leftMouseDown, CGPoint(x: x1, y: y1))
     event(.leftMouseUp, CGPoint(x: x1, y: y1))
+    event(.leftMouseDown, CGPoint(x: x1, y: y1), clicks: 2)
+    event(.leftMouseUp, CGPoint(x: x1, y: y1), clicks: 2)
     exit(0)
 }
 Thread.sleep(forTimeInterval: 0.3)
