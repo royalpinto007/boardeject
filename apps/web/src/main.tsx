@@ -368,9 +368,10 @@ function App() {
               <span className="state-label">Needs validation</span>
               <h3>Native board fidelity</h3>
               <p>
-                Current version-7 Freeform boards are rejected. Native table
-                geometry and pressure-sensitive/erased ink remain incomplete.
-                Keep your original board; unsupported elements are reported.
+                A verified single-table layout now exports editable cells. Other
+                version-7 layouts and pressure-sensitive/erased ink need more
+                work. Keep your original board; unsupported elements are
+                reported.
               </p>
             </div>
           </div>

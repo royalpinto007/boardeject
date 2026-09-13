@@ -14,8 +14,8 @@ no cloud storage.
 ![Move a shape, watch its connected arrow follow, then edit text](docs/demo.gif)
 
 **v0.0.1 is an early, limited-scope release:** this recording uses a synthetic example to demonstrate
-editable output, not a complete Freeform import. Current version-7 native boards
-are rejected by the decoder. See the support matrix and
+editable output, not a complete Freeform import. Version-7 boards are rejected
+except for the verified single-table recovery described below. See the support matrix and
 [fidelity report](docs/fidelity.md) before importing real work.
 
 [Watch MP4](docs/demo.mp4) · [Try the sample file](examples/example.excalidraw) ·
@@ -61,6 +61,11 @@ exercise file selection, drop, failed input, preview and download. Set
 
 ## Support matrix
 
+**Table update:** native baseline, cell changes/restores and a translated table
+now export four editable cells plus text. Geometry and cell-ID mapping are
+verified for this layout; formatting uses defaults. Other table variants remain
+partial. See [mapping evidence](docs/native-table-mapping.md).
+
 Native capture evidence and working end-to-end conversion are different things.
 Keep your original board and inspect the conversion report.
 
@@ -73,9 +78,9 @@ Keep your original board and inspect the conversion report.
 | Splines and ink                 | Centerline spline endpoints match 25 Apple PencilKit reference samples. Supported decoded ink produces freedraw output. Mac pen captures contain Bézier shapes, not proof of arbitrary path/ink conversion.                                                                             |
 | Pressure-sensitive / erased ink | **Unverified.** [#13](https://github.com/royalpinto007/boardeject/issues/13).                                                                                                                                                                                                           |
 | Images/assets                   | PNG/JPEG embedding tested on decoded-model inputs; native extraction and broader formats are not verified. [#14](https://github.com/royalpinto007/boardeject/issues/14).                                                                                                                |
-| Tables                          | **Partial support: native cell/geometry mapping incomplete.** Real cell changes/restores are regression fixtures; decoded axis-aligned grids are tested separately. [#12](https://github.com/royalpinto007/boardeject/issues/12).                                                       |
+| Tables                          | **Partial:** verified single-table cell IDs, text, dimensions and translation export as grouped editable cells. Styling uses defaults; other layouts remain unsupported. [#12](https://github.com/royalpinto007/boardeject/issues/12).                                                  |
 | Reporting and privacy           | Unsupported elements/versions reported; no fabricated replacement output. Browser processing, no accounts, board uploads or cloud storage.                                                                                                                                              |
-| Freeform version compatibility  | Version-7 captures remain unsupported, including current Freeform 4.5 captures. This release does not claim general current-Freeform compatibility. [#6](https://github.com/royalpinto007/boardeject/issues/6).                                                                         |
+| Freeform version compatibility  | A narrow single-table recovery supports the captured version-7 layout. Other version-7 boards remain unsupported. [#6](https://github.com/royalpinto007/boardeject/issues/6).                                                                                                           |
 
 See [fidelity details](docs/fidelity.md), [native evidence](docs/freeform-capture-experiment.md),
 [privacy](https://boardeject.dev/privacy) and [terms](https://boardeject.dev/terms).

@@ -1,6 +1,7 @@
 import type { FreeformPasteboard, FreeformPaint } from "libfreeform";
 import { embeddedImage, convertInk } from "./media";
 import { convertTable } from "./table";
+import { recoverNativeTable } from "./native-table";
 import { groupMembership } from "./groups";
 import type {
   Board,
@@ -45,6 +46,46 @@ export function normalize(pasteboard: FreeformPasteboard): Board {
   const native = pasteboard.native.value;
   board.sourceItems = native.items.length;
   if (native.compatibility.kind !== "supported") {
+    const table = recoverNativeTable(native);
+    if (table) {
+      board.nodes.push(
+        ...convertTable(
+          {
+            kind: "table",
+            rowHeights: table.rowHeights,
+            columnWidths: table.columnWidths,
+            cells: table.cells.map((cell) => ({
+              row: cell.row,
+              column: cell.column,
+              rowSpan: 1,
+              columnSpan: 1,
+              anchoredItemIds: [],
+              style: { shadows: [] },
+              text: { plain: cell.text, runs: [] },
+            })),
+          },
+          {
+            id: table.id,
+            bounds: table.bounds,
+            groups: [],
+            appearance: {
+              fill: "#ffffff",
+              stroke: "#bfbfbf",
+              strokeWidth: 1,
+              opacity: 1,
+            },
+          },
+          board.issues,
+        ),
+      );
+      board.issues.push({
+        severity: "approximation",
+        itemId: table.id,
+        message:
+          "Recovered a validated single-table layout from native version 7. Cell text, ordering and bounds are retained; fonts, colors, rich text and border styling use defaults. Other version-7 layouts remain unsupported.",
+      });
+      return board;
+    }
     issue(
       "Native format compatibility is not supported. Native objects are withheld; independently decoded drawing strokes may still be exported.",
     );

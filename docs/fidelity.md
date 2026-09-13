@@ -46,7 +46,8 @@ be represented as proof of end-to-end Freeform support.
 - End-to-end conversion of current version-7 Freeform boards
 
 Real Freeform GUI copy now has confirmed captures. Native table differential
-fixtures prove text ordering, not geometry. The version-7 decoder gate remains.
+fixtures now prove cell-ID ordering, dimensions and translation for the single-table
+recovery path. Styling uses defaults. Other version-7 layouts remain rejected.
 Track [tables](https://github.com/royalpinto007/boardeject/issues/12),
 [erased/pressure ink](https://github.com/royalpinto007/boardeject/issues/13) and
 [native assets/rich text](https://github.com/royalpinto007/boardeject/issues/14).

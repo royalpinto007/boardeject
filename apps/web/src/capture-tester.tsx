@@ -116,8 +116,9 @@ export default function CaptureTester() {
         <p>
           Use the macOS helper’s <code>.boardeject</code> file (or its JSON
           envelope). Raw <code>.crlnative</code> and <code>.drawing</code>{" "}
-          fixtures can be inspected without companion assets. Current version-7
-          native boards remain unsupported.
+          fixtures can be inspected without companion assets. A verified
+          single-table layout can be recovered from version 7; other version-7
+          boards remain unsupported.
         </p>
         <a
           href="https://github.com/royalpinto007/boardeject/blob/main/docs/clipboard.md"

@@ -41,6 +41,19 @@ with sync_playwright() as p:
     page.get_by_role("button", name="Preview result").click()
     page.locator(".excalidraw").wait_for()
     page.get_by_role("button", name="BoardEject").click()
+    picker.set_input_files("tests/fixtures/freeform-4.5/tables/table-baseline.crlnative")
+    page.get_by_text("Recovered a validated single-table layout", exact=False).wait_for()
+    with page.expect_download() as table_event:
+        page.get_by_role("button", name="Download .excalidraw").click()
+    table_document = json.loads(Path(table_event.value.path()).read_text())
+    assert len(table_document["elements"]) == 8
+    assert [e["text"] for e in table_document["elements"] if e["type"] == "text"] == ["A1", "B1", "A2", "B2"]
+    # Exercise the ordinary homepage worker with the same native bytes in a helper envelope.
+    import base64
+    envelope = json.dumps({"format":"boardeject.clipboard", "version":1, "flavors":[{"uti":"com.apple.freeform.CRLNativeData", "base64":base64.b64encode(Path("tests/fixtures/freeform-4.5/tables/table-baseline.crlnative").read_bytes()).decode()}]})
+    page.goto(base + "/")
+    page.locator('input[type="file"]').set_input_files({"name":"table.boardeject", "mimeType":"application/json", "buffer":envelope.encode()})
+    page.get_by_role("heading", name="8 editable elements").wait_for()
     for width in (360, 768, 1280):
         page.set_viewport_size({"width": width, "height": 900})
         assert page.evaluate("document.documentElement.scrollWidth <= innerWidth")

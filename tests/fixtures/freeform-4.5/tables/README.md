@@ -22,11 +22,15 @@ Each mutation changes exactly one contiguous byte range in both UTF-8 and RTF.
 
 CRL changes are not isolated text substitutions: mutations alter 128, 132, 98
 and 132 byte ranges respectively. A text match at an arbitrary offset is not
-proof of a cell record or coordinate. Native CRL row/column ownership, board
-coordinates and table geometry are **not yet mapped**. RTF layout dimensions
-are not assumed to be Freeform canvas coordinates.
+proof of a cell record or coordinate. The subsequent record-link decoder maps
+row/column identity and native dimensions directly; it does not derive geometry
+from RTF or byte positions. See [mapping notes](../../../../docs/native-table-mapping.md).
 
-These fixtures verify native text ordering and stable RTF table structure,
-not production table conversion. libfreeform reports minimum version 7 as
-unsupported. The regression tests retain that gate. No production parser
-behavior has been changed on the strength of text-only evidence.
+These fixtures now test production recovery of this single-table layout.
+libfreeform's minimum-version-7 status remains unsupported; a bounded table
+recovery path handles only recognized records and reports styling approximations.
+
+`table-moved.crlnative` comes unchanged from [run 34751899165](https://github.com/royalpinto007/boardeject/actions/runs/34751899165).
+Its manifest length/hash and screenshot were verified before selection. The
+same table moves 20 points right and 10 down; dimensions and cell text remain
+unchanged. The attempted resize did nothing and is not a resizing fixture.
