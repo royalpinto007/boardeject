@@ -49,5 +49,9 @@ must not be inferred from passing unit tests or the synthetic demo.
 
 The [hosted Freeform UI experiment](freeform-capture-experiment.md) subsequently
 confirmed GUI automation is permitted and obtained experimental native payloads.
-They remain temporary Actions artifacts. Intended content and transform semantics
-still require verification; no experimental capture has been promoted.
+Confirmed minimal text, connector and group captures have been promoted with
+provenance in `tests/fixtures/freeform-4.5/`. Table differentials additionally
+verify native row-major text and stable RTF structure; see
+[table evidence](../tests/fixtures/freeform-4.5/tables/README.md).
+Native CRL table geometry and erased/variable-width ink remain unverified.
+The production unsupported-version gate is unchanged.
