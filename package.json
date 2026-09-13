@@ -12,6 +12,7 @@
     "prebuild": "node scripts/prepare-assets.mjs",
     "dev": "vite --host 127.0.0.1 --port 5190",
     "build": "tsc --noEmit && vite build",
+    "postbuild": "node scripts/capture-page.mjs",
     "preview": "vite preview --host 127.0.0.1 --port 4190",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
