@@ -432,6 +432,22 @@ a {
   flex-wrap: wrap;
   gap: 24px;
   padding-top: 12px;
+  align-items: center;
+}
+.footer-links a {
+  white-space: nowrap;
+}
+@media (min-width: 700px) {
+  .footer-links {
+    flex-wrap: nowrap;
+  }
+}
+@media (max-width: 699px) {
+  .footer-links {
+    display: grid;
+    grid-template-columns: repeat(2, auto);
+    gap: 12px 24px;
+  }
 }
 .footer-disclaimer {
   flex-basis: 100%;
@@ -541,7 +557,7 @@ a {
 }
 @media (max-width: 390px) {
   .site-header nav > a:first-child {
-    display: none;
+    display: inline;
   }
   .hero-actions {
     gap: 8px;

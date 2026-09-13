@@ -94,7 +94,7 @@ function App() {
           <span aria-hidden="true">↗</span> BoardEject
         </a>
         <nav aria-label="Main navigation">
-          <a href="#demo">See it work</a>
+          <a href="/test-capture">Test a capture ↗</a>
           <a
             href="https://github.com/royalpinto007/boardeject"
             target="_blank"

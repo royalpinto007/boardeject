@@ -101,7 +101,7 @@ export default function CaptureTester() {
     <>
       <header className="site-header">
         <a className="brand" href="/">
-          ↗ BoardEject
+          <img src="/favicon.svg" width="34" height="34" alt="" /> BoardEject
         </a>
         <a href="/">Normal import</a>
       </header>
@@ -135,6 +135,9 @@ export default function CaptureTester() {
           }}
           aria-label="Capture file drop area"
         >
+          <span className="capture-icon" aria-hidden="true">
+            ↥
+          </span>
           <label htmlFor="capture-file">
             Choose capture file or drop it here
           </label>
@@ -153,6 +156,27 @@ export default function CaptureTester() {
             previous result.
           </small>
         </section>
+        <aside className="capture-samples">
+          <div>
+            <strong>No capture handy?</strong>
+            <p>
+              Try a public libfreeform fixture. Download it, then choose it
+              above.
+            </p>
+          </div>
+          <a href="/samples/ink-pen.drawing" download>
+            Download ink sample ↗
+          </a>
+          <a href="/samples/real-board.crlnative" download>
+            Download unsupported board ↗
+          </a>
+          <small>
+            The ink sample tests editable output. The board sample tests the
+            version-7 rejection report. These are upstream parser fixtures; the
+            ink sample does not prove Freeform pressure fidelity.{" "}
+            <a href="/samples/NOTICE.md">Source and license</a>.
+          </small>
+        </aside>
         <p role="status" aria-live="polite">
           {busy
             ? status

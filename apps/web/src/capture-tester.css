@@ -28,6 +28,90 @@
 .capture-drop input {
   max-width: 100%;
 }
+.capture-drop input::file-selector-button {
+  background: #264b36;
+  color: #fffdf7;
+  border: 0;
+  padding: 14px 22px;
+  border-radius: 9px;
+  font: inherit;
+  font-weight: 600;
+  margin-right: 14px;
+  cursor: pointer;
+}
+.capture-drop {
+  text-align: center;
+  justify-items: center;
+  padding: 40px 24px;
+  border: 1px dashed #9baa91;
+  background: linear-gradient(145deg, #fffefa, #edf0e5);
+}
+.capture-icon {
+  display: grid;
+  place-items: center;
+  width: 56px;
+  height: 56px;
+  background: #264b36;
+  color: #fff;
+  border-radius: 16px;
+  font-size: 32px;
+}
+.capture-drop label {
+  font-size: 21px;
+  letter-spacing: -0.5px;
+}
+.capture-tester .preview-badge {
+  display: inline-flex;
+  border: 1px solid #cad4bd;
+  border-radius: 30px;
+  padding: 6px 12px;
+  font-size: 12px;
+  background: #ecf0e5;
+}
+.capture-tester h1 {
+  margin: 24px 0;
+}
+.capture-samples {
+  margin: 18px 0 30px;
+  padding: 22px;
+  border: 1px solid #d9ddcf;
+  border-radius: 14px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px 24px;
+}
+.capture-samples div,
+.capture-samples small {
+  flex-basis: 100%;
+}
+.capture-samples p {
+  margin: 4px 0 0;
+  color: #637059;
+}
+.capture-samples > a {
+  font-size: 14px;
+  font-weight: 600;
+}
+.capture-report dl > div {
+  background: #f5f6ef;
+  padding: 16px;
+  border-radius: 10px;
+}
+.capture-report dt {
+  font-size: 13px;
+  color: #637059;
+}
+.capture-report ul {
+  padding-left: 20px;
+}
+.capture-report li {
+  margin: 12px 0;
+}
+.site-header > a:last-child:not(.brand) {
+  color: #264b36;
+  font-size: 14px;
+  text-underline-offset: 4px;
+}
 .capture-report {
   padding: 24px;
   background: white;

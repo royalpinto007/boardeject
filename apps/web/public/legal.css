@@ -22,6 +22,45 @@ footer {
 }
 header {
   border-bottom: 1px solid #d7dccc;
+  justify-content: space-between;
+  align-items: center;
+}
+* {
+  box-sizing: border-box;
+}
+header,
+footer {
+  max-width: 1120px;
+}
+header nav {
+  display: flex;
+  gap: 24px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 24px;
+  font-weight: 750;
+  letter-spacing: -1px;
+  text-decoration: none;
+}
+main {
+  max-width: 800px;
+}
+@media (max-width: 480px) {
+  header {
+    gap: 12px;
+  }
+  header nav {
+    font-size: 13px;
+    gap: 16px;
+  }
+  main {
+    padding-top: 24px;
+  }
 }
 main {
   padding-top: 48px;
