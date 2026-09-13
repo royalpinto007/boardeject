@@ -69,7 +69,7 @@ for index, (cell, x, y) in enumerate(cells):
     capture("table-restore-" + cell)
 
 # Inspect the shapes popover as well as menus: a vector pen is not necessarily ink.
-ui("shapes-open", 'click menu item "Shape" of menu "Insert" of menu bar item "Insert" of menu bar 1\ndelay 1')
+ui("shapes-open", 'key code 53\nclick at {580, 57}\ndelay 1')
 ui("shapes-tree", 'return entire contents of front window')
 run("shapes-screen", ["screencapture", "-x", str(out / "shapes.png")])
 ui("shapes-close", 'key code 53')
