@@ -1,6 +1,7 @@
 import type { FreeformInkStroke } from "libfreeform";
 import type { BoardNode, Issue } from "../board-model/index";
 import { sampleSpline } from "./spline";
+import { hasUnresolvedInkMask } from "./ink-mask";
 
 export function embeddedImage(
   bytes: Uint8Array,
@@ -29,12 +30,12 @@ export function convertInk(
 ): BoardNode[] {
   if (strokes.length > 10000) throw new Error("Too many ink strokes.");
   return strokes.flatMap((stroke, index): BoardNode[] => {
-    if (stroke.visibleRanges?.length) {
+    if (stroke.visibleRanges?.length || hasUnresolvedInkMask(stroke.rawData)) {
       issues.push({
         itemId: id,
         severity: "unsupported",
         message:
-          "Masked ink requires validated clipping semantics. Stroke omitted.",
+          "Masked ink or an unreadable native stroke record requires validated clipping semantics. Stroke omitted to avoid restoring hidden regions.",
       });
       return [];
     }
