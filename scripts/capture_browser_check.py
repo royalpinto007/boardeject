@@ -58,7 +58,7 @@ with sync_playwright() as p:
     # Exercise the ordinary homepage worker with the same native bytes in a helper envelope.
     import base64
     # Genuine single-object Freeform captures with resource/style sidecars.
-    for case in ("image-baseline", "text-mixed"):
+    for case in ("image-baseline", "text-mixed", "text-multiline-combined"):
         fixture = Path("tests/fixtures/freeform-4.5")
         content = json.loads((fixture / (case + ".content.json")).read_text())[0]
         flavors = [{"uti": "com.apple.freeform.CRLNativeData", "base64": base64.b64encode((fixture / (case + ".crlnative")).read_bytes()).decode()}, {"uti": "com.apple.apps.content-language.canvas-object-1.0", "base64": base64.b64encode((fixture / (case + ".content.json")).read_bytes()).decode()}]
@@ -83,7 +83,8 @@ with sync_playwright() as p:
             assert pixels[0][0] > 150 and pixels[0][3] > 200, pixels
             assert pixels[1][3] < 100, pixels  # rounded mask removes the corner
         else:
-            assert result["elements"][0]["text"] == "Plain Bold Italic"
+            expected = "First Bold\nBoth" if case == "text-multiline-combined" else "Plain Bold Italic"
+            assert result["elements"][0]["text"] == expected
             assert result["elements"][0]["textAlign"] == "center"
         page.get_by_role("button", name="Preview result").click()
         page.locator(".excalidraw").wait_for()

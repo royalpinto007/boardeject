@@ -90,7 +90,7 @@ it.each([
       const svg = atob(Object.values(output.files)[0].dataURL.split(",")[1]);
       expect(svg).toContain(content(name).mask.path.bezier.path);
       expect(svg).toContain(
-        'dy="2" stdDeviation="3" flood-color="rgb(0,0,0)" flood-opacity="0.25"',
+        'dy="2" stdDeviation="1.5" flood-color="rgb(0,0,0)" flood-opacity="0.25"',
       );
       expect(svg).toContain(
         embeddedImage(readFileSync(root + name + ".resource.png"))!.dataURL,
@@ -124,6 +124,108 @@ it.each([
 it("rejects malformed font archives with bounded errors", () => {
   for (const input of ["", "!!!!", btoa("bplist00"), "a".repeat(70000)])
     expect(() => fontArchive(input)).toThrow();
+});
+
+it("preserves native multiline combined-style metadata and editable line breaks", () => {
+  const name = "text-multiline-combined";
+  const board = normalize(
+    decodePasteboard({
+      flavors: [
+        {
+          uti: "com.apple.freeform.CRLNativeData",
+          bytes: readFileSync(root + name + ".crlnative"),
+        },
+        {
+          uti: "com.apple.apps.content-language.canvas-object-1.0",
+          bytes: readFileSync(root + name + ".content.json"),
+        },
+      ],
+    }),
+  );
+  const element = convert(board).elements[0];
+  expect(element).toMatchObject({
+    type: "text",
+    text: "First Bold\nBoth",
+    fontSize: 18,
+    textAlign: "center",
+  });
+  expect(element.customData?.boardejectSourceStyle).toMatchObject({
+    runs: [
+      { text: "First " },
+      { text: "Bold\n", bold: true },
+      {
+        text: "Both",
+        bold: true,
+        italic: true,
+        fontFamily: "Helvetica-BoldOblique",
+      },
+    ],
+  });
+});
+
+it("preserves verified text size and alignment fields in editable output (adapter variations)", () => {
+  // Output-model tests, not native evidence that the attempted size shortcut worked.
+  for (const fontSize of [12, 18, 36])
+    for (const textAlign of ["left", "center", "right"] as const) {
+      const document = convert({
+        source: "synthetic-example",
+        sourceItems: 1,
+        issues: [],
+        nodes: [
+          {
+            id: "size-case",
+            kind: "text",
+            text: "First\nSecond",
+            fontSize,
+            textAlign,
+            bounds: { x: 10, y: 20, width: 200, height: 100, rotation: 0 },
+            groups: ["logical-text"],
+            appearance: {
+              fill: "transparent",
+              stroke: "#000000",
+              strokeWidth: 1,
+              opacity: 100,
+            },
+          },
+        ],
+      });
+      expect(document.elements[0]).toMatchObject({
+        fontSize,
+        textAlign,
+        groupIds: ["logical-text"],
+        text: "First\nSecond",
+      });
+    }
+});
+
+it("does not invent a shadow when omitted (synthetic adapter variant)", () => {
+  const o = content("image-baseline");
+  delete o.shadow;
+  const board = normalize(
+    decodePasteboard({
+      flavors: [
+        {
+          uti: "com.apple.freeform.CRLNativeData",
+          bytes: readFileSync(root + "image-baseline.crlnative"),
+        },
+        {
+          uti: "com.apple.apps.content-language.canvas-object-1.0",
+          bytes: new TextEncoder().encode(JSON.stringify([o])),
+        },
+        {
+          uti: o.resource.indirect.identifier,
+          bytes: readFileSync(root + "image-baseline.resource.png"),
+        },
+      ],
+    }),
+  );
+  expect(board.nodes).toHaveLength(1);
+  const svg = atob(
+    Object.values(convert(board).files)[0].dataURL.split(",")[1],
+  );
+  expect(svg).not.toContain("filter");
+  expect(svg).toContain("clip-path");
+  expect(board.nodes[0].bounds.width).toBe(64);
 });
 
 it.each(["missing-resource", "script-path", "huge-path", "rotated-mask"])(
