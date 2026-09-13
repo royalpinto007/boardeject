@@ -23,6 +23,13 @@ with sync_playwright() as p:
     page.get_by_role("alert").wait_for()
     assert "Invalid JSON" in page.get_by_role("alert").inner_text()
     assert page.locator(".capture-report").count() == 0
+    # Apple-generated decoder references, not Freeform pressure/eraser captures.
+    picker.set_input_files("tests/fixtures/apple/masked-gap.drawing")
+    page.get_by_text("Masked ink or an unreadable native stroke record", exact=False).wait_for()
+    assert page.get_by_role("button", name="Download .excalidraw").count() == 0
+    picker.set_input_files("tests/fixtures/apple/variable-width.drawing")
+    page.get_by_role("button", name="Download .excalidraw").wait_for()
+    assert "uniform Excalidraw stroke" in page.locator(".capture-report").inner_text()
     # Drop existing upstream ink decoder fixture, never a fabricated native capture.
     data = list(Path("tests/fixtures/upstream/ink-pen.drawing").read_bytes())
     page.locator(".capture-drop").evaluate("""(element, bytes) => {
