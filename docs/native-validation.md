@@ -46,3 +46,8 @@ without a personal Mac. No additional real Freeform captures were found in
 upstream's current fixture tree or forks. End-to-end native fidelity remains
 unvalidated. The website is deployed as a development preview; a stable release
 must not be inferred from passing unit tests or the synthetic demo.
+
+The [hosted Freeform UI experiment](freeform-capture-experiment.md) subsequently
+confirmed GUI automation is permitted and obtained experimental native payloads.
+They remain temporary Actions artifacts. Intended content and transform semantics
+still require verification; no experimental capture has been promoted.
