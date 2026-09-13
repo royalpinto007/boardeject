@@ -50,16 +50,22 @@ The converter uses 1.5 only for the captured radius 3 / offset 2 / opacity 0.25
 case; other parameters remain approximate. Original mask/pixels and shadow
 offset, color and opacity remain in the SVG. The board is never rasterized.
 
-Absent shadow data produces no invented shadow (adapter regression only).
-An unknown shadow representation still causes safe rejection.
+Absent or unverified shadow data causes safe rejection. BoardEject does not
+infer a no-shadow representation from a synthetic mutation.
 
-Issue #14 remains open:
+Issue #14 classification at completion:
 
-- Obtain a genuine no-shadow capture and verify its representation.
-- Validate additional blur radii/directions/colors against native renders.
-- Obtain genuine per-run font-size changes and additional paragraph alignments.
-- Confirm inline layout expectations with a destination model that can represent
-  weight/slant and run metrics, or accept the documented editable approximation.
+- **BoardEject implementation gaps for verified fixtures: none.** Resource
+  correlation, image mask, captured shadow parameters, editable plain/mixed/
+  multiline text, combined bold-italic recognition, first-run size/alignment,
+  original style metadata and safe unsupported reports have regression coverage.
+- **Excalidraw format limitations:** no inline style-run model, weight/italic
+  fields, native font-family embedding, shared editable baseline/reflow across
+  grouped text pieces, independent image masks, or image shadow controls.
+- **Unverified native variants:** no-shadow images, other mask/crop transforms,
+  shadow radii/directions/colors, and per-run size/alignment changes have no
+  genuine fixture. They remain unsupported instead of guessed. New genuine
+  captures can extend the supported subset in later issues.
 
 ### Verified single-object image and text fallback
 
@@ -85,8 +91,9 @@ without guessing per-run glyph widths. Every fallback reports these losses.
 
 Tests cover genuine baseline/moved images and plain/bold/mixed text, invalid
 archives and unsafe paths, plus browser file upload, image-mask pixels and preview.
-[Issue #14](https://github.com/royalpinto007/boardeject/issues/14) remains open for
-broader native fidelity. No full rich-text or image-effects support is claimed.
+[Issue #14](https://github.com/royalpinto007/boardeject/issues/14) documents the
+implemented subset and supported-format limitations. No full rich-text or
+general image-effects support is claimed.
 
 ### Ink decoding and mask safety
 
@@ -123,18 +130,17 @@ be represented as proof of end-to-end Freeform support.
 
 - Nonidentity native group transforms (membership is implemented)
 - PencilKit masks and variable-width strokes (centerline endpoint sampling now matches a checked-in Apple framework reference; broader stroke cases remain unvalidated)
-- Native embedded image extraction and safe format conversion
+- Native image resource/effect variants outside the verified single-object case
 - Editable native tables and merged cells
-- Rich text runs, font matching, path shapes and routing
+- Rich-text visual runs beyond Excalidraw's element model, font matching, path shapes and routing
 - Full affine, flipped and nested geometry
 - End-to-end conversion of current version-7 Freeform boards
 
 Real Freeform GUI copy now has confirmed captures. Native table differential
 fixtures now prove cell-ID ordering, dimensions and translation for the single-table
 recovery path. Styling uses defaults. Other version-7 layouts remain rejected.
-Track [tables](https://github.com/royalpinto007/boardeject/issues/12),
-[erased/pressure ink](https://github.com/royalpinto007/boardeject/issues/13) and
-[native assets/rich text](https://github.com/royalpinto007/boardeject/issues/14).
+Track [table variants](https://github.com/royalpinto007/boardeject/issues/15) and
+[erased/pressure ink](https://github.com/royalpinto007/boardeject/issues/13).
 
 The example board is synthetic. It is a converter demonstration, not a captured
 Apple Freeform board. No simulated Freeform UI or copy footage should be used in
