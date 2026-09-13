@@ -70,9 +70,9 @@ export function normalize(pasteboard: FreeformPasteboard): Board {
             groups: [],
             appearance: {
               fill: "#ffffff",
-              stroke: "#bfbfbf",
+              stroke: "#24352d",
               strokeWidth: 1,
-              opacity: 1,
+              opacity: 100,
             },
           },
           board.issues,

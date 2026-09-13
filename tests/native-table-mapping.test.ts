@@ -71,6 +71,9 @@ it.each([
     [376, 312.5, 344, 258],
   ]);
   expect(convert(board).elements).toHaveLength(8);
+  expect(
+    convert(board).elements.every((element) => element.opacity === 100),
+  ).toBe(true);
 });
 it("rejects unrelated real board captures", () => {
   expect(
