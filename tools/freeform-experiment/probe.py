@@ -68,7 +68,9 @@ else:
             ui_action(case + "-edit", paced)
             if case == "table-values":
                 run(case + "-enter-cell", [str(dragger), "350", "250", "350", "250", "--double"])
-                ui_action(case + "-cell-values", 'delay 0.6\nkeystroke "Cell A1"\ndelay 0.6\nkey code 48\ndelay 0.6\nkeystroke "Cell B1"\ndelay 0.6\nkey code 53')
+                ui_action(case + "-cell-a1", 'delay 0.6\nkeystroke "Cell A1"\ndelay 0.6\nkey code 53')
+                run(case + "-enter-b1", [str(dragger), "550", "250", "550", "250", "--double"])
+                ui_action(case + "-cell-b1", 'delay 0.6\nkeystroke "Cell B1"\ndelay 0.6\nkey code 53')
             ui_action(case + "-copy", 'key code 53\nkeystroke "a" using command down\nkeystroke "c" using command down\ndelay 1\nreturn entire contents of front window')
             run(case + "-dump", [str(dumper), str(output / case)])
             run(case + "-screen", ["screencapture", "-x", str(output / (case + ".png"))])
