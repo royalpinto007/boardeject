@@ -17,6 +17,33 @@ distinguishes native evidence from tested converter behavior.
 
 ## Important native parser limitations
 
+### Verified single-object image and text fallback
+
+The content-language sidecar in the new native fixtures now supports a narrow
+single-object fallback alongside CRL. This is not general version-7 support.
+It requires the full capture envelope, including the image resource flavor;
+a standalone CRL file does not contain that resource.
+
+Images preserve the original resource pixels and the captured absolute Bézier
+mask in an embedded SVG image. The verified downward shadow retains its offset,
+color and opacity. Mapping the native radius to SVG Gaussian blur is an explicit
+approximation, not a pixel-identical shadow claim. Effects become part of the
+movable/resizable image asset, not independent Excalidraw controls. Other crop
+types, mask transforms, shadow directions and missing resources are withheld.
+
+Native mixed text becomes one editable Excalidraw text element, not an image.
+The first run supplies font size and paragraph alignment. Original run boundaries,
+font names, sizes, bold and italic descriptors are retained in `customData`.
+Excalidraw does not render mixed bold/italic runs, so these descriptors are
+metadata, not visible style support. Font family is substituted with its sans-serif
+font; color, padding and wrapping use defaults. This keeps editing coherent
+without guessing per-run glyph widths. Every fallback reports these losses.
+
+Tests cover genuine baseline/moved images and plain/bold/mixed text, invalid
+archives and unsafe paths, plus browser file upload, image-mask pixels and preview.
+[Issue #14](https://github.com/royalpinto007/boardeject/issues/14) remains open for
+broader native fidelity. No full rich-text or image-effects support is claimed.
+
 ### Ink decoding and mask safety
 
 Apple-generated width/force data has regression coverage. The paired native

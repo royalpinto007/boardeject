@@ -52,7 +52,9 @@ the latter two identify Helvetica-Bold and Helvetica-Oblique. Font archives are
 system metadata, not private user content. Run boundaries and font descriptors
 are evidence, not proof of editable rich-text conversion or font matching.
 
-The decoder currently leaves the image resource flavor unclassified and does
-not recover the native text runs. These captures remain unsupported by the
-production adapter. No version gate is relaxed. Track
+The upstream decoder leaves the image resource flavor unclassified and does
+not recover the native text runs. BoardEject now uses these verified sidecars in
+a narrow single-object fallback, with explicit image-effect/text approximations.
+Standalone CRL and unrelated version-7 layouts remain unsupported. See
+[fidelity details](../../../docs/fidelity.md). Track
 [issue #14](https://github.com/royalpinto007/boardeject/issues/14).

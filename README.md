@@ -69,6 +69,18 @@ partial. See [mapping evidence](docs/native-table-mapping.md).
 Native capture evidence and working end-to-end conversion are different things.
 Keep your original board and inspect the conversion report.
 
+### PR #17: tested single-object fallback (not deployed)
+
+| Native capture                  | Tested output and limits                                                                                                                                                                                                                                           |
+| ------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Image with verified mask/shadow | Original PNG resource and Bézier mask preserved in an embedded SVG image. Downward shadow offset/color/opacity retained; blur is approximate. Effects are part of the image asset, not editable effect controls. Other crop/transform variants remain unsupported. |
+| Plain/bold/mixed text           | One editable text element with decoded first-run size/alignment. Original run boundaries, font names, bold/italic and sizes remain in metadata. Mixed styling and exact fonts are not visually preserved; wrapping, padding and color use defaults.                |
+
+These paths require the complete capture sidecars, not standalone CRL. They do
+not enable arbitrary version-7 boards. [Issue #14](https://github.com/royalpinto007/boardeject/issues/14)
+remains open. The deployed v0.0.1 scope below is unchanged until this PR is merged
+and deployed.
+
 | Capability                           | v0.0.1 evidence and boundary                                                                                                                                                                                                                                                            |
 | ------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Editable Excalidraw output           | Browser-tested shape movement, following bound arrows and text editing; demo input is synthetic.                                                                                                                                                                                        |
