@@ -108,7 +108,7 @@ function App() {
         <section className="hero" aria-labelledby="hero-title">
           <div className="hero-copy">
             <a className="preview-badge" href="#preview-status">
-              <span /> Open-source · Development preview{" "}
+              <span /> Open-source · v0.0.1 early release{" "}
               <span aria-hidden="true">↗</span>
             </a>
             <h1 id="hero-title">
@@ -351,7 +351,7 @@ function App() {
             <h2 id="preview-title">Help build the escape route.</h2>
             <p>
               The editable example works today. Native Freeform conversion is
-              still a development preview, not a finished exporter.
+              limited in v0.0.1, not a finished exporter.
             </p>
           </div>
           <div className="fidelity-grid">
@@ -367,9 +367,9 @@ function App() {
               <span className="state-label">Needs validation</span>
               <h3>Native board fidelity</h3>
               <p>
-                Groups, PencilKit ink and real clipboard captures still need
-                validation. Keep your original board; unsupported elements are
-                reported.
+                Current version-7 Freeform boards are rejected. Native table
+                geometry and pressure-sensitive/erased ink remain incomplete.
+                Keep your original board; unsupported elements are reported.
               </p>
             </div>
           </div>
