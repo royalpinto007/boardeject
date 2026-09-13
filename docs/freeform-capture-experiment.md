@@ -26,13 +26,41 @@ fixtures. All output goes to `RUNNER_TEMP`, never the repository.
   and the final angle is approximately 315.40924 degrees. The final screenshot
   visibly agrees with rotation. The earlier handle attempt moved rather than
   resized the group and must not be treated as a scaling fixture.
-- [Latest complete experiment](https://github.com/royalpinto007/boardeject/actions/runs/34737925697):
+- [Earlier table experiment](https://github.com/royalpinto007/boardeject/actions/runs/34737925697):
   all tools compiled and raw captures were uploaded. Table text editing works,
   but the intended separate cells were **not** achieved: the plain-text flavor
   reads `Cell Cell B1` in one cell rather than `Cell A1` and `Cell B1` in separate
   cells. The previous run put both strings and a literal tab in the first cell.
   Neither is a valid known-cell-values fixture. Further work needs reliable cell
   focus/geometry discovery, not relaxed assertions or renamed expected values.
+- [Verified table differentials](https://github.com/royalpinto007/boardeject/actions/runs/34739566232):
+  full-window geometry corrected cell targeting. The baseline has A1/B1/A2/B2
+  in the intended four cells. Four independent mutations and their restores
+  verify text ordering and unchanged RTF table structure. Minimal raw CRL, RTF
+  and text are now permanent [regression fixtures](../tests/fixtures/freeform-4.5/tables/README.md).
+  Native CRL geometry remains unmapped; production support is unchanged.
+- [Actual Shapes picker](https://github.com/royalpinto007/boardeject/actions/runs/34749332423):
+  the picker visibly includes Draw with Pen. This control was absent from the
+  earlier menu-only inventory. Its name does not establish PencilKit support.
+- [Failed pen activation](https://github.com/royalpinto007/boardeject/actions/runs/34749473688):
+  the picker stayed open after the System Events click. Subsequent drags selected
+  a stock pentagon. No `com.apple.drawing` was copied. This is an automation
+  failure, not evidence that a correctly activated pen cannot create ink.
+- [Native mouse activation](https://github.com/royalpinto007/boardeject/actions/runs/34749559107):
+  actual CGEvent clicking activated Draw with Pen. Its visible help describes
+  straight/curved points and midpoint editing. Three native mouse drags produced
+  three `com.apple.apps.content-language.shape` objects containing
+  `com.apple.apps.content-language.path.bezier-path` and line strokes.
+  All advertised clipboard flavors were dumped and their hashes checked. None
+  was `com.apple.drawing`. The menu, toolbar and window inventories completed
+  successfully but exposed no eraser. This is vector shape editing, not a
+  verified PencilKit drawing/erasing surface. These experimental outputs remain
+  outside permanent fixtures. No before/after ink-erasure claim is possible
+  from this run; Apple Pencil pressure remains explicitly unverified.
+
+The observed pen behavior agrees with [Apple's Mac shape guide](https://support.apple.com/en-gb/guide/freeform/frfm8479c716/mac).
+No permission bypass or imported PKDrawing was used in these differential runs.
+An actual Freeform ink-capable surface is still needed for the erasure test.
 
 ## What the artifacts prove, and what they do not
 
@@ -43,7 +71,7 @@ is cleared. Screenshots and exact command output accompany each attempt.
 
 Successful commands are **not** proof of intended content. Inspect the payload
 and screenshot together. Initial text entry was empty until focus delays were
-added; intended table cell values remain unmet. The observed group and connector
+added; later table differentials now meet the intended values. The observed group and connector
 records are useful native evidence, not yet proof of our parser's interpretation
 or round-trip conversion. No pen/eraser creation command was observed in the
 macOS Insert menu. Variable-width and erased ink are not captured. Apple's
@@ -56,7 +84,7 @@ Inspect screenshots after every run; a UI change can invalidate the recipe.
 The workflow's green status means the diagnostic procedure completed, not that
 the fidelity cases passed. Each manifest explicitly says `verifiedFixture: false`.
 
-No experimental binary or screenshot is committed. Download artifacts before
+No unverified experimental binary or screenshot is committed. Download artifacts before
 expiry for inspection, but do not promote them to the permanent fixture set until
 both native origin and intended object semantics are independently verified.
 Do not remove the existing release gate on the strength of this experiment.
