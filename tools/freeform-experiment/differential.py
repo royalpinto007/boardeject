@@ -68,6 +68,15 @@ for index, (cell, x, y) in enumerate(cells):
     set_cell("restore-" + cell, x, y, cell)
     capture("table-restore-" + cell)
 
+if os.environ.get("TABLE_GEOMETRY_ONLY") == "1":
+    # Change position only, then size only, on the same native table.
+    ui("table-move", 'key code 53\nclick at {300, 100}\nkeystroke "a" using command down\nrepeat 20 times\nkey code 124\nend repeat\nrepeat 10 times\nkey code 125\nend repeat\ndelay 1')
+    capture("table-moved")
+    # Capture selection handles before attempting any resize.
+    run("table-resize", [str(drag), "989", "664", "889", "564"])
+    capture("table-resized")
+    raise SystemExit(0)
+
 # Inspect the shapes popover as well as menus: a vector pen is not necessarily ink.
 ui("shapes-open", 'key code 53\nclick at {580, 57}\ndelay 1')
 ui("shapes-tree", 'return entire contents of front window')
