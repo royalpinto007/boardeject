@@ -151,6 +151,81 @@ def fill_baseline():
         set_cell(f"baseline-{value}", x, y, value)
 
 
+if os.environ.get("TABLE_ISSUE15_PHASE") == "geometry":
+    # Coordinates come from the selected-table screenshot at 100 percent zoom:
+    # table bounds x=280..969, y=138..653, with dividers x=624 and y=395.
+    # Each mutation gets a fresh board and a separate before/after capture.
+    new_table()
+    fill_baseline()
+    capture("unequal-columns-before")
+    run("unequal-columns-drag", [str(drag), "624", "300", "524", "300"])
+    capture("unequal-columns-after")
+
+    new_table()
+    fill_baseline()
+    capture("unequal-rows-before")
+    run("unequal-rows-drag", [str(drag), "500", "395", "500", "295"])
+    capture("unequal-rows-after")
+
+    new_table()
+    fill_baseline()
+    run("unequal-both-column-drag", [str(drag), "624", "300", "524", "300"])
+    run("unequal-both-row-drag", [str(drag), "500", "395", "500", "295"])
+    capture("unequal-both-after")
+
+    new_table()
+    fill_baseline()
+    capture("row-add-before")
+    run("row-add-click", [str(drag), "256", "678", "256", "678"])
+    capture("row-add-after")
+
+    new_table()
+    fill_baseline()
+    capture("column-add-before")
+    run("column-add-click", [str(drag), "992", "113", "992", "113"])
+    capture("column-add-after")
+
+    new_table()
+    fill_baseline()
+    capture("row-delete-before")
+    run("row-handle-click", [str(drag), "256", "267", "256", "267"])
+    ui("row-handle-dismiss", "key code 53\ndelay 0.5")
+    table_menu("row-handle-delete", "Delete Row")
+    capture("row-delete-after")
+
+    new_table()
+    fill_baseline()
+    capture("column-delete-before")
+    run("column-handle-click", [str(drag), "459", "113", "459", "113"])
+    ui("column-handle-dismiss", "key code 53\ndelay 0.5")
+    table_menu("column-handle-delete", "Delete Column")
+    capture("column-delete-after")
+
+    new_table()
+    fill_baseline()
+    capture("row-reorder-before")
+    run("row-reorder-drag", [str(drag), "256", "267", "256", "525"])
+    capture("row-reorder-after")
+
+    new_table()
+    fill_baseline()
+    capture("column-reorder-before")
+    run("column-reorder-drag", [str(drag), "459", "113", "803", "113"])
+    capture("column-reorder-after")
+
+    (out / "summary.json").write_text(
+        json.dumps(
+            {
+                "stage": "Issue 15 geometry and structure differentials",
+                "verifiedFixture": False,
+                "rule": "A successful process exit is not evidence; decoded dimensions/order and screenshots must agree",
+            },
+            indent=2,
+        )
+    )
+    raise SystemExit(0)
+
+
 # Empty cells and multiline content, each captured against the same 2x2 shape.
 new_table()
 capture("empty-baseline")
