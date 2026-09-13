@@ -373,6 +373,21 @@ function App() {
                 work. Keep your original board; unsupported elements are
                 reported.
               </p>
+              <p>
+                Apple-generated width/force decoding has regression coverage.
+                Detected masked ink is omitted with a report, not restored
+                across hidden regions. Output still uses uniform-width strokes.
+                Genuine Freeform eraser and pressure-sensitive round trips
+                remain unverified. See{" "}
+                <a
+                  href="https://github.com/royalpinto007/boardeject/issues/13"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  issue #13 ↗
+                </a>
+                .
+              </p>
             </div>
           </div>
           <div className="contribute-links">

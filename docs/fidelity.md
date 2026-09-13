@@ -17,6 +17,19 @@ distinguishes native evidence from tested converter behavior.
 
 ## Important native parser limitations
 
+### Ink decoding and mask safety
+
+Apple-generated width/force data has regression coverage. The paired native
+PencilKit fixtures expose a geometric mask that libfreeform does not return as
+visible ranges. BoardEject now detects this mask and omits the stroke with an
+unsupported report instead of restoring its hidden regions. This is conservative
+omission, not editable eraser reconstruction. Unmasked output remains a
+uniform-width approximation.
+
+Genuine Freeform eraser and pressure-sensitive round-trip captures remain
+unverified. [Issue #13](https://github.com/royalpinto007/boardeject/issues/13)
+stays open. See the [Apple reference provenance](../tests/fixtures/apple/README.md).
+
 The upstream `native-mixed` fixture exposes three identities but no geometry.
 The upstream `real-board` capture declares minimum version 7, which the decoder
 marks unsupported. Its decoded data lacks several text bodies, connector
