@@ -198,7 +198,7 @@ it("preserves verified text size and alignment fields in editable output (adapte
     }
 });
 
-it("does not invent a shadow when omitted (synthetic adapter variant)", () => {
+it("withholds an absent shadow variant until a genuine capture proves it", () => {
   const o = content("image-baseline");
   delete o.shadow;
   const board = normalize(
@@ -219,44 +219,45 @@ it("does not invent a shadow when omitted (synthetic adapter variant)", () => {
       ],
     }),
   );
-  expect(board.nodes).toHaveLength(1);
-  const svg = atob(
-    Object.values(convert(board).files)[0].dataURL.split(",")[1],
-  );
-  expect(svg).not.toContain("filter");
-  expect(svg).toContain("clip-path");
-  expect(board.nodes[0].bounds.width).toBe(64);
+  expect(board.nodes).toHaveLength(0);
+  expect(board.issues.some((i) => i.severity === "unsupported")).toBe(true);
 });
 
-it.each(["missing-resource", "script-path", "huge-path", "rotated-mask"])(
-  "withholds unsupported image effects: %s",
-  (mutation) => {
-    const o = content("image-baseline");
-    if (mutation === "missing-resource")
-      o.resource.indirect.identifier += "missing";
-    if (mutation === "script-path")
-      o.mask.path.bezier.path = 'M 0 0"/><script>alert(1)</script>';
-    if (mutation === "huge-path") o.mask.path.bezier.path = "M 1e999 0";
-    if (mutation === "rotated-mask") o.mask.geometry.angle = 30;
-    const board = normalize(
-      decodePasteboard({
-        flavors: [
-          {
-            uti: "com.apple.freeform.CRLNativeData",
-            bytes: readFileSync(root + "image-baseline.crlnative"),
-          },
-          {
-            uti: "com.apple.apps.content-language.canvas-object-1.0",
-            bytes: new TextEncoder().encode(JSON.stringify([o])),
-          },
-          {
-            uti: content("image-baseline").resource.indirect.identifier,
-            bytes: readFileSync(root + "image-baseline.resource.png"),
-          },
-        ],
-      }),
-    );
-    expect(board.nodes).toHaveLength(0);
-    expect(board.issues.some((i) => i.severity === "unsupported")).toBe(true);
-  },
-);
+it.each([
+  "missing-resource",
+  "script-path",
+  "huge-path",
+  "rotated-mask",
+  "other-shadow-radius",
+  "other-shadow-color",
+])("withholds unsupported image effects: %s", (mutation) => {
+  const o = content("image-baseline");
+  if (mutation === "missing-resource")
+    o.resource.indirect.identifier += "missing";
+  if (mutation === "script-path")
+    o.mask.path.bezier.path = 'M 0 0"/><script>alert(1)</script>';
+  if (mutation === "huge-path") o.mask.path.bezier.path = "M 1e999 0";
+  if (mutation === "rotated-mask") o.mask.geometry.angle = 30;
+  if (mutation === "other-shadow-radius") o.shadow.dropShadow.radius = 6;
+  if (mutation === "other-shadow-color") o.shadow.dropShadow.color.rgba.red = 1;
+  const board = normalize(
+    decodePasteboard({
+      flavors: [
+        {
+          uti: "com.apple.freeform.CRLNativeData",
+          bytes: readFileSync(root + "image-baseline.crlnative"),
+        },
+        {
+          uti: "com.apple.apps.content-language.canvas-object-1.0",
+          bytes: new TextEncoder().encode(JSON.stringify([o])),
+        },
+        {
+          uti: content("image-baseline").resource.indirect.identifier,
+          bytes: readFileSync(root + "image-baseline.resource.png"),
+        },
+      ],
+    }),
+  );
+  expect(board.nodes).toHaveLength(0);
+  expect(board.issues.some((i) => i.severity === "unsupported")).toBe(true);
+});

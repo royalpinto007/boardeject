@@ -102,7 +102,20 @@ export function contentFallback(
         const font = fontArchive(values[i + 1].NSFont);
         const alignment = attributeArchive(values[i + 1].NSParagraphStyle).root
           .NSAlignment;
-        if (![0, 1, 2].includes(alignment)) return;
+        // The native captures currently prove only these descriptors at 18 pt
+        // with centered paragraph alignment. Reject other variants until a
+        // genuine Freeform capture establishes their representation.
+        if (
+          ![
+            ".AppleSystemUIFont",
+            "Helvetica-Bold",
+            "Helvetica-Oblique",
+            "Helvetica-BoldOblique",
+          ].includes(font.name) ||
+          font.size !== 18 ||
+          alignment !== 2
+        )
+          return;
         runs.push({
           start: text.length,
           end: text.length + values[i].length,
@@ -181,25 +194,6 @@ export function contentFallback(
     )
       return;
     const shadow = o.shadow?.dropShadow;
-    if (o.shadow === undefined) {
-      const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}"><defs><clipPath id="m"><path d="${path}"/></clipPath></defs><image width="${width}" height="${height}" href="${image.dataURL}" clip-path="url(#m)"/></svg>`;
-      warn(
-        "Image mask is baked into an embedded SVG asset. No shadow was supplied; none was invented. This absent-shadow branch has adapter coverage, not a dedicated native no-shadow capture.",
-      );
-      return {
-        node: {
-          id,
-          bounds,
-          appearance,
-          groups: [],
-          kind: "image",
-          mimeType: "image/svg+xml",
-          dataURL: `data:image/svg+xml;base64,${btoa(svg)}`,
-          sourceStyle: { mask, originalBounds: bounds },
-        },
-        issues,
-      };
-    }
     if (o.shadow?.primary_case !== "dropShadow" || shadow?.angle !== 90) return;
     const color = shadow.color?.rgba;
     if (shadow.color?.primary_case !== "rgba" || color?.color_space !== "srgb")
@@ -213,16 +207,25 @@ export function contentFallback(
       )
     )
       return;
+    // These exact values are backed by both the baseline and moved native
+    // captures. Other shadows, including an absent-shadow representation,
+    // remain unsupported rather than being inferred from synthetic variants.
+    if (
+      shadow.radius !== 3 ||
+      shadow.offset !== 2 ||
+      shadow.opacity !== 0.25 ||
+      color.red !== 0 ||
+      color.green !== 0 ||
+      color.blue !== 0 ||
+      color.alpha !== 1
+    )
+      return;
     const pad = Math.ceil(shadow.radius * 4 + shadow.offset + 2),
       rgb = [color.red, color.green, color.blue].map((n) =>
         Math.round(n * 255),
       );
-    // Calibrated only against the verified radius-3 downward-shadow render.
-    // Other radii retain the conservative approximation, not a claimed mapping.
-    const sigma =
-      shadow.radius === 3 && shadow.offset === 2 && shadow.opacity === 0.25
-        ? 1.5
-        : shadow.radius;
+    // Calibrated against the genuine radius-3 downward-shadow render.
+    const sigma = 1.5;
     const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${width + 2 * pad}" height="${height + 2 * pad}" viewBox="${-pad} ${-pad} ${width + 2 * pad} ${height + 2 * pad}"><defs><clipPath id="m"><path d="${path}"/></clipPath><filter id="s" x="-100%" y="-100%" width="300%" height="300%"><feDropShadow dx="0" dy="${shadow.offset}" stdDeviation="${sigma}" flood-color="rgb(${rgb})" flood-opacity="${shadow.opacity * color.alpha}"/></filter></defs><g filter="url(#s)"><image width="${width}" height="${height}" href="${image.dataURL}" clip-path="url(#m)"/></g></svg>`;
     warn(
       "Native image bytes and verified Bezier mask are retained in an embedded SVG image. Shadow offset, color and opacity are retained; blur appearance is approximate. Mask and shadow are baked into the image asset, not separately editable Excalidraw effects. Other crops, transforms and effects remain unsupported.",
