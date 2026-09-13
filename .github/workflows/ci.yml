@@ -17,6 +17,21 @@ jobs:
       - run: npm run typecheck
       - run: npm test
       - run: npm run build
+      - name: Install browser test tools
+        run: |
+          python3 -m pip install playwright
+          python3 -m playwright install --with-deps chrome
+      - name: Browser import and capture checks
+        run: |
+          npm run preview > "$RUNNER_TEMP/boardeject-preview.log" 2>&1 &
+          preview_pid=$!
+          trap 'kill "$preview_pid"' EXIT
+          for attempt in {1..30}; do
+            if curl --fail --silent http://127.0.0.1:4190/ > /dev/null; then break; fi
+            sleep 1
+          done
+          python3 scripts/browser_check.py
+          python3 scripts/capture_browser_check.py
       - run: npm audit --audit-level=moderate
   helper-compile:
     runs-on: macos-latest

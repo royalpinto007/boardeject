@@ -1,0 +1,66 @@
+.capture-tester {
+  max-width: 920px;
+  margin: 28px auto 80px;
+  padding: 0 24px;
+  line-height: 1.65;
+}
+.capture-tester h1 {
+  font-size: clamp(2rem, 6vw, 3.8rem);
+  line-height: 1.1;
+  letter-spacing: -0.045em;
+}
+.capture-tester a {
+  color: inherit;
+  text-underline-offset: 4px;
+}
+.capture-drop {
+  border: 2px dashed #8b9d8e;
+  border-radius: 18px;
+  padding: 28px;
+  margin-top: 28px;
+  background: #fffdf7;
+  display: grid;
+  gap: 16px;
+}
+.capture-drop label {
+  font-weight: 700;
+}
+.capture-drop input {
+  max-width: 100%;
+}
+.capture-report {
+  padding: 24px;
+  background: white;
+  border: 1px solid #d4dbd0;
+  border-radius: 18px;
+  overflow-wrap: anywhere;
+}
+.capture-report dl {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+.capture-report dd {
+  font-size: 2rem;
+  margin: 0;
+}
+.capture-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin: 24px 0;
+}
+.capture-error {
+  border-left: 4px solid #9d392b;
+  padding: 16px;
+  background: #fff1e9;
+  overflow-wrap: anywhere;
+}
+.capture-tester footer {
+  margin-top: 32px;
+}
+@media (max-width: 480px) {
+  .capture-report dl {
+    grid-template-columns: 1fr;
+  }
+}

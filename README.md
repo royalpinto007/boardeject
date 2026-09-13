@@ -46,6 +46,19 @@ The helper compiles in macOS CI. Real Freeform GUI captures on hosted macOS
 validate the presence of native content, not every conversion path. Captures
 with unsupported native versions are rejected instead of producing misleading exports.
 
+## Test your own capture
+
+Open [Experimental Capture Tester](https://boardeject.dev/test-capture) and
+choose/drop a `.boardeject` capture (or its JSON envelope). Single `.crlnative`
+and `.drawing` payloads are also accepted, but lack companion assets. Processing
+stays in your browser. Review detected/converted counts and diagnostics, preview
+recovered output and download `.excalidraw`. Unsupported or malformed captures
+do not get substituted with an example. Normal import remains unchanged.
+
+Run `python3 scripts/capture_browser_check.py` against the preview server to
+exercise file selection, drop, failed input, preview and download. Set
+`BOARDEJECT_TEST_URL` to check a deployed site with the same public test fixtures.
+
 ## Support matrix
 
 Native capture evidence and working end-to-end conversion are different things.

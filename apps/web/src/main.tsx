@@ -6,6 +6,7 @@ import { convert } from "../../../packages/excalidraw-converter/index";
 import "./style.css";
 Object.assign(window, { EXCALIDRAW_ASSET_PATH: "/vendor/excalidraw/" });
 const Editor = lazy(() => import("./editor"));
+const CaptureTester = lazy(() => import("./capture-tester"));
 
 function App() {
   const [board, setBoard] = useState<Board>();
@@ -428,4 +429,12 @@ function App() {
     </>
   );
 }
-createRoot(document.getElementById("root")!).render(<App />);
+createRoot(document.getElementById("root")!).render(
+  /^\/test-capture\/?$/.test(location.pathname) ? (
+    <Suspense fallback={<p role="status">Opening Capture Tester…</p>}>
+      <CaptureTester />
+    </Suspense>
+  ) : (
+    <App />
+  ),
+);
