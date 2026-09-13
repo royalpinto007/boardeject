@@ -66,14 +66,17 @@ else:
             # Menu insertion schedules focus changes. Wait before typing or selecting.
             paced = "\n".join(line + ("\ndelay 0.6" if line.startswith(("click ", "keystroke ", "key code ")) else "") for line in action.splitlines())
             ui_action(case + "-edit", paced)
+            if case == "table-values":
+                run(case + "-enter-cell", [str(dragger), "350", "250", "350", "250", "--double"])
+                ui_action(case + "-cell-values", 'delay 0.6\nkeystroke "Cell A1"\ndelay 0.6\nkey code 48\ndelay 0.6\nkeystroke "Cell B1"\ndelay 0.6\nkey code 53')
             ui_action(case + "-copy", 'key code 53\nkeystroke "a" using command down\nkeystroke "c" using command down\ndelay 1\nreturn entire contents of front window')
             run(case + "-dump", [str(dumper), str(output / case)])
             run(case + "-screen", ["screencapture", "-x", str(output / (case + ".png"))])
             if case == "nested-transformed-group":
                 # Coordinates observed in run 34717407645; screenshots must confirm.
                 for stage, coordinates in [
-                    ("scaled", ["658", "570", "608", "520"]),
-                    ("rotated", ["608", "321", "648", "420", "--command"]),
+                    ("scaled", ["668", "570", "618", "520"]),
+                    ("rotated", ["618", "321", "658", "420", "--command"]),
                 ]:
                     label = case + "-" + stage
                     run(label + "-drag", [str(dragger), *coordinates])
