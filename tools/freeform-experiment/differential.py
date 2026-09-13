@@ -73,7 +73,7 @@ if os.environ.get("TABLE_GEOMETRY_ONLY") == "1":
     ui("table-move", 'key code 53\nclick at {300, 100}\nkeystroke "a" using command down\nrepeat 20 times\nkey code 124\nend repeat\nrepeat 10 times\nkey code 125\nend repeat\ndelay 1')
     capture("table-moved")
     # Capture selection handles before attempting any resize.
-    run("table-resize", [str(drag), "989", "664", "889", "564"])
+    run("table-resize", [str(drag), "985", "148", "885", "248"])
     capture("table-resized")
     raise SystemExit(0)
 
