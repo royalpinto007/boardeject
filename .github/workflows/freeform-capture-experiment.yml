@@ -1,6 +1,12 @@
 name: Freeform UI capture experiment
 on:
   workflow_dispatch:
+    inputs:
+      scenario:
+        description: Native capture scenario
+        type: choice
+        options: [tables, images-text]
+        default: tables
 permissions:
   contents: read
 jobs:
@@ -15,7 +21,13 @@ jobs:
         env:
           CAPTURE_OUTPUT: ${{ runner.temp }}/freeform-capture-experiment
           TABLE_GEOMETRY_ONLY: "1"
-        run: python3 tools/freeform-experiment/differential.py
+          CAPTURE_SCENARIO: ${{ inputs.scenario }}
+        run: |
+          if [ "$CAPTURE_SCENARIO" = "images-text" ]; then
+            python3 tools/freeform-experiment/images_text.py
+          else
+            python3 tools/freeform-experiment/differential.py
+          fi
       - name: Upload experimental evidence only
         if: always()
         uses: actions/upload-artifact@v4
