@@ -50,11 +50,34 @@ def capture(name):
 
 
 capture("table-empty")
+cells = [("A1", 450, 250), ("B1", 800, 250), ("A2", 450, 500), ("B2", 800, 500)]
+
+
+def set_cell(label, x, y, value):
+    ui(label + "-unfocus", 'click at {300, 100}\ndelay 0.5')
+    run(label + "-enter", [str(drag), str(x), str(y), str(x), str(y), "--double"])
+    ui(label + "-type", 'delay 0.5\nkeystroke "a" using command down\nkeystroke "' + value + '"\ndelay 0.5\nkey code 53')
+
+
+for cell, x, y in cells:
+    set_cell("initial-" + cell, x, y, cell)
+capture("table-baseline")
+for index, (cell, x, y) in enumerate(cells):
+    set_cell("change-" + cell, x, y, "X" + str(index + 1))
+    capture("table-change-" + cell)
+    set_cell("restore-" + cell, x, y, cell)
+    capture("table-restore-" + cell)
+
+# Inspect the shapes popover as well as menus: a vector pen is not necessarily ink.
+ui("shapes-open", 'click menu item "Shape" of menu "Insert" of menu bar item "Insert" of menu bar 1\ndelay 1')
+ui("shapes-tree", 'return entire contents of front window')
+run("shapes-screen", ["screencapture", "-x", str(out / "shapes.png")])
+ui("shapes-close", 'key code 53')
 ui("ink-menu-inventory", 'return entire contents of menu bar 1')
 ui("ink-toolbar-inventory", 'return entire contents of toolbar 1 of front window')
 run("tool-screen", ["screencapture", "-x", str(out / "tools.png")])
 (out / "summary.json").write_text(json.dumps({
-    "stage": "Discover full table cell geometry and native drawing controls before editing",
+    "stage": "Differential cell edits attempted; verify every payload against the intended grid before interpreting changes",
     "tableVerified": False, "inkVerified": False, "pressureVerified": False,
     "importedDrawingUsed": False,
 }, indent=2))
