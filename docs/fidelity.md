@@ -1,6 +1,7 @@
 # Fidelity and evidence
 
-BoardEject is an open-source development preview, not a stable released exporter.
+BoardEject v0.0.1 is an early limited-scope release. The README support matrix
+distinguishes native evidence from tested converter behavior.
 
 ## What has actually been tested
 
@@ -42,7 +43,13 @@ be represented as proof of end-to-end Freeform support.
 - Editable native tables and merged cells
 - Rich text runs, font matching, path shapes and routing
 - Full affine, flipped and nested geometry
-- Actual Freeform Cmd+C capture and macOS helper execution
+- End-to-end conversion of current version-7 Freeform boards
+
+Real Freeform GUI copy now has confirmed captures. Native table differential
+fixtures prove text ordering, not geometry. The version-7 decoder gate remains.
+Track [tables](https://github.com/royalpinto007/boardeject/issues/12),
+[erased/pressure ink](https://github.com/royalpinto007/boardeject/issues/13) and
+[native assets/rich text](https://github.com/royalpinto007/boardeject/issues/14).
 
 The example board is synthetic. It is a converter demonstration, not a captured
 Apple Freeform board. No simulated Freeform UI or copy footage should be used in

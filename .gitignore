@@ -24,6 +24,10 @@ __pycache__/
 AGENTS.md
 CLAUDE.md
 **/x-launch*
+**/launch-thread*
+**/social-drafts*
+**/posting-schedule*
+**/private-launch*
 **/launch-notes*
 **/launch-scripts/
 private-prompts/

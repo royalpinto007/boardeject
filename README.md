@@ -2,7 +2,7 @@
 
 **Your board. Your format.**
 
-[Try the development preview](https://boardeject.dev) · [Help with open issues](https://github.com/royalpinto007/boardeject/issues)
+[Try BoardEject](https://boardeject.dev) · [Help with open issues](https://github.com/royalpinto007/boardeject/issues)
 
 [Buy me a coffee](https://www.buymeacoffee.com/royalpinto007)
 
@@ -13,8 +13,9 @@ no cloud storage.
 
 ![Move a shape, watch its connected arrow follow, then edit text](docs/demo.gif)
 
-**Development preview:** this recording uses a synthetic example to demonstrate
-editable output. Complete native Freeform conversion is not ready. See the
+**v0.0.1 is an early, limited-scope release:** this recording uses a synthetic example to demonstrate
+editable output, not a complete Freeform import. Current version-7 native boards
+are rejected by the decoder. See the support matrix and
 [fidelity report](docs/fidelity.md) before importing real work.
 
 [Watch MP4](docs/demo.mp4) · [Try the sample file](examples/example.excalidraw) ·
@@ -41,9 +42,30 @@ Browsers cannot reliably read Apple's private clipboard types. The tiny
 The clipboard button accepts that same envelope copied as text. It does not
 claim direct access to private pasteboard formats. PDF is not supported input.
 
-No Mac was available during development. The helper compiles in macOS CI, but
-actual Freeform capture remains unverified. Captures with unsupported native
-versions are rejected instead of producing misleading exports.
+The helper compiles in macOS CI. Real Freeform GUI captures on hosted macOS
+validate the presence of native content, not every conversion path. Captures
+with unsupported native versions are rejected instead of producing misleading exports.
+
+## Support matrix
+
+Native capture evidence and working end-to-end conversion are different things.
+Keep your original board and inspect the conversion report.
+
+| Capability                      | v0.0.1 evidence and boundary                                                                                                                                                                                                                                                            |
+| ------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Editable Excalidraw output      | Browser-tested shape movement, following bound arrows and text editing; demo input is synthetic.                                                                                                                                                                                        |
+| Shapes and text                 | Explicit preset mapping and recovered plain text on supported decoded inputs. Native captures prove text/font descriptors exist, not full rich-text fidelity. [#9](https://github.com/royalpinto007/boardeject/issues/9), [#14](https://github.com/royalpinto007/boardeject/issues/14). |
+| Connectors                      | Reciprocal output bindings tested. Real captures contain matching object-ID anchors; those version-7 boards remain rejected. [#9](https://github.com/royalpinto007/boardeject/issues/9).                                                                                                |
+| Groups/transforms               | Identity-transform membership tested. Real nested scale/rotation captures exist; nonidentity native transform conversion is not supported. [#8](https://github.com/royalpinto007/boardeject/issues/8).                                                                                  |
+| Splines and ink                 | Centerline spline endpoints match 25 Apple PencilKit reference samples. Supported decoded ink produces freedraw output. Mac pen captures contain Bézier shapes, not proof of arbitrary path/ink conversion.                                                                             |
+| Pressure-sensitive / erased ink | **Unverified.** [#13](https://github.com/royalpinto007/boardeject/issues/13).                                                                                                                                                                                                           |
+| Images/assets                   | PNG/JPEG embedding tested on decoded-model inputs; native extraction and broader formats are not verified. [#14](https://github.com/royalpinto007/boardeject/issues/14).                                                                                                                |
+| Tables                          | **Partial support: native cell/geometry mapping incomplete.** Real cell changes/restores are regression fixtures; decoded axis-aligned grids are tested separately. [#12](https://github.com/royalpinto007/boardeject/issues/12).                                                       |
+| Reporting and privacy           | Unsupported elements/versions reported; no fabricated replacement output. Browser processing, no accounts, board uploads or cloud storage.                                                                                                                                              |
+| Freeform version compatibility  | Version-7 captures remain unsupported, including current Freeform 4.5 captures. This release does not claim general current-Freeform compatibility. [#6](https://github.com/royalpinto007/boardeject/issues/6).                                                                         |
+
+See [fidelity details](docs/fidelity.md), [native evidence](docs/freeform-capture-experiment.md),
+[privacy](https://boardeject.dev/privacy) and [terms](https://boardeject.dev/terms).
 
 ## Architecture
 
@@ -82,11 +104,8 @@ Excalidraw and demonstrate converter output, not the unverified Freeform copy st
 - Preserve native images, PencilKit strokes, tables and nested groups.
 - Validate actual Freeform clipboard captures across supported macOS versions.
 - Add a one-click native helper onboarding flow.
-- Publish v0.0.1 after owner approval and domain setup.
-
-The public repository and website are a contributor preview, not a stable release.
-No v0.0.1 or package release has been published. Native fidelity validation is
-the release gate. Contributions and non-sensitive test captures are welcome.
+  v0.0.1 freezes the verified scope above, not the remaining fidelity work.
+  Contributions and non-sensitive native test captures are welcome.
 
 ## Contributing and credits
 
