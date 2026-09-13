@@ -402,6 +402,8 @@ function App() {
             <p>Your board. Your format.</p>
           </div>
           <div className="footer-links">
+            <a href="/privacy">Privacy</a>
+            <a href="/terms">Terms</a>
             <a
               target="_blank"
               rel="noopener noreferrer"

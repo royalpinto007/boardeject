@@ -429,6 +429,7 @@ a {
 }
 .footer-links {
   display: flex;
+  flex-wrap: wrap;
   gap: 24px;
   padding-top: 12px;
 }
