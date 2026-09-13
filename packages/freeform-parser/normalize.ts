@@ -3,6 +3,7 @@ import { embeddedImage, convertInk } from "./media";
 import { convertTable } from "./table";
 import { recoverNativeTable } from "./native-table";
 import { groupMembership } from "./groups";
+import { contentFallback } from "./content-fallback";
 import type {
   Board,
   BoardNode,
@@ -46,6 +47,12 @@ export function normalize(pasteboard: FreeformPasteboard): Board {
   const native = pasteboard.native.value;
   board.sourceItems = native.items.length;
   if (native.compatibility.kind !== "supported") {
+    const recovered = contentFallback(pasteboard);
+    if (recovered) {
+      board.nodes.push(recovered.node);
+      board.issues.push(...recovered.issues);
+      return board;
+    }
     const table = recoverNativeTable(native);
     if (table) {
       board.nodes.push(
