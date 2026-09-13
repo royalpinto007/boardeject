@@ -62,10 +62,11 @@ if #available(macOS 11.0, *) {
 
     // Decoder evidence only: these strokes are Apple-generated, not Freeform captures.
     // Keep binary payloads and native reference values together in experimental artifacts.
-    let variableControls = (0..<7).map { index in
-        PKStrokePoint(location: CGPoint(x: index * 20, y: 20),
+    let variableControls: [PKStrokePoint] = (0..<7).map { index -> PKStrokePoint in
+        let size = CGFloat(2 + index * 2)
+        return PKStrokePoint(location: CGPoint(x: CGFloat(index * 20), y: 20),
                       timeOffset: Double(index) * 0.1,
-                      size: CGSize(width: 2 + index * 2, height: 2 + index * 2),
+                      size: CGSize(width: size, height: size),
                       opacity: 1, force: CGFloat(index + 1) / 8,
                       azimuth: 0, altitude: .pi / 2)
     }
