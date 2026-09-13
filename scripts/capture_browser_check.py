@@ -57,6 +57,38 @@ with sync_playwright() as p:
     assert [e["text"] for e in table_document["elements"] if e["type"] == "text"] == ["A1", "B1", "A2", "B2"]
     # Exercise the ordinary homepage worker with the same native bytes in a helper envelope.
     import base64
+    # Genuine single-object Freeform captures with resource/style sidecars.
+    for case in ("image-baseline", "text-mixed", "text-multiline-combined"):
+        fixture = Path("tests/fixtures/freeform-4.5")
+        content = json.loads((fixture / (case + ".content.json")).read_text())[0]
+        flavors = [{"uti": "com.apple.freeform.CRLNativeData", "base64": base64.b64encode((fixture / (case + ".crlnative")).read_bytes()).decode()}, {"uti": "com.apple.apps.content-language.canvas-object-1.0", "base64": base64.b64encode((fixture / (case + ".content.json")).read_bytes()).decode()}]
+        if case == "image-baseline":
+            flavors.append({"uti": content["resource"]["indirect"]["identifier"], "base64": base64.b64encode((fixture / (case + ".resource.png")).read_bytes()).decode()})
+        capture = json.dumps({"format":"boardeject.clipboard", "version":1, "flavors":flavors})
+        picker.set_input_files({"name":case+".boardeject", "mimeType":"application/json", "buffer":capture.encode()})
+        page.get_by_role("button", name="Download .excalidraw").wait_for()
+        with page.expect_download() as native_event:
+            page.get_by_role("button", name="Download .excalidraw").click()
+        result = json.loads(Path(native_event.value.path()).read_text())
+        assert len(result["elements"]) == 1
+        if case == "image-baseline":
+            asset = next(iter(result["files"].values()))
+            assert asset["mimeType"] == "image/svg+xml"
+            pixels = page.evaluate("""async url => {
+              const image = new Image(); image.src=url; await image.decode();
+              const canvas=document.createElement('canvas');canvas.width=image.width;canvas.height=image.height;
+              const ctx=canvas.getContext('2d');ctx.drawImage(image,0,0);
+              return [Array.from(ctx.getImageData(32,40,1,1).data),Array.from(ctx.getImageData(16,16,1,1).data)];
+            }""", asset["dataURL"])
+            assert pixels[0][0] > 150 and pixels[0][3] > 200, pixels
+            assert pixels[1][3] < 100, pixels  # rounded mask removes the corner
+        else:
+            expected = "First Bold\nBoth" if case == "text-multiline-combined" else "Plain Bold Italic"
+            assert result["elements"][0]["text"] == expected
+            assert result["elements"][0]["textAlign"] == "center"
+        page.get_by_role("button", name="Preview result").click()
+        page.locator(".excalidraw").wait_for()
+        page.get_by_role("button", name="BoardEject").click()
     envelope = json.dumps({"format":"boardeject.clipboard", "version":1, "flavors":[{"uti":"com.apple.freeform.CRLNativeData", "base64":base64.b64encode(Path("tests/fixtures/freeform-4.5/tables/table-baseline.crlnative").read_bytes()).decode()}]})
     page.goto(base + "/")
     page.locator('input[type="file"]').set_input_files({"name":"table.boardeject", "mimeType":"application/json", "buffer":envelope.encode()})

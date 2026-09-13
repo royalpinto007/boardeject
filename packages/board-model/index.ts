@@ -22,11 +22,17 @@ export interface BaseNode {
   bounds: Bounds;
   appearance: Appearance;
   groups: string[];
+  sourceStyle?: unknown;
 }
 export type BoardNode = BaseNode &
   (
     | { kind: "rectangle" | "ellipse" | "diamond" }
-    | { kind: "text"; text: string; fontSize: number }
+    | {
+        kind: "text";
+        text: string;
+        fontSize: number;
+        textAlign?: "left" | "center" | "right";
+      }
     | {
         kind: "arrow";
         start: [number, number];
@@ -35,7 +41,11 @@ export type BoardNode = BaseNode &
         endId?: string;
       }
     | { kind: "ink"; points: [number, number][] }
-    | { kind: "image"; dataURL: string; mimeType: "image/png" | "image/jpeg" }
+    | {
+        kind: "image";
+        dataURL: string;
+        mimeType: "image/png" | "image/jpeg" | "image/svg+xml";
+      }
   );
 export interface Board {
   nodes: BoardNode[];

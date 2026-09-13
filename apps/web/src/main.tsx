@@ -222,8 +222,8 @@ function App() {
               }}
             />
             <p className="fine">
-              macOS helper required. Real Freeform clipboard validation is
-              pending.
+              macOS helper required. Every capture is decoded in this browser
+              and is never uploaded.
             </p>
             <p role="status" className="status">
               {status}
@@ -385,6 +385,32 @@ function App() {
                   rel="noopener noreferrer"
                 >
                   issue #13 ↗
+                </a>
+                .
+              </p>
+            </div>
+            <div>
+              <span className="state-label">Verified subset</span>
+              <h3>Images and editable text</h3>
+              <p>
+                Genuine single-object captures verify original image pixels, one
+                Bezier mask, and one downward shadow. The mask and shadow remain
+                attached to a movable image; shadow blur is a documented visual
+                approximation because Excalidraw has no native image effect
+                fields.
+              </p>
+              <p>
+                Plain, mixed-style, and multiline text remains editable.
+                Excalidraw cannot display mixed bold or italic runs inside one
+                text element, so BoardEject retains those native runs as source
+                metadata instead of flattening the text. Unverified variants are
+                reported as unsupported. See{" "}
+                <a
+                  href="https://github.com/royalpinto007/boardeject/issues/14"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  scope details ↗
                 </a>
                 .
               </p>

@@ -38,6 +38,9 @@ export function convert(board: Board) {
       updated: 0,
       link: null,
       locked: false,
+      ...(node.sourceStyle
+        ? { customData: { boardejectSourceStyle: node.sourceStyle } }
+        : {}),
     };
     if (node.kind === "text")
       return {
@@ -46,7 +49,7 @@ export function convert(board: Board) {
         originalText: node.text,
         fontSize: node.fontSize,
         fontFamily: 2,
-        textAlign: "left",
+        textAlign: node.textAlign ?? "left",
         verticalAlign: "top",
         containerId: null,
         autoResize: false,
