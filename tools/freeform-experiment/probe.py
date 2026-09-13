@@ -74,6 +74,8 @@ else:
                     ui_action(case + "-unfocus-" + cell, 'click at {300, 100}\ndelay 0.5')
                     run(case + "-enter-" + cell, [str(dragger), x, y, x, y, "--double"])
                     ui_action(case + "-value-" + cell, 'delay 0.5\nkeystroke "' + cell + '"\ndelay 0.5\nkey code 53')
+                    run(case + "-screen-" + cell, ["screencapture", "-x", str(output / (case + "-" + cell + ".png"))])
+                    ui_action(case + "-tree-" + cell, 'return entire contents of front window')
                 ui_action(case + "-finish", 'click at {300, 100}\ndelay 0.5')
             ui_action(case + "-copy", 'key code 53\nkeystroke "a" using command down\nkeystroke "c" using command down\ndelay 1\nreturn entire contents of front window')
             run(case + "-dump", [str(dumper), str(output / case)])

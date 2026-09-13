@@ -22,10 +22,15 @@ if CommandLine.arguments.contains("--read") {
     try bytes.write(to: output.appendingPathComponent("returned.drawing"))
     try describe(PKDrawing(data: bytes), "returned")
 } else {
-    let points = (0..<9).map { i in
-        PKStrokePoint(location: CGPoint(x: 20 + i * 30, y: 70), timeOffset: Double(i) * 0.1,
-                      size: CGSize(width: 3 + i * 2, height: 3 + i * 2), opacity: 1,
-                      force: CGFloat(i + 1) / 10, azimuth: 0, altitude: .pi / 2)
+    var points: [PKStrokePoint] = []
+    for i in 0..<9 {
+        let x = CGFloat(20 + i * 30)
+        let width = CGFloat(3 + i * 2)
+        let force = CGFloat(i + 1) / 10.0
+        let point = PKStrokePoint(location: CGPoint(x: x, y: 70), timeOffset: Double(i) * 0.1,
+                                  size: CGSize(width: width, height: width), opacity: 1,
+                                  force: force, azimuth: 0, altitude: CGFloat.pi / 2)
+        points.append(point)
     }
     let mask = NSBezierPath(rect: NSRect(x: 0, y: 0, width: 115, height: 140))
     mask.append(NSBezierPath(rect: NSRect(x: 165, y: 0, width: 135, height: 140)))

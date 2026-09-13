@@ -5,3 +5,4 @@ apps/web/public/media
 examples/*.boardeject
 examples/*.excalidraw
 tests/fixtures/upstream
+tests/fixtures/freeform-4.5/*.json
