@@ -55,22 +55,26 @@ else:
         ui_action("onboarding", 'if exists static text "Welcome to Freeform" of group 1 of front window then\n click at {510, 635}\n delay 2\nend if\nreturn entire contents of front window')
         ui_action("new-board", 'click menu item "New Board" of menu "File" of menu bar item "File" of menu bar 1\ndelay 2\nreturn entire contents of front window')
         run("board-screen", ["screencapture", "-x", str(output / "board.png")])
-        for case, action in [
+        scenarios = [
             ("bound-connectors", 'click menu item "Rectangle" of menu "Shape" of menu item "Shape" of menu "Insert" of menu bar item "Insert" of menu bar 1\nkey code 123 using shift down\nclick menu item "Oval" of menu "Shape" of menu item "Shape" of menu "Insert" of menu bar item "Insert" of menu bar 1\nkey code 124 using shift down\nkeystroke "a" using command down\nclick menu item "Connection Line" of menu "Insert" of menu bar item "Insert" of menu bar 1'),
             ("rich-text", 'click menu item "Text Box" of menu "Insert" of menu bar item "Insert" of menu bar 1\nkeystroke "BoardEject native text 123"\nkeystroke "a" using command down\nkeystroke "b" using command down\nkey code 53'),
             ("table-values", 'click menu item "Table" of menu "Insert" of menu bar item "Insert" of menu bar 1\nkeystroke "Cell A1"\nkey code 48\nkeystroke "Cell B1"\nkey code 53'),
             ("nested-transformed-group", 'click menu item "Rectangle" of menu "Shape" of menu item "Shape" of menu "Insert" of menu bar item "Insert" of menu bar 1\nclick menu item "Oval" of menu "Shape" of menu item "Shape" of menu "Insert" of menu bar item "Insert" of menu bar 1\nkeystroke "a" using command down\nclick menu item "Group" of menu "Arrange" of menu bar item "Arrange" of menu bar 1\nclick menu item "Rectangle" of menu "Shape" of menu item "Shape" of menu "Insert" of menu bar item "Insert" of menu bar 1\nkeystroke "a" using command down\nclick menu item "Group" of menu "Arrange" of menu bar item "Arrange" of menu bar 1\nkey code 124 using shift down'),
-        ]:
+        ]
+        # This follow-up deliberately runs only the unresolved table and ink cases.
+        scenarios = [("table-values", 'click menu item "Table" of menu "Insert" of menu bar item "Insert" of menu bar 1')]
+        for case, action in scenarios:
             ui_action(case + "-new", 'click menu item "New Board" of menu "File" of menu bar item "File" of menu bar 1\ndelay 1')
             run(case + "-clear", [str(dumper), str(output / case), "--clear"])
             # Menu insertion schedules focus changes. Wait before typing or selecting.
             paced = "\n".join(line + ("\ndelay 0.6" if line.startswith(("click ", "keystroke ", "key code ")) else "") for line in action.splitlines())
             ui_action(case + "-edit", paced)
             if case == "table-values":
-                run(case + "-enter-cell", [str(dragger), "350", "250", "350", "250", "--double"])
-                ui_action(case + "-cell-a1", 'delay 0.6\nkeystroke "Cell A1"\ndelay 0.6\nkey code 53')
-                run(case + "-enter-b1", [str(dragger), "550", "250", "550", "250", "--double"])
-                ui_action(case + "-cell-b1", 'delay 0.6\nkeystroke "Cell B1"\ndelay 0.6\nkey code 53')
+                for cell, x, y in [("A1", "350", "250"), ("B1", "550", "250"), ("A2", "350", "500"), ("B2", "550", "500")]:
+                    ui_action(case + "-unfocus-" + cell, 'click at {300, 100}\ndelay 0.5')
+                    run(case + "-enter-" + cell, [str(dragger), x, y, x, y, "--double"])
+                    ui_action(case + "-value-" + cell, 'delay 0.5\nkeystroke "' + cell + '"\ndelay 0.5\nkey code 53')
+                ui_action(case + "-finish", 'click at {300, 100}\ndelay 0.5')
             ui_action(case + "-copy", 'key code 53\nkeystroke "a" using command down\nkeystroke "c" using command down\ndelay 1\nreturn entire contents of front window')
             run(case + "-dump", [str(dumper), str(output / case)])
             run(case + "-screen", ["screencapture", "-x", str(output / (case + ".png"))])
@@ -86,6 +90,17 @@ else:
                     ui_action(label + "-copy", 'keystroke "c" using command down\ndelay 1')
                     run(label + "-dump", [str(dumper), str(output / label)])
                     run(label + "-screen", ["screencapture", "-x", str(output / (label + ".png"))])
+        ink_tool = output / "ink-tool"
+        ink_compile = run("compile-ink", ["xcrun", "swiftc", "tools/freeform-experiment/ink.swift", "-o", str(ink_tool)], 90)
+        if ink_compile.get("exitCode") == 0:
+            ui_action("ink-new", 'click menu item "New Board" of menu "File" of menu bar item "File" of menu bar 1\ndelay 1')
+            run("ink-source", [str(ink_tool), str(output / "ink-reference")])
+            ui_action("ink-paste", 'keystroke "v" using command down\ndelay 2\nreturn entire contents of front window')
+            run("ink-paste-screen", ["screencapture", "-x", str(output / "ink-pasted.png")])
+            run("ink-clear-input", [str(dumper), str(output / "ink-returned"), "--clear"])
+            ui_action("ink-copy", 'key code 53\nkeystroke "a" using command down\nkeystroke "c" using command down\ndelay 1')
+            run("ink-returned-dump", [str(dumper), str(output / "ink-returned")])
+            run("ink-returned-native", [str(ink_tool), str(output / "ink-reference"), "--read"])
         ui_action("ink-controls", 'return {name of every menu item of menu "Insert" of menu bar item "Insert" of menu bar 1, entire contents of front window}')
         results["inkLimitation"] = "No pen/eraser creation command was observed in the macOS Insert menu. No fabricated PKDrawing is injected. Variable-width/erasure capture remains unverified."
         results["transformLimitation"] = "Nested grouping, translation, resize and command-drag rotation attempted. Coordinates are runner-layout-specific; compare stage screenshots and payload geometry before declaring success."
