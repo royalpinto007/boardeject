@@ -59,6 +59,54 @@ if #available(macOS 11.0, *) {
                   "transform": ["a": 1, "b": 0, "c": 0, "d": 1, "tx": 100, "ty": 50]], "pencilkit-reference.json")
     report["pencilKit"] = "passed: serialization, deserialization and native interpolation"
     report["sampleCount"] = samples.count
+
+    // Decoder evidence only: these strokes are Apple-generated, not Freeform captures.
+    // Keep binary payloads and native reference values together in experimental artifacts.
+    let variableControls = (0..<7).map { index in
+        PKStrokePoint(location: CGPoint(x: index * 20, y: 20),
+                      timeOffset: Double(index) * 0.1,
+                      size: CGSize(width: 2 + index * 2, height: 2 + index * 2),
+                      opacity: 1, force: CGFloat(index + 1) / 8,
+                      azimuth: 0, altitude: .pi / 2)
+    }
+    let variablePath = PKStrokePath(controlPoints: variableControls, creationDate: Date(timeIntervalSince1970: 0))
+    let unmasked = PKStroke(ink: PKInk(.pen, color: .black), path: variablePath, transform: .identity, mask: nil)
+    // Two retained rectangles leave a visible gap across the stroke centerline.
+    // This is a constructed clipping mask, NOT evidence of Freeform eraser output.
+    let mask = NSBezierPath(rect: CGRect(x: -20, y: -20, width: 65, height: 80))
+    mask.append(NSBezierPath(rect: CGRect(x: 75, y: -20, width: 65, height: 80)))
+    let masked = PKStroke(ink: unmasked.ink, path: variablePath, transform: .identity, mask: mask)
+    for (name, candidate) in [("variable-width", unmasked), ("masked-gap", masked)] {
+        let native = PKDrawing(strokes: [candidate])
+        let data = native.dataRepresentation()
+        try data.write(to: output.appendingPathComponent("\(name).drawing"), options: .atomic)
+        let roundTrip = try PKDrawing(data: data)
+        guard roundTrip.strokes.count == 1 else { throw NSError(domain: "BoardEject", code: 3) }
+        let restored = roundTrip.strokes[0]
+        let reference = restored.path.interpolatedPoints(by: .parametricStep(0.125)).map { point -> [String: Double] in
+            ["x": Double(point.location.x), "y": Double(point.location.y),
+             "width": Double(point.size.width), "height": Double(point.size.height),
+             "force": Double(point.force)]
+        }
+        let ranges = restored.maskedPathRanges.map { [Double($0.lowerBound), Double($0.upperBound)] }
+        guard Set(reference.map { $0["width"]! }).count > 1,
+              Set(reference.map { $0["force"]! }).count > 1 else {
+            throw NSError(domain: "BoardEject", code: 4, userInfo: [NSLocalizedDescriptionKey: "Native width/force variation did not survive serialization"])
+        }
+        if name == "masked-gap" && (restored.mask == nil || ranges.count < 2) {
+            throw NSError(domain: "BoardEject", code: 5, userInfo: [NSLocalizedDescriptionKey: "Native separated mask ranges did not survive serialization"])
+        }
+        try saveJSON(["origin": "Apple PencilKit construction, not Freeform",
+                      "freeformRoundTrip": false, "hasMask": restored.mask != nil,
+                      "maskedPathRanges": ranges, "samples": reference], "\(name)-reference.json")
+        let rendered = roundTrip.image(from: CGRect(x: -20, y: -20, width: 160, height: 80), scale: 2)
+        if let tiff = rendered.tiffRepresentation,
+           let bitmap = NSBitmapImageRep(data: tiff),
+           let png = bitmap.representation(using: .png, properties: [:]) {
+            try png.write(to: output.appendingPathComponent("\(name).png"), options: .atomic)
+        }
+    }
+    report["widthAndMaskReference"] = "passed: Apple serialization; Freeform round trip unverified"
 } else {
     report["pencilKit"] = "unavailable: macOS 11 or later is required for stroke inspection"
 }
