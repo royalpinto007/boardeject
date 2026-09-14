@@ -60,7 +60,7 @@ ui(
 ui("insert-marker", 'click menu item "Text Box" of menu "Insert" of menu bar item "Insert" of menu bar 1\ndelay 1\nkeystroke "BoardEject archive storage fixture"\ndelay 2\nkey code 53')
 ui(
     "rename-board",
-    'click static text 1 of group 1 of toolbar 1 of front window\n'
+    'click at {364, 56}\ndelay 0.15\nclick at {364, 56}\n'
     'delay 1\nkeystroke "a" using command down\n'
     'keystroke "BoardEject Archive Alpha"\nkey code 36\ndelay 3\n'
     'return value of static text 1 of group 1 of toolbar 1 of front window',
