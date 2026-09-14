@@ -156,6 +156,45 @@ def select_once(name, x, y):
     ui(f"{name}-settle", "delay 0.5")
 
 
+if os.environ.get("TABLE_ISSUE15_PHASE") == "colors":
+    # Apply the same unmistakable red swatch to one property at a time.
+    new_table()
+    fill_baseline()
+    capture("text-color-before")
+    select_cell("text-color-select", 450, 250)
+    ui("text-color-select-all", 'keystroke "a" using command down\ndelay 0.5')
+    run("text-color-open", [str(drag), "487", "426", "487", "426"])
+    run("text-color-red", [str(drag), "413", "512", "413", "512"])
+    capture("text-color-red")
+
+    new_table()
+    fill_baseline()
+    capture("cell-fill-before")
+    select_once("cell-fill-select", 450, 250)
+    run("cell-fill-open", [str(drag), "439", "426", "439", "426"])
+    run("cell-fill-red", [str(drag), "413", "512", "413", "512"])
+    capture("cell-fill-red")
+
+    # Select the whole table through its mover and inspect every exposed style
+    # control before attempting a border mutation.
+    select_once("table-cell-select", 450, 250)
+    run("table-mover-click", [str(drag), "256", "113", "256", "113"])
+    ui("table-style-tree", "return entire contents of front window")
+    run("table-style-screen", ["screencapture", "-x", str(out / "table-style.png")])
+
+    (out / "summary.json").write_text(
+        json.dumps(
+            {
+                "stage": "Issue 15 native table color differentials",
+                "verifiedFixture": False,
+                "rule": "Text and fill mappings require distinct native field changes and matching screenshots",
+            },
+            indent=2,
+        )
+    )
+    raise SystemExit(0)
+
+
 if os.environ.get("TABLE_ISSUE15_PHASE") == "palettes":
     # A single-click cell selection exposes the fill-style dot near the center
     # of the selected cell. Inspect its palette without changing a value.
