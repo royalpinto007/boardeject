@@ -50,6 +50,8 @@ if probe.returncode != 0:
     raise SystemExit("Freeform UI automation unavailable; inspect ui-permission.json in the workflow log.")
 ui("welcome", 'if exists static text "Welcome to Freeform" of group 1 of front window then\nclick at {510, 635}\ndelay 2\nend if')
 ui("new-board", 'click menu item "New Board" of menu "File" of menu bar item "File" of menu bar 1\ndelay 2')
+ui("file-menu-items", 'return name of every menu item of menu "File" of menu bar item "File" of menu bar 1')
+ui("front-window-tree", 'return entire contents of front window')
 ui("insert-marker", 'click menu item "Text Box" of menu "Insert" of menu bar item "Insert" of menu bar 1\ndelay 1\nkeystroke "BoardEject archive storage fixture"\ndelay 2\nkey code 53')
 run("screen", ["screencapture", "-x", str(out / "test-board.png")])
 
