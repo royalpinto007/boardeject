@@ -3,6 +3,25 @@ import { expect, it } from "vitest";
 import { decodeCrlNative } from "libfreeform";
 
 const root = "tests/fixtures/freeform-4.5/";
+
+it("keeps the genuine macOS pen result outside PencilKit ink support", () => {
+  const evidence = JSON.parse(
+    readFileSync(root + "macos-pen-shape-summary.json", "utf8"),
+  );
+  expect(evidence).toMatchObject({
+    nativeFreeformCopy: true,
+    itemClasses: ["Freeform.CRLWPShapeItem"],
+    drawingFlavorPresent: false,
+    freehandDrawingItemPresent: false,
+    eraserControlObserved: false,
+    pressureVerified: false,
+    importedDrawingUsed: false,
+  });
+  expect(evidence.pasteboardTypes).toContain(
+    "com.apple.freeform.CRLNativeData",
+  );
+  expect(evidence.pasteboardTypes).not.toContain("com.apple.drawing");
+});
 function objects(name: string): Record<string, any>[] {
   const all: Record<string, any>[] = [];
   function visit(value: unknown) {

@@ -27,7 +27,17 @@ These are native regression inputs, **not a claim of conversion support**.
 libfreeform 1.0.0 reports minimum version 7 as unsupported and does not recover
 their semantic geometry. Tests preserve that fail-closed behavior. JSON evidence
 is inspected independently; production does not silently substitute it for CRL.
-Failed table attempts and unverified ink are deliberately excluded.
+Failed table attempts and unverified binary ink are deliberately excluded.
+
+`macos-pen-shape-summary.json` is the sanitized evidence summary emitted by
+[run 34815085421](https://github.com/royalpinto007/boardeject/actions/runs/34815085421).
+The screenshot and byte-for-byte native payloads confirm that Freeform 4.5 on
+macOS copied the Draw with Pen result as `CRLWPShapeItem`. The selection had
+native Freeform data but no `com.apple.drawing`, no `CRLFreehandDrawingItem`,
+and no eraser exposed by the menu or toolbar accessibility trees. Only the
+non-sensitive summary is retained here. Raw experimental payloads, screenshots,
+session diagnostics and executables remain outside the repository. This fixture
+prevents a macOS vector pen capture from being mislabeled as PencilKit ink.
 
 ## Image and text differentials
 
