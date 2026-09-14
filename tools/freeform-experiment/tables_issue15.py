@@ -151,6 +151,57 @@ def fill_baseline():
         set_cell(f"baseline-{value}", x, y, value)
 
 
+def select_once(name, x, y):
+    run(name, [str(drag), str(x), str(y), str(x), str(y)])
+    ui(f"{name}-settle", "delay 0.5")
+
+
+if os.environ.get("TABLE_ISSUE15_PHASE") == "structure":
+    # Structural commands require a selected cell, not text-edit mode. Each
+    # command is isolated on a fresh table and verified only after capture.
+    for slug, x, y, command in [
+        ("row-insert", 450, 500, "Add Row Below"),
+        ("row-delete", 450, 500, "Delete Row"),
+        ("column-insert", 800, 250, "Add Column After"),
+        ("column-delete", 800, 250, "Delete Column"),
+    ]:
+        new_table()
+        fill_baseline()
+        capture(f"{slug}-before")
+        select_once(f"{slug}-select", x, y)
+        table_menu(f"{slug}-apply", command)
+        capture(f"{slug}-after")
+
+    # Select an entire row through Freeform's own menu, then drag its visible
+    # handle. This avoids the stale coordinate that blanked an earlier board.
+    new_table()
+    fill_baseline()
+    capture("row-reorder-before")
+    select_once("row-reorder-cell", 450, 250)
+    format_menu("row-reorder-select", "Table", "Select")
+    ui(
+        "row-reorder-select-row",
+        'click menu item "Row" of menu "Select" of menu item "Select" '
+        'of menu "Table" of menu item "Table" of menu "Format" '
+        'of menu bar item "Format" of menu bar 1\ndelay 1',
+    )
+    run("row-reorder-selected-screen", ["screencapture", "-x", str(out / "row-reorder-selected.png")])
+    run("row-reorder-drag", [str(drag), "256", "267", "256", "525"])
+    capture("row-reorder-after")
+
+    (out / "summary.json").write_text(
+        json.dumps(
+            {
+                "stage": "Issue 15 native structure differentials",
+                "verifiedFixture": False,
+                "rule": "A command is successful only when native records and screenshots confirm it",
+            },
+            indent=2,
+        )
+    )
+    raise SystemExit(0)
+
+
 if os.environ.get("TABLE_ISSUE15_PHASE") == "controls":
     # Discover Freeform's real controls before attempting further structural
     # mutations. Screenshots and accessibility output are evidence; clicks are
