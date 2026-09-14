@@ -156,6 +156,34 @@ def select_once(name, x, y):
     ui(f"{name}-settle", "delay 0.5")
 
 
+if os.environ.get("TABLE_ISSUE15_PHASE") == "rotation":
+    # A real Command key-down is held before hovering over the corner handle,
+    # matching Apple's documented rotation gesture. Each angle starts fresh.
+    for slug, target_x, target_y in [
+        ("small", 225, 235),
+        ("large", 197, 344),
+    ]:
+        new_table()
+        fill_baseline()
+        capture(f"rotate-{slug}-before")
+        run(
+            f"rotate-{slug}-drag",
+            [str(drag), "280", "138", str(target_x), str(target_y), "--command"],
+        )
+        capture(f"rotate-{slug}-after")
+    (out / "summary.json").write_text(
+        json.dumps(
+            {
+                "stage": "Issue 15 native table rotation differentials",
+                "verifiedFixture": False,
+                "rule": "Rotation requires a changed native rotation field and matching screenshot",
+            },
+            indent=2,
+        )
+    )
+    raise SystemExit(0)
+
+
 if os.environ.get("TABLE_ISSUE15_PHASE") == "advanced":
     # Discover the actual text-color palette from the verified contextual
     # toolbar location. No color is selected until its controls are known.
