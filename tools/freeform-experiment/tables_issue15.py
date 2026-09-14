@@ -156,6 +156,41 @@ def select_once(name, x, y):
     ui(f"{name}-settle", "delay 0.5")
 
 
+if os.environ.get("TABLE_ISSUE15_PHASE") == "palettes":
+    # A single-click cell selection exposes the fill-style dot near the center
+    # of the selected cell. Inspect its palette without changing a value.
+    new_table()
+    fill_baseline()
+    select_once("fill-cell-select", 450, 250)
+    run("fill-cell-selected-screen", ["screencapture", "-x", str(out / "fill-cell-selected.png")])
+    run("fill-palette-open", [str(drag), "439", "366", "439", "366"])
+    ui("fill-palette-tree", "return entire contents of front window")
+    run("fill-palette-screen", ["screencapture", "-x", str(out / "fill-palette.png")])
+
+    # Text-edit mode exposes a separate text-color dot. Inspect it on a fresh
+    # board so cell-fill and text-color controls cannot be confused.
+    new_table()
+    fill_baseline()
+    select_cell("text-cell-select", 450, 250)
+    ui("text-select-all", 'keystroke "a" using command down\ndelay 0.5')
+    run("text-cell-selected-screen", ["screencapture", "-x", str(out / "text-cell-selected.png")])
+    run("text-palette-open", [str(drag), "487", "426", "487", "426"])
+    ui("text-palette-tree", "return entire contents of front window")
+    run("text-palette-screen", ["screencapture", "-x", str(out / "text-palette.png")])
+
+    (out / "summary.json").write_text(
+        json.dumps(
+            {
+                "stage": "Issue 15 native table palette discovery",
+                "verifiedFixture": False,
+                "rule": "No style support is inferred before a deterministic swatch differential",
+            },
+            indent=2,
+        )
+    )
+    raise SystemExit(0)
+
+
 if os.environ.get("TABLE_ISSUE15_PHASE") == "rotation":
     # A real Command key-down is held before hovering over the corner handle,
     # matching Apple's documented rotation gesture. Each angle starts fresh.

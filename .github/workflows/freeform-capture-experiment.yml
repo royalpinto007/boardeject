@@ -16,6 +16,7 @@ on:
             tables-issue-15-style-controls,
             tables-issue-15-advanced,
             tables-issue-15-rotation,
+            tables-issue-15-palettes,
           ]
         default: tables
 permissions:
@@ -50,6 +51,8 @@ jobs:
             TABLE_ISSUE15_PHASE=advanced python3 tools/freeform-experiment/tables_issue15.py
           elif [ "$CAPTURE_SCENARIO" = "tables-issue-15-rotation" ]; then
             TABLE_ISSUE15_PHASE=rotation python3 tools/freeform-experiment/tables_issue15.py
+          elif [ "$CAPTURE_SCENARIO" = "tables-issue-15-palettes" ]; then
+            TABLE_ISSUE15_PHASE=palettes python3 tools/freeform-experiment/tables_issue15.py
           else
             python3 tools/freeform-experiment/differential.py
           fi
