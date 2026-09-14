@@ -106,6 +106,38 @@ catalog_result = run("catalog", [str(helper), "catalog", str(snapshot)], 120)
 if catalog_result.returncode != 0:
     raise SystemExit("Copied Freeform database did not pass the verified catalogue gate.")
 (out / "catalog-report.json").write_text(catalog_result.stdout)
+catalog_data = json.loads(catalog_result.stdout)
+catalog_boards = catalog_data.get("boards", [])
+if len(catalog_boards) != 1:
+    raise SystemExit(f"Expected one non-discardable test board, found {len(catalog_boards)}.")
+selected_board_id = str(catalog_boards[0]["id"])
+native_records = out / "native-board-records.json"
+extract_result = run(
+    "extract-selected-board",
+    [str(helper), "extract", str(snapshot), selected_board_id, str(native_records)],
+    120,
+)
+if extract_result.returncode != 0:
+    raise SystemExit("Selected native board records could not be extracted.")
+extracted = json.loads(native_records.read_text())
+tables = {table["name"]: table for table in extracted.get("tables", [])}
+if extracted.get("boardId") != selected_board_id or len(tables.get("boards", {}).get("rows", [])) != 1:
+    raise SystemExit("Selected-board extraction did not contain exactly the requested board.")
+(out / "extraction-report.json").write_text(
+    json.dumps(
+        {
+            "selectedBoardId": selected_board_id,
+            "tableRowCounts": {
+                name: len(table.get("rows", [])) for name, table in sorted(tables.items())
+            },
+            "unrelatedBoardRows": 0,
+            "sourceOpenedByBoardEject": False,
+            "copiedDatabaseOpenedReadOnly": True,
+        },
+        indent=2,
+        sort_keys=True,
+    )
+)
 
 copied_db = snapshot / "boards.db"
 # `immutable=1` is deliberately not used: it can ignore committed schema and
