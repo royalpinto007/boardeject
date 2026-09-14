@@ -164,6 +164,10 @@ Excalidraw and demonstrate converter output, not the unverified Freeform copy st
 
 ## Roadmap
 
+- Develop **Local Freeform Archive**, an experimental path to a local,
+  independently verifiable board snapshot with original assets. See
+  [safety and current status](docs/local-archive.md) and the draft
+  [archive format](docs/archive-format.md).
 - Add fixture-backed native conversion for labelled shapes, connectors and
   nonidentity group transforms.
 - Validate Freeform clipboard captures across additional macOS versions.
@@ -173,6 +177,10 @@ Excalidraw and demonstrate converter output, not the unverified Freeform copy st
 
 v0.0.2 freezes the verified scope above, not the remaining fidelity work.
 Contributions and non-sensitive native test captures are welcome.
+
+**Creates a local, verifiable archive of your Freeform board and original
+assets. Restore back into Apple Freeform is not supported yet.** Archive work is
+experimental and is not part of the current v0.0.2 compatibility claim.
 
 ## Contributing and credits
 

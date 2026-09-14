@@ -1,0 +1,104 @@
+# BoardEject archive format
+
+Status: experimental draft for the v0.0.3 milestone. No compatibility claim is
+made until genuine Freeform storage has passed the native validation gates.
+
+`*.boardejectarchive` is a ZIP-compatible container. Format version 1 uses a
+canonical JSON manifest and SHA-256 integrity records so verification does not
+require Apple Freeform or macOS.
+
+```text
+board.boardejectarchive
+├── manifest.json
+├── integrity.json
+├── native/board/
+│   ├── boards.db
+│   ├── boards.db-wal       # when present in the stable source set
+│   └── boards.db-shm       # when present in the stable source set
+├── assets/
+│   └── <sha256>.<ext>
+├── metadata/
+│   ├── board.json
+│   └── objects.json
+├── previews/
+│   └── preview.png         # optional
+└── exports/
+    └── board.excalidraw    # optional convenience export
+```
+
+## Manifest contract
+
+`manifest.json` has `format: "boardeject.archive"` and `version: 1`. It records:
+
+- archive creation time and verified source schema identity;
+- board ID, title, timestamps and object count where proven;
+- every payload file's path, role, byte size and SHA-256;
+- every native asset reference, including source ID, related object IDs,
+  original filename, MIME type, archive path and preservation status;
+- missing-asset warnings;
+- whether an optional editable Excalidraw export is present.
+
+An asset may be `preserved`, `duplicate` or `missing`. Byte-identical assets
+share one archive payload and keep separate native references. Original bytes
+are not recompressed or transformed before being stored. File extensions are
+sanitized and are not treated as proof of media type.
+
+The optional Excalidraw file is a convenience export. Native snapshot data and
+original assets are the preservation layer.
+
+## Determinism
+
+Entries are sorted by path, stored without ZIP compression, and use the ZIP
+epoch timestamp. JSON object keys are sorted recursively. Given the same input,
+including `createdAt`, the writer produces the same bytes.
+
+## Integrity model
+
+Each payload entry is covered by its manifest SHA-256 and byte size.
+`integrity.json` covers the exact `manifest.json` bytes. Verification checks:
+
+- ZIP parsing and truncation;
+- required manifest and integrity records;
+- supported format and schema status;
+- safe relative paths and duplicate records;
+- expected, missing and undeclared files;
+- payload byte sizes and SHA-256 hashes;
+- asset hashes, object references and deduplication relationships;
+- optional export declarations.
+
+This detects corruption and accidental modification. It is not a digital
+signature and does not prove who created an archive. A person able to replace
+both an archive and all of its checksums can construct a different valid
+archive.
+
+## Path safety
+
+Archive paths must be relative, use `/`, and contain no empty, `.` or `..`
+segments. Drive paths, absolute paths, backslashes and NUL bytes are rejected.
+Source filenames never become archive paths without sanitization. Verification
+fails on undeclared entries.
+
+## Compatibility
+
+Version 1 readers reject an unsupported major manifest version. Additive fields
+may be introduced only when older readers can ignore them safely. A breaking
+layout or semantic change requires a new manifest version and a documented
+migration strategy.
+
+The source database adapter is a separate compatibility boundary. Archive
+creation requires `schemaStatus: "verified"`, a database user version and a
+structural fingerprint. Unknown schemas fail closed.
+
+## Current validation boundary
+
+The writer and independent verifier have synthetic regression coverage for
+determinism, hashes, duplicate and missing assets, corruption, tampering, unsafe
+paths, optional exports and large byte payloads. The macOS helper has a CI gate
+for byte-stable DB/WAL/SHM copying without source changes.
+
+Board discovery, genuine Freeform schema selection, board-scoped native data
+extraction and original asset resolution still require genuine Freeform storage
+evidence. They are not claimed as supported yet.
+
+**Creates a local, verifiable archive of your Freeform board and original
+assets. Restore back into Apple Freeform is not supported yet.**

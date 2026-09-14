@@ -456,6 +456,26 @@ function App() {
               Run locally ↗
             </a>
           </p>
+          <details className="support-notes archive-preview">
+            <summary>Local Freeform Archive · experimental</summary>
+            <p>
+              Creates a local, verifiable archive of your Freeform board and
+              original assets. Restore back into Apple Freeform is not supported
+              yet.
+            </p>
+            <p>
+              Archive development is validating read-only native snapshots,
+              asset preservation and independent SHA-256 verification. No
+              Freeform database version is advertised as archive-compatible yet.
+            </p>
+            <a
+              href="https://github.com/royalpinto007/boardeject/blob/main/docs/local-archive.md"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Read the development status ↗
+            </a>
+          </details>
         </section>
         <footer className="site-footer">
           <div>

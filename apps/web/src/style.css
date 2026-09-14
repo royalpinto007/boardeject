@@ -433,6 +433,9 @@ a {
   gap: 12px 24px;
   margin-top: 24px;
 }
+.archive-preview {
+  margin-top: 28px;
+}
 .support-notes summary {
   cursor: pointer;
   color: #294d36;
