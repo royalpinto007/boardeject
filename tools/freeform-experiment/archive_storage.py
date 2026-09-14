@@ -5,11 +5,17 @@ import json
 import os
 from pathlib import Path
 import sqlite3
+import struct
 import subprocess
+import zlib
 
 out = Path(os.environ["CAPTURE_OUTPUT"])
 out.mkdir(parents=True, exist_ok=True)
 results: dict[str, object] = {}
+
+
+def png_chunk(kind: bytes, data: bytes) -> bytes:
+    return struct.pack(">I", len(data)) + kind + data + struct.pack(">I", zlib.crc32(kind + data))
 
 
 def run(name: str, args: list[str], timeout: int = 60) -> subprocess.CompletedProcess[str]:
@@ -45,6 +51,55 @@ run("macos", ["sw_vers"])
 run("freeform-version", ["defaults", "read", "/System/Applications/Freeform.app/Contents/Info", "CFBundleShortVersionString"])
 run("launch", ["open", "-a", "/System/Applications/Freeform.app"])
 run("activate", ["osascript", "-e", 'tell application "Freeform" to activate'])
+source_dir = out / "controlled-assets"
+source_dir.mkdir()
+pixels = b"".join(
+    b"\0" + b"".join(bytes((210, 30, 55, 255)) if x < 24 else bytes((20, 110, 215, 255)) for x in range(48))
+    for _ in range(32)
+)
+image_source = source_dir / "archive-image.png"
+image_source.write_bytes(
+    b"\x89PNG\r\n\x1a\n"
+    + png_chunk(b"IHDR", struct.pack(">IIBBBBB", 48, 32, 8, 6, 0, 0, 0))
+    + png_chunk(b"IDAT", zlib.compress(pixels))
+    + png_chunk(b"IEND", b"")
+)
+text_source = source_dir / "archive-file.txt"
+text_source.write_text("BoardEject generic attachment sentinel\n")
+pdf_source = source_dir / "archive-document.pdf"
+with pdf_source.open("wb") as pdf_output:
+    pdf_result = subprocess.run(
+        ["cupsfilter", "-m", "application/pdf", str(text_source)],
+        stdout=pdf_output,
+        stderr=subprocess.PIPE,
+        timeout=60,
+    )
+results["generate-pdf"] = {
+    "exitCode": pdf_result.returncode,
+    "stderr": pdf_result.stderr.decode(errors="replace"),
+}
+if pdf_result.returncode != 0:
+    raise SystemExit("Controlled PDF generation failed.")
+video_source = source_dir / "archive-video.mp4"
+video_result = run(
+    "generate-video",
+    [
+        "ffmpeg", "-hide_banner", "-loglevel", "error", "-f", "lavfi",
+        "-i", "color=c=0x2447aa:s=64x48:d=0.4", "-an", "-c:v", "libx264",
+        "-pix_fmt", "yuv420p", "-movflags", "+faststart", str(video_source),
+    ],
+    120,
+)
+if video_result.returncode != 0:
+    raise SystemExit("Controlled video generation failed.")
+clipboard_helper = out / "file-clipboard"
+clipboard_compile = run(
+    "compile-file-clipboard",
+    ["xcrun", "swiftc", "tools/freeform-experiment/file_clipboard.swift", "-o", str(clipboard_helper)],
+    120,
+)
+if clipboard_compile.returncode != 0:
+    raise SystemExit("File clipboard helper did not compile.")
 probe = ui("ui-permission", 'return name of every menu bar item of menu bar 1')
 if probe.returncode != 0:
     raise SystemExit("Freeform UI automation unavailable; inspect ui-permission.json in the workflow log.")
@@ -58,6 +113,17 @@ ui(
     'return {properties of titleElement, name of every action of titleElement}',
 )
 ui("insert-marker", 'click menu item "Text Box" of menu "Insert" of menu bar item "Insert" of menu bar 1\ndelay 1\nkeystroke "BoardEject archive storage fixture"\ndelay 2\nkey code 53')
+run(
+    "image-clipboard",
+    [
+        "osascript", "-e",
+        'set the clipboard to (read POSIX file ' + json.dumps(str(image_source)) + ' as «class PNGf»)',
+    ],
+)
+ui("paste-image", 'keystroke "v" using command down\ndelay 2')
+for kind, source in (("pdf", pdf_source), ("video", video_source), ("file", text_source)):
+    run(f"{kind}-clipboard", [str(clipboard_helper), str(source)])
+    ui(f"paste-{kind}", 'keystroke "v" using command down\ndelay 2')
 ui("finish-marker", 'key code 53\ndelay 1')
 pointer = out / "native-pointer"
 pointer_compile = run("compile-native-pointer", ["xcrun", "swiftc", "tools/freeform-experiment/drag.swift", "-o", str(pointer)], 120)
