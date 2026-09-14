@@ -161,6 +161,30 @@ it("preserves genuine empty and multiline cells without inventing text", () => {
   ]);
 });
 
+it.each([
+  ["row-insert-after", 3, 2, ["A1", "B1", "A2", "B2", "", ""]],
+  ["row-delete-after", 1, 2, ["A1", "B1"]],
+  ["column-insert-after", 2, 3, ["A1", "B1", "", "A2", "B2", ""]],
+  ["column-delete-after", 2, 1, ["A1", "A2"]],
+] as const)(
+  "preserves genuine native structure in %s",
+  (name, rowCount, columnCount, expectedText) => {
+    const file = readFileSync(root + "variants/" + name + ".crlnative");
+    const table = recoverNativeTable(decodeCrlNative(file));
+    expect(table).toBeDefined();
+    expect(table!.rowHeights).toHaveLength(rowCount);
+    expect(table!.columnWidths).toHaveLength(columnCount);
+    expect(table!.cells.map((cell) => cell.text)).toEqual(expectedText);
+    const board = inspectCaptureFile(name + ".crlnative", file);
+    expect(
+      board.nodes.filter((node) => node.kind === "rectangle"),
+    ).toHaveLength(rowCount * columnCount);
+    expect(board.nodes.filter((node) => node.kind === "text")).toHaveLength(
+      expectedText.filter(Boolean).length,
+    );
+  },
+);
+
 it("fails safely for a genuine multiple-table selection", () => {
   const file = readFileSync(root + "variants/multiple-tables.crlnative");
   expect(recoverNativeTable(decodeCrlNative(file))).toBeUndefined();

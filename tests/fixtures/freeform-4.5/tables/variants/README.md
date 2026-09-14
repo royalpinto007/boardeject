@@ -22,6 +22,11 @@ Run [34809848610](https://github.com/royalpinto007/boardeject/actions/runs/34809
 produced a successful combined unequal-column and unequal-row differential.
 The decoded dimensions and screenshot independently agree.
 
+Run [34810036922](https://github.com/royalpinto007/boardeject/actions/runs/34810036922)
+produced successful row/column insertion and deletion differentials. Empty cells
+introduced by Freeform are represented by native axis entries without cell text
+objects. The failed row-reorder attempt was not promoted.
+
 The attempted combined resize, row reorder, insert, and delete operations did
 not produce the intended native change and were not promoted. A successful
 process exit is not treated as evidence.
