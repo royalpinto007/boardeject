@@ -18,6 +18,7 @@ on:
             tables-issue-15-rotation,
             tables-issue-15-palettes,
             tables-issue-15-colors,
+            tables-issue-15-remaining,
           ]
         default: tables
 permissions:
@@ -56,6 +57,8 @@ jobs:
             TABLE_ISSUE15_PHASE=palettes python3 tools/freeform-experiment/tables_issue15.py
           elif [ "$CAPTURE_SCENARIO" = "tables-issue-15-colors" ]; then
             TABLE_ISSUE15_PHASE=colors python3 tools/freeform-experiment/tables_issue15.py
+          elif [ "$CAPTURE_SCENARIO" = "tables-issue-15-remaining" ]; then
+            TABLE_ISSUE15_PHASE=remaining python3 tools/freeform-experiment/tables_issue15.py
           else
             python3 tools/freeform-experiment/differential.py
           fi

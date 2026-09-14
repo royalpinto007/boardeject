@@ -156,6 +156,69 @@ def select_once(name, x, y):
     ui(f"{name}-settle", "delay 0.5")
 
 
+if os.environ.get("TABLE_ISSUE15_PHASE") == "remaining":
+    # Inspect the whole-table style popover. A border differential is attempted
+    # only after the exposed controls are identified.
+    new_table()
+    fill_baseline()
+    capture("border-baseline")
+    select_once("border-cell-select", 450, 250)
+    run("border-table-mover", [str(drag), "256", "113", "256", "113"])
+    run("border-style-open", [str(drag), "624", "108", "624", "108"])
+    ui("border-style-tree", "return entire contents of front window")
+    run("border-style-screen", ["screencapture", "-x", str(out / "border-style.png")])
+
+    # Apple documents that pasted items can be anchored inside table cells.
+    # Create a text box first, cut it, then paste it into A1 on a fresh table.
+    ui(
+        "embedded-new-board",
+        'click menu item "New Board" of menu "File" of menu bar item "File" '
+        "of menu bar 1\ndelay 1\n"
+        "set position of front window to {0, 25}\n"
+        "set size of front window to {1000, 680}\ndelay 1\n"
+        'click menu item "Text Box" of menu "Insert" of menu bar item "Insert" '
+        'of menu bar 1\ndelay 0.5\nkeystroke "CELL OBJECT"\ndelay 0.5\n'
+        'keystroke "x" using command down\ndelay 0.5\n'
+        'click menu item "Table" of menu "Insert" of menu bar item "Insert" '
+        "of menu bar 1\ndelay 1",
+    )
+    fill_baseline()
+    capture("embedded-before")
+    select_once("embedded-cell-select", 450, 250)
+    ui("embedded-paste", 'keystroke "v" using command down\ndelay 1')
+    capture("embedded-after")
+
+    # Capture two differently sized tables plus surrounding editable text.
+    new_table()
+    fill_baseline()
+    run("multi-first-resize", [str(drag), "624", "300", "524", "300"])
+    ui(
+        "multi-second-table",
+        "click at {850, 100}\n"
+        'click menu item "Table" of menu "Insert" of menu bar item "Insert" '
+        "of menu bar 1\ndelay 1",
+    )
+    ui(
+        "multi-surrounding-text",
+        "click at {850, 100}\n"
+        'click menu item "Text Box" of menu "Insert" of menu bar item "Insert" '
+        'of menu bar 1\ndelay 0.5\nkeystroke "SURROUNDING TEXT"\ndelay 0.5\nkey code 53',
+    )
+    capture("multiple-mixed")
+
+    (out / "summary.json").write_text(
+        json.dumps(
+            {
+                "stage": "Issue 15 border, anchored-content and multiple-table discovery",
+                "verifiedFixture": False,
+                "rule": "Promote only structures proven by native records and screenshots",
+            },
+            indent=2,
+        )
+    )
+    raise SystemExit(0)
+
+
 if os.environ.get("TABLE_ISSUE15_PHASE") == "colors":
     # Apply the same unmistakable red swatch to one property at a time.
     new_table()
