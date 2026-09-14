@@ -4,6 +4,7 @@ import hashlib
 import json
 import os
 from pathlib import Path
+import shutil
 import sqlite3
 import struct
 import subprocess
@@ -222,6 +223,41 @@ if unrelated_uuid_bytes in all_extracted_bytes or b"BoardEject unrelated board s
             "unrelatedBoardRows": 0,
             "sourceOpenedByBoardEject": False,
             "copiedDatabaseOpenedReadOnly": True,
+        },
+        indent=2,
+        sort_keys=True,
+    )
+)
+
+assets_root = database.parent / "Assets"
+asset_inventory: list[dict[str, object]] = []
+captured_assets = out / "captured-assets"
+captured_assets.mkdir()
+if assets_root.is_dir() and not assets_root.is_symlink():
+    resolved_root = assets_root.resolve()
+    for asset_path in sorted(assets_root.rglob("*")):
+        if not asset_path.is_file() or asset_path.is_symlink():
+            continue
+        resolved = asset_path.resolve()
+        if resolved_root not in resolved.parents:
+            raise SystemExit("Freeform asset escaped the verified Assets root.")
+        relative = asset_path.relative_to(assets_root)
+        digest = hashlib.sha256(asset_path.read_bytes()).hexdigest()
+        asset_inventory.append(
+            {"path": str(relative), "bytes": asset_path.stat().st_size, "sha256": digest}
+        )
+        destination = captured_assets / relative
+        destination.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copyfile(asset_path, destination, follow_symlinks=False)
+(out / "asset-inventory.json").write_text(
+    json.dumps(
+        {
+            "assetsRootRelativeToDatabase": str(assets_root.relative_to(database.parent)),
+            "files": asset_inventory,
+            "controlledSourceHashes": {
+                source.name: hashlib.sha256(source.read_bytes()).hexdigest()
+                for source in (image_source, pdf_source, video_source, text_source)
+            },
         },
         indent=2,
         sort_keys=True,
