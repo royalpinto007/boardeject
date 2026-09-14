@@ -368,6 +368,35 @@ if os.environ.get("TABLE_ISSUE15_PHASE") == "border-details":
     raise SystemExit(0)
 
 
+if os.environ.get("TABLE_ISSUE15_PHASE") == "embedded-copy":
+    new_table()
+    fill_baseline()
+    ui(
+        "embedded-copy-create",
+        'click menu item "Text Box" of menu "Insert" of menu bar item "Insert" '
+        'of menu bar 1\ndelay 0.5\nkeystroke "CELL OBJECT"\ndelay 0.5\nkey code 53\ndelay 0.5',
+    )
+    capture("embedded-copy-before")
+    # Re-select only the text object after capture() selected the whole board.
+    select_once("embedded-copy-object", 624, 395)
+    ui("embedded-copy-object-copy", 'keystroke "c" using command down\ndelay 0.5')
+    select_once("embedded-copy-cell", 450, 250)
+    ui("embedded-copy-paste", 'keystroke "v" using command down\ndelay 1')
+    capture("embedded-copy-after")
+
+    (out / "summary.json").write_text(
+        json.dumps(
+            {
+                "stage": "Issue 15 native copy-into-cell differential",
+                "verifiedFixture": False,
+                "rule": "Attachment requires a native relationship change and matching screenshot",
+            },
+            indent=2,
+        )
+    )
+    raise SystemExit(0)
+
+
 if os.environ.get("TABLE_ISSUE15_PHASE") == "multiple":
     # Keep two tables spatially separate and give them unmistakable dimensions
     # and content so native item boundaries can be validated deterministically.
