@@ -58,14 +58,9 @@ ui(
     'return {properties of titleElement, name of every action of titleElement}',
 )
 ui("insert-marker", 'click menu item "Text Box" of menu "Insert" of menu bar item "Insert" of menu bar 1\ndelay 1\nkeystroke "BoardEject archive storage fixture"\ndelay 2\nkey code 53')
-ui(
-    "rename-board",
-    'click at {364, 56}\ndelay 0.15\nclick at {364, 56}\n'
-    'delay 1\nkeystroke "a" using command down\n'
-    'keystroke "BoardEject Archive Alpha"\nkey code 36\ndelay 3\n'
-    'return value of static text 1 of group 1 of toolbar 1 of front window',
-)
-ui("renamed-window-tree", 'return entire contents of front window')
+ui("finish-marker", 'key code 53\ndelay 1')
+ui("show-board-browser", 'click button 1 of toolbar 1 of front window\ndelay 3\nreturn entire contents of front window')
+ui("browser-file-menu-items", 'return name of every menu item of menu "File" of menu bar item "File" of menu bar 1')
 run("screen", ["screencapture", "-x", str(out / "test-board.png")])
 
 root = Path.home() / "Library" / "Group Containers" / "group.com.apple.freeform"
