@@ -66,12 +66,12 @@ if pointer_compile.returncode != 0:
 run("show-board-browser-click", [str(pointer), "303", "57", "303", "57", "--click"])
 ui("show-board-browser", 'delay 3\nreturn entire contents of front window')
 ui("browser-file-menu-items", 'return name of every menu item of menu "File" of menu bar item "File" of menu bar 1')
+run("activate-title-editor", [str(pointer), "365", "303", "365", "303", "--double"])
 ui(
     "rename-board",
+    'keystroke "a" using command down\nkeystroke "BoardEject Archive Alpha"\n'
+    'key code 36\ndelay 3\n'
     'set boardCard to button 1 of list 1 of list 1 of scroll area 2 of splitter group 1 of front window\n'
-    'perform action "AXShowMenu" of boardCard\ndelay 1\n'
-    'click menu item "Rename" of menu 1\ndelay 1\n'
-    'keystroke "BoardEject Archive Alpha"\nkey code 36\ndelay 3\n'
     'return value of static text 1 of boardCard',
 )
 run("screen", ["screencapture", "-x", str(out / "test-board.png")])
