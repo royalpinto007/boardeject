@@ -219,6 +219,62 @@ if os.environ.get("TABLE_ISSUE15_PHASE") == "remaining":
     raise SystemExit(0)
 
 
+if os.environ.get("TABLE_ISSUE15_PHASE") == "borders":
+    def open_table_style(prefix):
+        select_once(f"{prefix}-cell-select", 450, 250)
+        run(f"{prefix}-table-mover", [str(drag), "256", "113", "256", "113"])
+        run(f"{prefix}-style-open", [str(drag), "624", "108", "624", "108"])
+
+    # Each board starts from the same 2x2 table. The accessibility controls
+    # are used directly so every capture changes exactly one border property.
+    new_table()
+    fill_baseline()
+    capture("border-mode-before")
+    open_table_style("border-mode")
+    ui(
+        "border-mode-none",
+        "click checkbox 1 of group 1 of pop over 1 of button 2 of scroll area 2 "
+        "of splitter group 1 of front window\ndelay 1",
+    )
+    capture("border-mode-none")
+
+    new_table()
+    fill_baseline()
+    capture("border-width-before")
+    open_table_style("border-width")
+    ui(
+        "border-width-set",
+        "set value of text field 1 of pop over 1 of button 2 of scroll area 2 "
+        "of splitter group 1 of front window to \"3 pt\"\nkey code 36\ndelay 1",
+    )
+    capture("border-width-three")
+
+    new_table()
+    fill_baseline()
+    capture("border-style-before")
+    open_table_style("border-style")
+    ui(
+        "border-style-open-menu",
+        "click pop up button 1 of pop over 1 of button 2 of scroll area 2 "
+        "of splitter group 1 of front window\ndelay 1\n"
+        "return entire contents of menu 1 of pop up button 1 of pop over 1 "
+        "of button 2 of scroll area 2 of splitter group 1 of front window",
+    )
+    run("border-style-menu-screen", ["screencapture", "-x", str(out / "border-style-menu.png")])
+
+    (out / "summary.json").write_text(
+        json.dumps(
+            {
+                "stage": "Issue 15 native table border differentials",
+                "verifiedFixture": False,
+                "rule": "Promote only border changes proven by native records and screenshots",
+            },
+            indent=2,
+        )
+    )
+    raise SystemExit(0)
+
+
 if os.environ.get("TABLE_ISSUE15_PHASE") == "colors":
     # Apply the same unmistakable red swatch to one property at a time.
     new_table()
