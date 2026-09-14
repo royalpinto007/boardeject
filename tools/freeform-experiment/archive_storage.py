@@ -66,14 +66,14 @@ if pointer_compile.returncode != 0:
 run("show-board-browser-click", [str(pointer), "303", "57", "303", "57", "--click"])
 ui("show-board-browser", 'delay 3\nreturn entire contents of front window')
 ui("browser-file-menu-items", 'return name of every menu item of menu "File" of menu bar item "File" of menu bar 1')
-run("activate-title-editor", [str(pointer), "365", "303", "365", "303", "--double"])
+ui("second-board", 'click menu item "New Board" of menu "File" of menu bar item "File" of menu bar 1\ndelay 2')
 ui(
-    "rename-board",
-    'keystroke "a" using command down\nkeystroke "BoardEject Archive Alpha"\n'
-    'key code 36\ndelay 3\n'
-    'set boardCard to button 1 of list 1 of list 1 of scroll area 2 of splitter group 1 of front window\n'
-    'return value of static text 1 of boardCard',
+    "second-board-marker",
+    'click menu item "Text Box" of menu "Insert" of menu bar item "Insert" of menu bar 1\n'
+    'delay 1\nkeystroke "BoardEject unrelated board sentinel"\ndelay 2\nkey code 53',
 )
+run("return-to-board-browser", [str(pointer), "303", "57", "303", "57", "--click"])
+ui("two-board-browser", 'delay 3\nreturn entire contents of front window')
 run("screen", ["screencapture", "-x", str(out / "test-board.png")])
 
 root = Path.home() / "Library" / "Group Containers" / "group.com.apple.freeform"
@@ -108,9 +108,12 @@ if catalog_result.returncode != 0:
 (out / "catalog-report.json").write_text(catalog_result.stdout)
 catalog_data = json.loads(catalog_result.stdout)
 catalog_boards = catalog_data.get("boards", [])
-if len(catalog_boards) != 1:
-    raise SystemExit(f"Expected one non-discardable test board, found {len(catalog_boards)}.")
-selected_board_id = str(catalog_boards[0]["id"])
+if len(catalog_boards) != 2:
+    raise SystemExit(f"Expected two non-discardable test boards, found {len(catalog_boards)}.")
+# The older board is selected deliberately. The newer board contains a unique
+# sentinel that must never appear in the selected board's native record set.
+selected_board_id = str(catalog_boards[1]["id"])
+unrelated_board_id = str(catalog_boards[0]["id"])
 native_records = out / "native-board-records.json"
 extract_result = run(
     "extract-selected-board",
@@ -123,6 +126,25 @@ extracted = json.loads(native_records.read_text())
 tables = {table["name"]: table for table in extracted.get("tables", [])}
 if extracted.get("boardId") != selected_board_id or len(tables.get("boards", {}).get("rows", [])) != 1:
     raise SystemExit("Selected-board extraction did not contain exactly the requested board.")
+
+
+def native_bytes(value: dict[str, object]) -> bytes:
+    if value.get("type") == "blob":
+        import base64
+
+        return base64.b64decode(str(value.get("value") or ""))
+    return str(value.get("value") or "").encode()
+
+
+all_extracted_bytes = b"\n".join(
+    native_bytes(value)
+    for table in extracted.get("tables", [])
+    for row in table.get("rows", [])
+    for value in row
+)
+unrelated_uuid_bytes = bytes.fromhex(unrelated_board_id.replace("-", ""))
+if unrelated_uuid_bytes in all_extracted_bytes or b"BoardEject unrelated board sentinel" in all_extracted_bytes:
+    raise SystemExit("Selected-board extraction leaked unrelated board data.")
 (out / "extraction-report.json").write_text(
     json.dumps(
         {
@@ -130,6 +152,7 @@ if extracted.get("boardId") != selected_board_id or len(tables.get("boards", {})
             "tableRowCounts": {
                 name: len(table.get("rows", [])) for name, table in sorted(tables.items())
             },
+            "unrelatedBoardId": unrelated_board_id,
             "unrelatedBoardRows": 0,
             "sourceOpenedByBoardEject": False,
             "copiedDatabaseOpenedReadOnly": True,
