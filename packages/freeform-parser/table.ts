@@ -93,6 +93,15 @@ export function convertTable(
         groups,
         text: cell.text.plain,
         fontSize: Math.max(8, Math.min(100, cell.text.runs[0]?.fontSize ?? 16)),
+        textAlign: (["left", "center", "right"] as const).includes(
+          cell.text.runs[0]?.paragraphAlignment as never,
+        )
+          ? (cell.text.runs[0].paragraphAlignment as
+              "left" | "center" | "right")
+          : undefined,
+        sourceStyle: cell.text.runs.length
+          ? { runs: cell.text.runs }
+          : undefined,
       });
   }
   if (occupied.size !== rows.length * cols.length)

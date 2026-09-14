@@ -128,6 +128,9 @@ export function recoverNativeTable(native: FreeformNative) {
     )
       return;
     const keys = all(bytes(path(table, [6, 0])), 3).map(bytes);
+    const attributeNames = all(bytes(path(table, [6, 0])), 2).map((value) =>
+      text(bytes(value)),
+    );
     const objects = all(table, 4).map(bytes);
     if (!objects.length || objects.length > 11000) return;
     const props = all(bytes(path(objects[0], [4, 0], [4, 0])), 2).map(bytes);
@@ -168,7 +171,17 @@ export function recoverNativeTable(native: FreeformNative) {
     if (axisKeyIndices.flat().some((index, expected) => index !== expected))
       return;
     const sizes = new Map<string, number>();
-    const cells: { row: number; column: number; text: string }[] = [];
+    const cells: {
+      row: number;
+      column: number;
+      text: string;
+      style?: {
+        bold?: boolean;
+        italic?: boolean;
+        fontSize?: number;
+        paragraphAlignment?: "left";
+      };
+    }[] = [];
     for (const obj of objects.slice(1)) {
       const keyBytes = bytes(path(obj, [5, 0], [2, 0])),
         key = hex(keyBytes);
@@ -193,12 +206,58 @@ export function recoverNativeTable(native: FreeformNative) {
           cells.some((c) => c.row === row && c.column === column)
         )
           return;
-        const content = text(
-          bytes(
-            path(obj, [4, 0], [4, 0], [2, 0], [4, 0], [2, 0], [5, 0], [1, 0]),
+        const contentRecord = bytes(
+            path(obj, [4, 0], [4, 0], [2, 0], [4, 0], [2, 0], [5, 0]),
           ),
-        );
-        cells.push({ row, column, text: content });
+          content = text(bytes(path(contentRecord, [1, 0]))),
+          style: NonNullable<(typeof cells)[number]["style"]> = {},
+          seenAttributes = new Set<string>();
+        for (const value of all(contentRecord, 6)) {
+          const attribute = bytes(value),
+            attributeValues = all(attribute, 2);
+          // Field 6 also carries CRDT bookkeeping. A field-2 payload is the
+          // optional formatting record observed in the native differentials.
+          if (!attributeValues.length) continue;
+          for (const attributeValue of attributeValues) {
+            const attributeRecord = bytes(attributeValue),
+              nameIndex = num(path(attributeRecord, [1, 0])),
+              valueRecord = bytes(path(attributeRecord, [2, 0]));
+            if (
+              !Number.isInteger(nameIndex) ||
+              nameIndex < 0 ||
+              nameIndex >= attributeNames.length
+            )
+              return;
+            const name = attributeNames[nameIndex];
+            // Multiline native text repeats base writing direction per paragraph.
+            // Repeated attributes are safe only when every observed value agrees.
+            if (seenAttributes.has(name) && name !== "baseWritingDirection")
+              return;
+            seenAttributes.add(name);
+            if (name === "baseWritingDirection") {
+              if (num(path(valueRecord, [5, 0])) !== 0) return;
+            } else if (name === "bold") {
+              if (num(path(valueRecord, [5, 0])) !== 2) return;
+              style.bold = true;
+            } else if (name === "italic") {
+              if (num(path(valueRecord, [5, 0])) !== 2) return;
+              style.italic = true;
+            } else if (name === "fontSize") {
+              const fontSize = num(path(valueRecord, [15, 0]));
+              if (fontSize < 8 || fontSize > 500) return;
+              style.fontSize = fontSize;
+            } else if (name === "paragraphAlignment") {
+              if (num(path(valueRecord, [5, 0])) !== 0) return;
+              style.paragraphAlignment = "left";
+            } else return;
+          }
+        }
+        cells.push({
+          row,
+          column,
+          text: content,
+          ...(Object.keys(style).length ? { style } : {}),
+        });
       } else return;
     }
     if (sizes.size !== rows.length + columns.length) return;

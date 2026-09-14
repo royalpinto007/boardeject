@@ -68,7 +68,19 @@ export function normalize(pasteboard: FreeformPasteboard): Board {
               columnSpan: 1,
               anchoredItemIds: [],
               style: { shadows: [] },
-              text: { plain: cell.text, runs: [] },
+              text: {
+                plain: cell.text,
+                runs: [
+                  {
+                    start: 0,
+                    end: cell.text.length,
+                    fontSize: cell.style?.fontSize ?? 18,
+                    bold: cell.style?.bold,
+                    italic: cell.style?.italic,
+                    paragraphAlignment: cell.style?.paragraphAlignment,
+                  },
+                ],
+              },
             })),
           },
           {

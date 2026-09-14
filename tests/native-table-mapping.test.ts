@@ -169,6 +169,32 @@ it("fails safely for a genuine multiple-table selection", () => {
     true,
   );
 });
+
+it.each([
+  ["format-bold", { bold: true }, { bold: true, fontSize: 18 }],
+  ["format-italic", { italic: true }, { italic: true, fontSize: 18 }],
+  ["format-font-bigger", { fontSize: 19 }, { fontSize: 19 }],
+  [
+    "format-align-left",
+    { paragraphAlignment: "left" },
+    { paragraphAlignment: "left", fontSize: 18 },
+  ],
+] as const)(
+  "preserves verified native cell formatting in %s",
+  (name, nativeStyle, convertedStyle) => {
+    const file = readFileSync(root + "variants/" + name + ".crlnative");
+    const table = recoverNativeTable(decodeCrlNative(file));
+    expect(table!.cells[0]).toMatchObject({ text: "A1", style: nativeStyle });
+    const output = convert(inspectCaptureFile(name + ".crlnative", file));
+    const text = output.elements.find((element) => element.type === "text");
+    expect(text).toMatchObject({
+      text: "A1",
+      fontSize: convertedStyle.fontSize,
+      textAlign: "left",
+      customData: { boardejectSourceStyle: { runs: [convertedStyle] } },
+    });
+  },
+);
 it("rejects truncated archives and mismatched board identity", () => {
   const native = decodeCrlNative(
     readFileSync(root + "table-baseline.crlnative"),
