@@ -38,7 +38,7 @@ jobs:
     steps:
       - uses: actions/checkout@v7
       - run: swiftc apps/mac-helper/main.swift -o /tmp/boardeject-helper
-      - run: swiftc apps/archive-helper/main.swift -o /tmp/boardeject-archive-helper
+      - run: swiftc apps/archive-helper/main.swift -lsqlite3 -o /tmp/boardeject-archive-helper
       - name: Verify helper command-line onboarding
         run: |
           set +e
@@ -63,3 +63,15 @@ jobs:
           cmp "$source_dir/boards.db-shm" "$snapshot_dir/boards.db-shm"
           grep -F '"format" : "boardeject.native-snapshot"' "$snapshot_dir/snapshot.json"
           test "$(find "$snapshot_dir" -type f | wc -l | tr -d ' ')" -eq 4
+      - name: Reject an unverified copied schema
+        run: |
+          source_dir=$(mktemp -d)
+          snapshot_dir="$RUNNER_TEMP/archive-helper-unknown-schema"
+          sqlite3 "$source_dir/boards.db" 'PRAGMA user_version=99; CREATE TABLE unknown(value TEXT);'
+          /tmp/boardeject-archive-helper snapshot "$source_dir/boards.db" "$snapshot_dir"
+          set +e
+          output=$(/tmp/boardeject-archive-helper catalog "$snapshot_dir" 2>&1)
+          status=$?
+          set -e
+          test "$status" -eq 1
+          grep -F "Unsupported Freeform database version. No files were modified." <<< "$output"

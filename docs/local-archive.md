@@ -33,7 +33,7 @@ The snapshot command is an internal validation primitive, not the user-facing
 archive flow:
 
 ```sh
-swiftc apps/archive-helper/main.swift -o /tmp/boardeject-archive-helper
+swiftc apps/archive-helper/main.swift -lsqlite3 -o /tmp/boardeject-archive-helper
 /tmp/boardeject-archive-helper snapshot /path/to/boards.db /path/to/new-snapshot
 ```
 

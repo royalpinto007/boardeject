@@ -90,13 +90,21 @@ if len(preferred) != 1:
     raise SystemExit(f"Expected one boards.db candidate, found {len(preferred)}. No schema was guessed.")
 database = preferred[0]
 helper = out / "boardeject-archive-helper"
-compile_result = run("compile-helper", ["xcrun", "swiftc", "apps/archive-helper/main.swift", "-o", str(helper)], 120)
+compile_result = run(
+    "compile-helper",
+    ["xcrun", "swiftc", "apps/archive-helper/main.swift", "-lsqlite3", "-o", str(helper)],
+    120,
+)
 if compile_result.returncode != 0:
     raise SystemExit("Archive helper did not compile.")
 snapshot = out / "native-snapshot"
 copy_result = run("snapshot", [str(helper), "snapshot", str(database), str(snapshot)], 120)
 if copy_result.returncode != 0:
     raise SystemExit("Stable native snapshot could not be obtained.")
+catalog_result = run("catalog", [str(helper), "catalog", str(snapshot)], 120)
+if catalog_result.returncode != 0:
+    raise SystemExit("Copied Freeform database did not pass the verified catalogue gate.")
+(out / "catalog-report.json").write_text(catalog_result.stdout)
 
 copied_db = snapshot / "boards.db"
 # `immutable=1` is deliberately not used: it can ignore committed schema and
