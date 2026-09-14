@@ -64,6 +64,21 @@ const hex = (data: Uint8Array) =>
   Array.from(data, (b) => b.toString(16).padStart(2, "0")).join("");
 const text = (data: Uint8Array) =>
   new TextDecoder("utf-8", { fatal: true }).decode(data);
+const solidColor = (record: Uint8Array) => {
+  const components = all(record, 2).map(bytes);
+  if (components.length !== 4 || hex(components[0]) !== "2800") return fail();
+  const rgb = components
+    .slice(1)
+    .map((component) => num(path(component, [15, 0])));
+  if (rgb.some((component) => component < 0 || component > 1)) return fail();
+  return `#${rgb
+    .map((component) =>
+      Math.round(component * 255)
+        .toString(16)
+        .padStart(2, "0"),
+    )
+    .join("")}`;
+};
 
 /** Narrow Freeform 4.5 single-table layout. Unknown structures fail closed.
  * Object framing comes from length descriptors, never scanning for text/magic.
@@ -180,6 +195,8 @@ export function recoverNativeTable(native: FreeformNative) {
         italic?: boolean;
         fontSize?: number;
         paragraphAlignment?: "left" | "center" | "right";
+        textColor?: string;
+        fillColor?: string;
       };
     }[] = [];
     for (const obj of objects.slice(1)) {
@@ -206,12 +223,27 @@ export function recoverNativeTable(native: FreeformNative) {
           cells.some((c) => c.row === row && c.column === column)
         )
           return;
-        const contentRecord = bytes(
-            path(obj, [4, 0], [4, 0], [2, 0], [4, 0], [2, 0], [5, 0]),
-          ),
+        const cellProps = all(bytes(path(obj, [4, 0], [4, 0])), 2).map(bytes);
+        if (![3, 4].includes(cellProps.length)) return;
+        const contentRecord = bytes(path(cellProps[0], [4, 0], [2, 0], [5, 0])),
           content = text(bytes(path(contentRecord, [1, 0]))),
           style: NonNullable<(typeof cells)[number]["style"]> = {},
           seenAttributes = new Set<string>();
+        if (cellProps.length === 4)
+          style.fillColor = solidColor(
+            bytes(
+              path(
+                cellProps[1],
+                [1, 0],
+                [2, 0],
+                [14, 0],
+                [2, 1],
+                [14, 0],
+                [2, 0],
+                [14, 0],
+              ),
+            ),
+          );
         for (const value of all(contentRecord, 6)) {
           const attribute = bytes(value),
             attributeValues = all(attribute, 2);
@@ -252,6 +284,12 @@ export function recoverNativeTable(native: FreeformNative) {
               else if (alignment === 2) style.paragraphAlignment = "right";
               else if (alignment === 4) style.paragraphAlignment = "center";
               else return;
+            } else if (name === "characterFill") {
+              style.textColor = solidColor(
+                bytes(
+                  path(valueRecord, [14, 0], [2, 1], [14, 0], [2, 0], [14, 0]),
+                ),
+              );
             } else return;
           }
         }

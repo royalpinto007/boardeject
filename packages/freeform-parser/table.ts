@@ -73,6 +73,13 @@ export function convertTable(
     const groups = [base.id, ...base.groups];
     result.push({
       ...base,
+      appearance: {
+        ...base.appearance,
+        fill:
+          cell.style.fill?.kind === "solid"
+            ? cell.style.fill.color.hex
+            : base.appearance.fill,
+      },
       id: `${base.id}-cell-${index}`,
       kind: "rectangle",
       bounds,
@@ -81,6 +88,13 @@ export function convertTable(
     if (cell.text?.plain)
       result.push({
         ...base,
+        appearance: {
+          ...base.appearance,
+          stroke:
+            cell.text.runs[0]?.fill?.kind === "solid"
+              ? cell.text.runs[0].fill.color.hex
+              : base.appearance.stroke,
+        },
         id: `${base.id}-text-${index}`,
         kind: "text",
         bounds: {
@@ -110,7 +124,7 @@ export function convertTable(
     itemId: base.id,
     severity: "approximation",
     message:
-      "Table becomes grouped editable cells and text. Cell-specific styling, formulas and rich text are not preserved.",
+      "Table becomes grouped editable cells and text. Verified solid cell/text colors are preserved; formulas and unverified rich styling are not.",
   });
   return result;
 }

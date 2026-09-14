@@ -108,6 +108,34 @@ it.each([
   },
 );
 
+it("preserves a genuine native table text-color differential", () => {
+  const file = readFileSync(root + "variants/text-color-red.crlnative");
+  const table = recoverNativeTable(decodeCrlNative(file));
+  expect(table!.cells[0]).toMatchObject({
+    text: "A1",
+    style: { textColor: "#ea4d3d" },
+  });
+  const output = convert(inspectCaptureFile("text-color-red.crlnative", file));
+  expect(
+    output.elements.find(
+      (element) => "text" in element && element.text === "A1",
+    ),
+  ).toMatchObject({ strokeColor: "#ea4d3d" });
+});
+
+it("preserves a genuine native table cell-fill differential", () => {
+  const file = readFileSync(root + "variants/cell-fill-red.crlnative");
+  const table = recoverNativeTable(decodeCrlNative(file));
+  expect(table!.cells[0]).toMatchObject({
+    text: "A1",
+    style: { fillColor: "#f6ce46" },
+  });
+  const output = convert(inspectCaptureFile("cell-fill-red.crlnative", file));
+  expect(
+    output.elements.find((element) => element.id.endsWith("-cell-0")),
+  ).toMatchObject({ backgroundColor: "#f6ce46" });
+});
+
 it("uses genuine native key-pool order after a column reorder", () => {
   const before = recoverNativeTable(
     decodeCrlNative(

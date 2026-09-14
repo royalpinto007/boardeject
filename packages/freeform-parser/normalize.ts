@@ -67,7 +67,30 @@ export function normalize(pasteboard: FreeformPasteboard): Board {
               rowSpan: 1,
               columnSpan: 1,
               anchoredItemIds: [],
-              style: { shadows: [] },
+              style: {
+                shadows: [],
+                ...(cell.style?.fillColor
+                  ? {
+                      fill: {
+                        kind: "solid" as const,
+                        color: {
+                          colorSpace: "sRGB",
+                          red:
+                            parseInt(cell.style.fillColor.slice(1, 3), 16) /
+                            255,
+                          green:
+                            parseInt(cell.style.fillColor.slice(3, 5), 16) /
+                            255,
+                          blue:
+                            parseInt(cell.style.fillColor.slice(5, 7), 16) /
+                            255,
+                          alpha: 1,
+                          hex: cell.style.fillColor,
+                        },
+                      },
+                    }
+                  : {}),
+              },
               text: {
                 plain: cell.text,
                 runs: [
@@ -78,6 +101,27 @@ export function normalize(pasteboard: FreeformPasteboard): Board {
                     bold: cell.style?.bold,
                     italic: cell.style?.italic,
                     paragraphAlignment: cell.style?.paragraphAlignment,
+                    ...(cell.style?.textColor
+                      ? {
+                          fill: {
+                            kind: "solid" as const,
+                            color: {
+                              colorSpace: "sRGB",
+                              red:
+                                parseInt(cell.style.textColor.slice(1, 3), 16) /
+                                255,
+                              green:
+                                parseInt(cell.style.textColor.slice(3, 5), 16) /
+                                255,
+                              blue:
+                                parseInt(cell.style.textColor.slice(5, 7), 16) /
+                                255,
+                              alpha: 1,
+                              hex: cell.style.textColor,
+                            },
+                          },
+                        }
+                      : {}),
                   },
                 ],
               },
@@ -101,7 +145,7 @@ export function normalize(pasteboard: FreeformPasteboard): Board {
         severity: "approximation",
         itemId: table.id,
         message:
-          "Recovered a validated single-table layout from native version 7. Cell text, ordering and bounds are retained; fonts, colors, rich text and border styling use defaults. Other version-7 layouts remain unsupported.",
+          "Recovered a validated single-table layout from native version 7. Verified cell text, ordering, bounds, solid colors and text styles are retained; unverified rich text and border styling use defaults. Other version-7 layouts remain unsupported.",
       });
       return board;
     }

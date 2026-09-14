@@ -36,6 +36,11 @@ produced a successful row-reorder differential. Its attempted rotation changed
 only the table dimensions and retained native rotation zero, so that attempt was
 not promoted.
 
+Run [34811243906](https://github.com/royalpinto007/boardeject/actions/runs/34811243906)
+produced isolated text-color and cell-fill differentials. The decoded solid RGB
+values match the visible A1 text and cell colors. The fixture names retain the
+script's requested `red` label, while assertions use the exact resulting colors.
+
 The attempted combined resize, row reorder, insert, and delete operations did
 not produce the intended native change and were not promoted. A successful
 process exit is not treated as evidence.
