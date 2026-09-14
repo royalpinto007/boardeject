@@ -49,12 +49,29 @@ with sync_playwright() as p:
     page.locator(".excalidraw").wait_for()
     page.get_by_role("button", name="BoardEject").click()
     picker.set_input_files("tests/fixtures/freeform-4.5/tables/table-baseline.crlnative")
-    page.get_by_text("Recovered a validated single-table layout", exact=False).wait_for()
+    page.get_by_text("Recovered a validated table layout", exact=False).wait_for()
     with page.expect_download() as table_event:
         page.get_by_role("button", name="Download .excalidraw").click()
     table_document = json.loads(Path(table_event.value.path()).read_text())
     assert len(table_document["elements"]) == 8
     assert [e["text"] for e in table_document["elements"] if e["type"] == "text"] == ["A1", "B1", "A2", "B2"]
+    for fixture_name, expected_count, expected_text in (
+        ("multiple-two-tables", 16, "D2"),
+        ("embedded-a1", 9, "ANCHORED A1"),
+    ):
+        picker.set_input_files(
+            f"tests/fixtures/freeform-4.5/tables/variants/{fixture_name}.crlnative"
+        )
+        page.get_by_role("button", name="Download .excalidraw").wait_for()
+        with page.expect_download() as variant_event:
+            page.get_by_role("button", name="Download .excalidraw").click()
+        variant_document = json.loads(Path(variant_event.value.path()).read_text())
+        assert len(variant_document["elements"]) == expected_count
+        assert expected_text in [
+            element["text"]
+            for element in variant_document["elements"]
+            if element["type"] == "text"
+        ]
     # Exercise the ordinary homepage worker with the same native bytes in a helper envelope.
     import base64
     # Genuine single-object Freeform captures with resource/style sidecars.
