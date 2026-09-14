@@ -6,7 +6,16 @@ on:
         description: Native capture scenario
         type: choice
         options:
-          [tables, images-text, tables-issue-15, tables-issue-15-geometry, tables-issue-15-controls, tables-issue-15-structure, tables-issue-15-style-controls, tables-issue-15-advanced]
+          [
+            tables,
+            images-text,
+            tables-issue-15,
+            tables-issue-15-geometry,
+            tables-issue-15-controls,
+            tables-issue-15-structure,
+            tables-issue-15-style-controls,
+            tables-issue-15-advanced,
+          ]
         default: tables
 permissions:
   contents: read
