@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 
 describe("public website essentials", () => {
   const html = readFileSync("apps/web/index.html", "utf8");
+  const source = readFileSync("apps/web/src/main.tsx", "utf8");
   const asset = (name: string) => `apps/web/public/${name}`;
   it("ships linked icons, a manifest and crawler files", () => {
     for (const name of [
@@ -36,5 +37,10 @@ describe("public website essentials", () => {
     expect(readFileSync(asset("404.html"), "utf8")).toContain(
       'content="noindex"',
     );
+  });
+  it("routes the remaining Apple Pencil limitation to iPad validation", () => {
+    expect(source).toContain("issues/20");
+    expect(source).toContain("iPad-originated validation");
+    expect(source).not.toContain("issues/13");
   });
 });

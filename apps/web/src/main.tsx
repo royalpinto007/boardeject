@@ -368,23 +368,24 @@ function App() {
               <span className="state-label">Needs validation</span>
               <h3>Native board fidelity</h3>
               <p>
-                A verified single-table layout now exports editable cells. Other
-                version-7 layouts and pressure-sensitive/erased ink need more
-                work. Keep your original board; unsupported elements are
-                reported.
+                Verified native table layouts now export editable cells. Other
+                version-7 layouts remain limited. Apple Pencil pressure and
+                erased ink require iPad-originated validation. Keep your
+                original board; unsupported elements are reported.
               </p>
               <p>
                 Apple-generated width/force decoding has regression coverage.
                 Detected masked ink is omitted with a report, not restored
                 across hidden regions. Output still uses uniform-width strokes.
-                Genuine Freeform eraser and pressure-sensitive round trips
-                remain unverified. See{" "}
+                Freeform 4.5 on macOS emits Draw with Pen as vector shapes and
+                exposes no eraser in the tested flow. Genuine iPad Freeform
+                pressure and erased-ink round trips remain unverified. See{" "}
                 <a
-                  href="https://github.com/royalpinto007/boardeject/issues/13"
+                  href="https://github.com/royalpinto007/boardeject/issues/20"
                   target="_blank"
                   rel="noopener noreferrer"
                 >
-                  issue #13 ↗
+                  issue #20 ↗
                 </a>
                 .
               </p>
