@@ -6,6 +6,7 @@ export const ARCHIVE_VERSION = 1 as const;
 export interface ArchiveBoardMetadata {
   id: string;
   title: string;
+  titleStatus?: "verified" | "unverified";
   createdAt?: string;
   modifiedAt?: string;
   objectCount: number;
@@ -23,6 +24,7 @@ export interface ArchiveAssetInput {
   objectIds: string[];
   bytes?: Uint8Array;
   originalFilename?: string;
+  extension?: string;
   mimeType?: string;
 }
 
@@ -113,9 +115,12 @@ export async function sha256(bytes: Uint8Array): Promise<string> {
   ).join("");
 }
 
-function safeExtension(filename?: string): string {
+function safeExtension(filename?: string, extension?: string): string {
   const match = filename?.toLowerCase().match(/\.([a-z0-9]{1,12})$/);
-  return match ? `.${match[1]}` : ".bin";
+  if (match) return `.${match[1]}`;
+  return extension && /^[a-z0-9]{1,12}$/i.test(extension)
+    ? `.${extension.toLowerCase()}`
+    : ".bin";
 }
 
 function validTimestamp(value: string): boolean {
@@ -140,12 +145,8 @@ export async function createArchive(input: ArchiveInput): Promise<Uint8Array> {
     throw new Error(
       "Unsupported Freeform database version. No files were modified.",
     );
-  if (
-    !Object.keys(input.nativeFiles).some(
-      (name) => name.endsWith(".db") || name.endsWith(".sqlite"),
-    )
-  )
-    throw new Error("A native database snapshot is required.");
+  if (!Object.hasOwn(input.nativeFiles, "native-records.json"))
+    throw new Error("A board-scoped native record set is required.");
 
   const entries = new Map<
     string,
@@ -212,7 +213,7 @@ export async function createArchive(input: ArchiveInput): Promise<Uint8Array> {
       });
       continue;
     }
-    const path = `assets/${digest}${safeExtension(asset.originalFilename)}`;
+    const path = `assets/${digest}${safeExtension(asset.originalFilename, asset.extension)}`;
     const record: ArchiveAssetRecord = {
       nativeId: asset.nativeId,
       objectIds: [...asset.objectIds].sort(),

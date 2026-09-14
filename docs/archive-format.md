@@ -12,9 +12,7 @@ board.boardejectarchive
 ├── manifest.json
 ├── integrity.json
 ├── native/board/
-│   ├── boards.db
-│   ├── boards.db-wal       # when present in the stable source set
-│   └── boards.db-shm       # when present in the stable source set
+│   └── native-records.json # only the selected board's native rows
 ├── assets/
 │   └── <sha256>.<ext>
 ├── metadata/
@@ -45,6 +43,13 @@ sanitized and are not treated as proof of media type.
 
 The optional Excalidraw file is a convenience export. Native snapshot data and
 original assets are the preservation layer.
+
+The byte-stable DB/WAL/SHM copy is a temporary safety boundary used by the
+macOS helper. It is not embedded in the portable archive because it can contain
+other boards. `native-records.json` retains the selected board's raw SQLite
+values with explicit SQLite types and base64-encoded blobs. It includes only
+rows related to the selected native UUID from the verified board, metadata,
+item, asset-reference, freehand and command-history tables.
 
 ## Determinism
 

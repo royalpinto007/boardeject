@@ -26,9 +26,7 @@ const base = (change: Partial<ArchiveInput> = {}): ArchiveInput => ({
     schemaFingerprint: "fixture-schema-v16",
   },
   nativeFiles: {
-    "Freeform.sqlite": text("database"),
-    "Freeform.sqlite-wal": text("wal"),
-    "Freeform.sqlite-shm": text("shm"),
+    "native-records.json": text('{"format":"boardeject.native-board-records"}'),
   },
   objects: [
     { id: "object-1", type: "image" },
@@ -86,7 +84,7 @@ describe("BoardEject archive format", () => {
       missing: 0,
       corrupted: 0,
     });
-    expect(result.filesChecked).toBe(5);
+    expect(result.filesChecked).toBe(3);
   });
 
   it("preserves image and PDF bytes, deduplicates by hash, and reports missing assets", async () => {
@@ -180,7 +178,14 @@ describe("BoardEject archive format", () => {
       ),
     ).rejects.toThrow("verified schema fingerprint");
     await expect(
-      createArchive(base({ nativeFiles: { "../live.sqlite": text("no") } })),
+      createArchive(
+        base({
+          nativeFiles: {
+            "native-records.json": text("records"),
+            "../live.sqlite": text("no"),
+          },
+        }),
+      ),
     ).rejects.toThrow("Unsafe archive path");
     await expect(
       createArchive(
@@ -195,7 +200,7 @@ describe("BoardEject archive format", () => {
       ),
     ).rejects.toThrow("Unsupported Freeform database version");
     await expect(createArchive(base({ nativeFiles: {} }))).rejects.toThrow(
-      "native database snapshot",
+      "board-scoped native record set",
     );
   });
 
