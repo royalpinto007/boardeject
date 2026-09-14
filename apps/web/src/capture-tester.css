@@ -1,13 +1,58 @@
 .capture-tester {
-  max-width: 920px;
-  margin: 28px auto 80px;
-  padding: 0 24px;
+  max-width: 1120px;
+  margin: 48px auto 40px;
+  padding: 0 40px;
   line-height: 1.65;
 }
 .capture-tester h1 {
   font-size: clamp(2rem, 6vw, 3.8rem);
   line-height: 1.1;
   letter-spacing: -0.045em;
+  font-weight: 500;
+}
+.capture-intro {
+  max-width: 620px;
+  color: #59675b;
+  font-size: 18px;
+}
+.capture-help {
+  margin: 20px 0;
+  color: #59675b;
+  font-size: 14px;
+}
+.capture-help summary {
+  cursor: pointer;
+  color: #294d36;
+}
+.capture-help p {
+  max-width: 760px;
+}
+.capture-actions button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 24px;
+  min-height: 48px;
+  padding: 14px 22px;
+  border: 1px solid #294d36;
+  border-radius: 6px;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  background: #294d36;
+  color: white;
+  cursor: pointer;
+}
+.capture-actions button:hover {
+  background: #3e6043;
+}
+.capture-actions button.secondary {
+  background: transparent;
+  color: #294d36;
+  border-color: #c6ccbf;
+}
+.capture-actions button.secondary:hover {
+  background: #edf0e5;
 }
 .capture-tester a {
   color: inherit;
@@ -113,15 +158,32 @@
   text-underline-offset: 4px;
 }
 .capture-report {
-  padding: 24px;
+  padding: 32px;
   background: white;
   border: 1px solid #d4dbd0;
   border-radius: 18px;
   overflow-wrap: anywhere;
 }
+.capture-report h2 {
+  margin: 0;
+  font-size: 30px;
+  font-weight: 500;
+  letter-spacing: -1px;
+}
+.capture-report > p {
+  color: #59675b;
+  font-size: 14px;
+}
+.capture-report details {
+  border-top: 1px solid #d4dbd0;
+  padding-top: 18px;
+}
+.capture-report summary {
+  cursor: pointer;
+}
 .capture-report dl {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 16px;
 }
 .capture-report dd {
@@ -144,7 +206,17 @@
   margin-top: 32px;
 }
 @media (max-width: 480px) {
+  .capture-tester {
+    margin-top: 24px;
+    padding: 0 20px;
+  }
+  .capture-report {
+    padding: 20px;
+  }
+  .capture-actions {
+    flex-direction: column;
+  }
   .capture-report dl {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }

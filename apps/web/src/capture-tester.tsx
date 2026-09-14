@@ -103,25 +103,38 @@ export default function CaptureTester() {
         <a className="brand" href="/">
           <img src="/favicon.svg" width="34" height="34" alt="" /> BoardEject
         </a>
-        <a href="/">Normal import</a>
+        <nav aria-label="Main navigation">
+          <a href="/">Back to BoardEject</a>
+          <a
+            className="nav-source"
+            href="https://github.com/royalpinto007/boardeject"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            GitHub ↗
+          </a>
+        </nav>
       </header>
       <main className="capture-tester">
         <span className="preview-badge">Experimental / Capture Tester</span>
         <h1>Test your actual capture.</h1>
-        <p>
+        <p className="capture-intro">
           Choose a genuine capture and inspect what this build can convert.
           Files stay on your device. No uploads, saved captures or demo
           substitutions.
         </p>
-        <p>
-          Use the macOS helper’s <code>.boardeject</code> file (or its JSON
-          envelope). Raw <code>.crlnative</code> and <code>.drawing</code>{" "}
-          fixtures can be inspected without companion assets. Verified Freeform
-          4.5 table captures, including multiple tables, colors, borders, and
-          attached text, can be recovered from version 7. Other version-7 board
-          layouts remain unsupported unless a documented sidecar fallback
-          applies.
-        </p>
+        <details className="capture-help">
+          <summary>Supported files and conversion limits</summary>
+          <p>
+            Use the macOS helper’s <code>.boardeject</code> file (or its JSON
+            envelope). Raw <code>.crlnative</code> and <code>.drawing</code>{" "}
+            fixtures can be inspected without companion assets. Verified
+            Freeform 4.5 table captures, including multiple tables, colors,
+            borders, and attached text, can be recovered from version 7. Other
+            version-7 board layouts remain unsupported unless a documented
+            sidecar fallback applies.
+          </p>
+        </details>
         <a
           href="https://github.com/royalpinto007/boardeject/blob/main/docs/clipboard.md"
           target="_blank"
@@ -195,6 +208,16 @@ export default function CaptureTester() {
         {board && (
           <section className="capture-report" aria-label="Conversion report">
             <h2>Conversion report</h2>
+            {board.nodes.length > 0 && (
+              <div className="capture-actions">
+                <button onClick={() => setEditing(true)}>
+                  Preview result <span aria-hidden="true">↗</span>
+                </button>
+                <button className="secondary" onClick={download}>
+                  Download .excalidraw <span aria-hidden="true">↓</span>
+                </button>
+              </div>
+            )}
             <dl>
               <div>
                 <dt>Detected source objects</dt>
@@ -242,14 +265,6 @@ export default function CaptureTester() {
             )}
             {board.nodes.length ? (
               <>
-                <div className="capture-actions">
-                  <button className="button" onClick={() => setEditing(true)}>
-                    Preview result
-                  </button>
-                  <button className="button" onClick={download}>
-                    Download .excalidraw
-                  </button>
-                </div>
                 <details>
                   <summary>Converted object list</summary>
                   <ul>
@@ -269,8 +284,28 @@ export default function CaptureTester() {
             )}
           </section>
         )}
-        <footer>
-          <a href="/privacy">Privacy</a> · <a href="/terms">Terms</a>
+        <footer className="site-footer">
+          <a className="brand" href="/">
+            BoardEject ↗
+          </a>
+          <div className="footer-links">
+            <a href="/privacy">Privacy</a>
+            <a href="/terms">Terms</a>
+            <a
+              href="https://github.com/royalpinto007/boardeject"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Source code ↗
+            </a>
+            <a
+              href="https://www.buymeacoffee.com/royalpinto007"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Buy me a coffee ↗
+            </a>
+          </div>
         </footer>
       </main>
       {editing && board && (
