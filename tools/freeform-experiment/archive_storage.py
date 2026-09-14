@@ -81,16 +81,16 @@ results["generate-pdf"] = {
 if pdf_result.returncode != 0:
     raise SystemExit("Controlled PDF generation failed.")
 video_source = source_dir / "archive-video.mp4"
-video_result = run(
-    "generate-video",
-    [
-        "ffmpeg", "-hide_banner", "-loglevel", "error", "-f", "lavfi",
-        "-i", "color=c=0x2447aa:s=64x48:d=0.4", "-an", "-c:v", "libx264",
-        "-pix_fmt", "yuv420p", "-movflags", "+faststart", str(video_source),
-    ],
+video_helper = out / "video-fixture"
+video_compile = run(
+    "compile-video-fixture",
+    ["xcrun", "swiftc", "tools/freeform-experiment/video_fixture.swift", "-o", str(video_helper)],
     120,
 )
-if video_result.returncode != 0:
+if video_compile.returncode != 0:
+    raise SystemExit("Controlled video helper did not compile.")
+video_result = run("generate-video", [str(video_helper), str(video_source)], 120)
+if video_result.returncode != 0 or not video_source.is_file():
     raise SystemExit("Controlled video generation failed.")
 clipboard_helper = out / "file-clipboard"
 clipboard_compile = run(
