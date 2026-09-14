@@ -119,9 +119,8 @@ export default function CaptureTester() {
         <span className="preview-badge">Experimental / Capture Tester</span>
         <h1>Test your actual capture.</h1>
         <p className="capture-intro">
-          Choose a genuine capture and inspect what this build can convert.
-          Files stay on your device. No uploads, saved captures or demo
-          substitutions.
+          Drop a capture. Check the result. Download your editable board. Your
+          file stays on your device.
         </p>
         <details className="capture-help">
           <summary>Supported files and conversion limits</summary>
@@ -175,10 +174,7 @@ export default function CaptureTester() {
         <aside className="capture-samples">
           <div>
             <strong>No capture handy?</strong>
-            <p>
-              Try a public libfreeform fixture. Download it, then choose it
-              above.
-            </p>
+            <p>Download a sample, then choose it above.</p>
           </div>
           <a href="/samples/ink-pen.drawing" download>
             Download ink sample ↗
@@ -194,11 +190,7 @@ export default function CaptureTester() {
           </small>
         </aside>
         <p role="status" aria-live="polite">
-          {busy
-            ? status
-            : board
-              ? "Capture inspected. Review the report before exporting."
-              : ""}
+          {busy ? status : board ? "Ready to review." : ""}
         </p>
         {error && (
           <p role="alert" className="capture-error">
