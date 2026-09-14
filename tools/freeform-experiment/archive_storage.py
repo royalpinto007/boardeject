@@ -59,7 +59,7 @@ ui(
 )
 ui("insert-marker", 'click menu item "Text Box" of menu "Insert" of menu bar item "Insert" of menu bar 1\ndelay 1\nkeystroke "BoardEject archive storage fixture"\ndelay 2\nkey code 53')
 ui("finish-marker", 'key code 53\ndelay 1')
-ui("show-board-browser", 'click button 1 of toolbar 1 of front window\ndelay 3\nreturn entire contents of front window')
+ui("show-board-browser", 'click button 2 of toolbar 1 of front window\ndelay 3\nreturn entire contents of front window')
 ui("browser-file-menu-items", 'return name of every menu item of menu "File" of menu bar item "File" of menu bar 1')
 run("screen", ["screencapture", "-x", str(out / "test-board.png")])
 
