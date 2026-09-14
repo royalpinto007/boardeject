@@ -85,6 +85,31 @@ struct NativeBoardRecords: Codable {
     let tables: [NativeTable]
 }
 
+struct PreservedAsset: Codable {
+    let nativeId: String
+    let extensionValue: String?
+    let roles: [String]
+    let objectIds: [String]
+    let bytes: UInt64?
+    let sha256: String?
+    let file: String?
+    let status: String
+
+    enum CodingKeys: String, CodingKey {
+        case nativeId
+        case extensionValue = "extension"
+        case roles, objectIds, bytes, sha256, file, status
+    }
+}
+
+struct AssetPreservationReport: Codable {
+    let format = "boardeject.preserved-assets"
+    let version = 1
+    let boardId: String
+    let assets: [PreservedAsset]
+    let warnings: [String]
+}
+
 enum CatalogError: Error, CustomStringConvertible {
     case invalidSnapshot(String)
     case sqlite(String)
@@ -371,6 +396,114 @@ func extractBoard(snapshot: URL, boardId: String) throws -> NativeBoardRecords {
     }
 }
 
+func preserveAssets(snapshot: URL, boardId: String, assetsRoot: URL, destination: URL) throws -> AssetPreservationReport {
+    let manager = FileManager.default
+    guard !manager.fileExists(atPath: destination.path) else {
+        throw CatalogError.invalidSnapshot("Asset destination already exists.")
+    }
+    let rootValues = try assetsRoot.resourceValues(forKeys: [.isDirectoryKey, .isSymbolicLinkKey])
+    guard rootValues.isDirectory == true, rootValues.isSymbolicLink != true else {
+        throw CatalogError.invalidSnapshot("Freeform Assets directory is unavailable or unsafe.")
+    }
+    let identifier = try uuidData(boardId)
+    let staging = destination.deletingLastPathComponent()
+        .appendingPathComponent(".boardeject-assets-\(UUID().uuidString)", isDirectory: true)
+    try manager.createDirectory(at: staging, withIntermediateDirectories: false)
+    var completed = false
+    defer { if !completed { try? manager.removeItem(at: staging) } }
+    let filesDirectory = staging.appendingPathComponent("files", isDirectory: true)
+    try manager.createDirectory(at: filesDirectory)
+
+    let report = try openVerifiedSnapshot(snapshot: snapshot) { database, _, _ in
+        struct Reference {
+            var extensionValue: String?
+            var roles = Set<String>()
+            var objectIds = Set<String>()
+        }
+        var references: [String: Reference] = [:]
+        try preparedRows(
+            database,
+            sql: """
+            SELECT a.asset_uuid,a.extension,r.referrer_asset_name,r.referrer_identifier
+            FROM asset_references r
+            LEFT JOIN assets a ON a.asset_uuid=r.asset_uuid
+            WHERE r.board_identifier=?
+            ORDER BY a.asset_uuid,r.referrer_asset_name,r.referrer_identifier
+            """,
+            boardIdentifier: identifier
+        ) { statement in
+            let nativeId = try uuidText(statement, 0)
+            var reference = references[nativeId] ?? Reference()
+            let extensionText = textColumn(statement, 1).lowercased()
+            reference.extensionValue = extensionText.isEmpty ? nil : extensionText
+            reference.roles.insert(textColumn(statement, 2))
+            reference.objectIds.insert(try uuidText(statement, 3))
+            references[nativeId] = reference
+        }
+        var assets: [PreservedAsset] = []
+        var canonicalByHash: [String: String] = [:]
+        for nativeId in references.keys.sorted() {
+            let reference = references[nativeId]!
+            if let extensionValue = reference.extensionValue,
+               extensionValue.isEmpty || extensionValue.count > 12 ||
+               !extensionValue.utf8.allSatisfy({ byte in
+                   (48...57).contains(byte) || (97...122).contains(byte)
+               }) {
+                throw CatalogError.invalidSnapshot("Freeform asset extension is unsafe.")
+            }
+            let suffix = reference.extensionValue.map { ".\($0)" } ?? ""
+            let source = assetsRoot.appendingPathComponent(nativeId.uppercased() + suffix)
+            guard let before = try signature(source) else {
+                assets.append(PreservedAsset(
+                    nativeId: nativeId,
+                    extensionValue: reference.extensionValue,
+                    roles: reference.roles.sorted(),
+                    objectIds: reference.objectIds.sorted(),
+                    bytes: nil, sha256: nil, file: nil, status: "missing"
+                ))
+                continue
+            }
+            let duplicate = canonicalByHash[before.sha256] != nil
+            let canonicalName = canonicalByHash[before.sha256]
+                ?? before.sha256 + (reference.extensionValue.map { ".\($0)" } ?? ".bin")
+            if canonicalByHash[before.sha256] == nil {
+                let target = filesDirectory.appendingPathComponent(canonicalName)
+                try manager.copyItem(at: source, to: target)
+                guard let copied = try signature(target), copied.bytes == before.bytes,
+                      copied.sha256 == before.sha256, try signature(source) == before else {
+                    throw SnapshotError.copyMismatch(source.lastPathComponent)
+                }
+                canonicalByHash[before.sha256] = canonicalName
+            }
+            assets.append(PreservedAsset(
+                nativeId: nativeId,
+                extensionValue: reference.extensionValue,
+                roles: reference.roles.sorted(),
+                objectIds: reference.objectIds.sorted(),
+                bytes: before.bytes,
+                sha256: before.sha256,
+                file: "files/\(canonicalName)",
+                status: duplicate ? "duplicate" : "preserved"
+            ))
+        }
+        let missing = assets.filter { $0.status == "missing" }.count
+        return AssetPreservationReport(
+            boardId: boardId.lowercased(),
+            assets: assets,
+            warnings: missing == 0 ? [] : ["\(missing) referenced asset(s) were missing."]
+        )
+    }
+    let encoder = JSONEncoder()
+    encoder.outputFormatting = [.sortedKeys, .prettyPrinted, .withoutEscapingSlashes]
+    try encoder.encode(report).write(
+        to: staging.appendingPathComponent("assets.json"),
+        options: .withoutOverwriting
+    )
+    try manager.moveItem(at: staging, to: destination)
+    completed = true
+    return report
+}
+
 func sha256(_ url: URL) throws -> String {
     let handle = try FileHandle(forReadingFrom: url)
     defer { try? handle.close() }
@@ -458,7 +591,7 @@ func snapshot(database: URL, destination: URL) throws -> SnapshotManifest {
 }
 
 func usage() -> Never {
-    FileHandle.standardError.write(Data("Usage:\n  boardeject-archive-helper snapshot /path/to/boards.db /path/to/snapshot-directory\n  boardeject-archive-helper catalog /path/to/snapshot-directory\n  boardeject-archive-helper extract /path/to/snapshot-directory BOARD-UUID /path/to/native-records.json\nThe helper never opens or writes the live database. Catalog and extract read only a verified copied schema.\n".utf8))
+    FileHandle.standardError.write(Data("Usage:\n  boardeject-archive-helper snapshot /path/to/boards.db /path/to/snapshot-directory\n  boardeject-archive-helper catalog /path/to/snapshot-directory\n  boardeject-archive-helper extract /path/to/snapshot-directory BOARD-UUID /path/to/native-records.json\n  boardeject-archive-helper assets /path/to/snapshot-directory BOARD-UUID /path/to/Freeform/Assets /path/to/new-assets-directory\nThe helper never opens or writes the live database. Read commands accept only a verified copied schema.\n".utf8))
     exit(2)
 }
 
@@ -489,6 +622,14 @@ do {
         encoder.outputFormatting = [.sortedKeys, .prettyPrinted, .withoutEscapingSlashes]
         try encoder.encode(records).write(to: destination, options: .withoutOverwriting)
         FileHandle.standardOutput.write(Data("Selected board records extracted without modifying Freeform.\n".utf8))
+    } else if CommandLine.arguments[1] == "assets", CommandLine.arguments.count == 6 {
+        let report = try preserveAssets(
+            snapshot: URL(fileURLWithPath: CommandLine.arguments[2]).standardizedFileURL,
+            boardId: CommandLine.arguments[3],
+            assetsRoot: URL(fileURLWithPath: CommandLine.arguments[4]).standardizedFileURL,
+            destination: URL(fileURLWithPath: CommandLine.arguments[5]).standardizedFileURL
+        )
+        FileHandle.standardOutput.write(Data("Assets preserved: \(report.assets.filter { $0.status != "missing" }.count); missing: \(report.assets.filter { $0.status == "missing" }.count).\n".utf8))
     } else {
         usage()
     }

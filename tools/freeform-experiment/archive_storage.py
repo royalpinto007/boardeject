@@ -263,6 +263,30 @@ if assets_root.is_dir() and not assets_root.is_symlink():
         sort_keys=True,
     )
 )
+preserved_assets = out / "preserved-assets"
+preserve_result = run(
+    "preserve-selected-assets",
+    [
+        str(helper), "assets", str(snapshot), selected_board_id,
+        str(assets_root), str(preserved_assets),
+    ],
+    120,
+)
+if preserve_result.returncode != 0:
+    raise SystemExit("Selected board assets could not be preserved.")
+preservation = json.loads((preserved_assets / "assets.json").read_text())
+preserved_hashes = {
+    asset.get("sha256") for asset in preservation.get("assets", [])
+    if asset.get("status") in {"preserved", "duplicate"}
+}
+controlled_hashes = {
+    hashlib.sha256(source.read_bytes()).hexdigest()
+    for source in (image_source, pdf_source, video_source, text_source)
+}
+if not controlled_hashes.issubset(preserved_hashes):
+    raise SystemExit("Freeform did not preserve every controlled original attachment byte-for-byte.")
+if any(asset.get("status") == "missing" for asset in preservation.get("assets", [])):
+    raise SystemExit("A controlled genuine Freeform asset was unexpectedly missing.")
 
 copied_db = snapshot / "boards.db"
 # `immutable=1` is deliberately not used: it can ignore committed schema and
