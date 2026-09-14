@@ -61,13 +61,14 @@ ui("insert-marker", 'click menu item "Text Box" of menu "Insert" of menu bar ite
 ui("finish-marker", 'key code 53\ndelay 1')
 ui("show-board-browser", 'click button 2 of toolbar 1 of front window\ndelay 3\nreturn entire contents of front window')
 ui("browser-file-menu-items", 'return name of every menu item of menu "File" of menu bar item "File" of menu bar 1')
+pointer = out / "native-pointer"
+pointer_compile = run("compile-native-pointer", ["xcrun", "swiftc", "tools/freeform-experiment/drag.swift", "-o", str(pointer)], 120)
+if pointer_compile.returncode != 0:
+    raise SystemExit("Native pointer helper did not compile.")
+run("open-board-context-menu", [str(pointer), "420", "260", "420", "260", "--click", "--right"])
 ui(
     "rename-board",
     'set boardCard to button 1 of list 1 of list 1 of scroll area 2 of splitter group 1 of front window\n'
-    'set cardPosition to position of boardCard\nset cardSize to size of boardCard\n'
-    'set cardX to (item 1 of cardPosition) + ((item 1 of cardSize) / 2)\n'
-    'set cardY to (item 2 of cardPosition) + ((item 2 of cardSize) / 2)\n'
-    'key down control\nclick at {cardX, cardY}\nkey up control\ndelay 1\n'
     'click menu item "Rename" of menu 1\ndelay 1\n'
     'keystroke "BoardEject Archive Alpha"\nkey code 36\ndelay 3\n'
     'return value of static text 1 of boardCard',
