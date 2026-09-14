@@ -77,10 +77,21 @@ if copy_result.returncode != 0:
     raise SystemExit("Stable native snapshot could not be obtained.")
 
 copied_db = snapshot / "boards.db"
-uri = f"file:{copied_db}?mode=ro&immutable=1"
+# `immutable=1` is deliberately not used: it can ignore committed schema and
+# rows that still live in the copied WAL. `mode=ro` plus query_only reads the
+# complete copied source set while SQLite rejects writes.
+uri = f"file:{copied_db}?mode=ro"
 connection = sqlite3.connect(uri, uri=True)
 try:
     connection.execute("PRAGMA query_only=ON")
+    query_only = int(connection.execute("PRAGMA query_only").fetchone()[0])
+    try:
+        connection.execute("CREATE TABLE boardeject_write_probe(value TEXT)")
+        writeRejected = False
+    except sqlite3.OperationalError as error:
+        writeRejected = "readonly" in str(error).lower()
+    if not writeRejected:
+        raise SystemExit("Copied database did not reject the write probe.")
     user_version = int(connection.execute("PRAGMA user_version").fetchone()[0])
     quick_check = str(connection.execute("PRAGMA quick_check").fetchone()[0])
     schemas = [
@@ -107,6 +118,8 @@ report = {
     "schema": schemas,
     "sourceOpenedByBoardEject": False,
     "copiedDatabaseOpenedReadOnly": True,
+    "queryOnly": query_only == 1,
+    "writeProbeRejected": writeRejected,
     "compatibilityStatus": "unverified",
     "interpretation": "Genuine Freeform-created storage was copied stably and inspected read-only. Field semantics and board/asset mappings remain unverified.",
 }
