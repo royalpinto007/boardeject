@@ -411,6 +411,28 @@ a {
   max-width: 720px;
   font-size: 14px;
 }
+.flow-label {
+  font-size: 13px;
+  font-weight: 600;
+  margin: 0 0 14px;
+}
+.flow-note {
+  max-width: 720px;
+  color: #59675b;
+  font-size: 14px;
+  line-height: 1.7;
+  margin: 18px 0 0;
+}
+.status-boundary {
+  max-width: 720px;
+  margin: 0 0 24px;
+}
+.support-resources {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 24px;
+  margin-top: 24px;
+}
 .support-notes summary {
   cursor: pointer;
   color: #294d36;
