@@ -2,38 +2,36 @@
 
 **Your board. Your format.**
 
-[Try BoardEject](https://boardeject.dev) · [Help with open issues](https://github.com/royalpinto007/boardeject/issues)
-
-[Buy me a coffee](https://www.buymeacoffee.com/royalpinto007)
-
-Turn Apple Freeform boards into editable Excalidraw files.
+Convert Apple Freeform boards into editable Excalidraw files, locally, privately,
+and without flattening.
 
 An editable escape route, not another whiteboard. No account, no board uploads,
 no cloud storage.
 
+[Try BoardEject](https://boardeject.dev) · [Test your capture](https://boardeject.dev/test-capture) · [Try the sample file](examples/example.excalidraw)
+
 ![Move a shape, watch its connected arrow follow, then edit text](docs/demo.gif)
 
-**v0.0.2 remains an early, limited-scope release:** this recording uses a
-synthetic example to demonstrate editable output, not a complete Freeform
-import. Freeform 4.5 version-7 data is not generally supported. Only the
-fixture-backed table and single-object sidecar fallbacks described below are
-recovered. See the support matrix and [fidelity report](docs/fidelity.md) before
-importing real work.
+_Browser recording with a synthetic example: demonstrates editable output, not a complete Freeform import._
 
-[Watch MP4](docs/demo.mp4) · [Try the sample file](examples/example.excalidraw) ·
-[MIT license](LICENSE)
+[Watch MP4](docs/demo.mp4) · [MIT license](LICENSE)
 
-## Development
+- **Keep editing:** supported content becomes movable shapes, editable text and table cells. Supported decoded connectors stay bound.
+- **Keep your board private:** processing happens in your browser, with no account, board uploads or cloud storage.
+- **Know what transferred:** preview the result and review partial or unsupported elements before downloading.
 
-Requires Node 22.12 or newer.
+Support varies by Freeform version and object type. Keep your original board;
+see [Current status](#current-status) before importing real work.
 
-```sh
-npm ci
-npm run dev
-```
+## How it works
 
-Open http://127.0.0.1:5190 and choose **Try example board**. Open the result in
-Excalidraw, move a card, and edit the text. Download to keep your changes.
+1. Copy your objects in Apple Freeform.
+2. Save a capture with the [macOS helper](docs/clipboard.md).
+3. Import it into BoardEject, inspect the report and preview the result.
+4. Download your editable `.excalidraw` file.
+
+No Mac handy? Choose **Try example board** on the website to explore editable
+output, or use [Capture Tester](https://boardeject.dev/test-capture) with an existing capture.
 
 ## Import from Freeform
 
@@ -62,6 +60,25 @@ do not get substituted with an example. Normal import remains unchanged.
 Run `python3 scripts/capture_browser_check.py` against the preview server to
 exercise file selection, drop, failed input, preview and download. Set
 `BOARDEJECT_TEST_URL` to check a deployed site with the same public test fixtures.
+
+## Current status
+
+**v0.0.2 remains an early, limited-scope release.** The demo uses a synthetic
+example to demonstrate editable output, not a complete Freeform import.
+Freeform 4.5 version-7 data is not generally supported. Only the fixture-backed
+table and single-object sidecar fallbacks described below are recovered.
+See the [support matrix](#support-matrix) and [fidelity report](docs/fidelity.md)
+before importing real work.
+
+## Known limitations
+
+- Arbitrary version-7 boards, native connectors on those boards and nonidentity native group transforms are not supported.
+- Mixed styles and exact fonts remain metadata; image shadow blur and some table edges/padding are approximations.
+- iPad-originated Apple Pencil pressure and erased-ink round trips remain unverified in [#20](https://github.com/royalpinto007/boardeject/issues/20).
+- PDF is not supported input. Raw clipboard payloads may lack companion assets.
+
+The matrix below specifies each tested boundary, including the native evidence
+and links to remaining work.
 
 ## Support matrix
 
@@ -108,7 +125,19 @@ See [fidelity details](docs/fidelity.md), [native evidence](docs/freeform-captur
 
 No accounts, board uploads, backend, or cloud persistence. The official Excalidraw component will open exports locally, not through a sharing service. Unsupported content is reported, never silently counted as a successful conversion.
 
-## Checks
+## Run locally
+
+Requires Node 22.12 or newer.
+
+```sh
+npm ci
+npm run dev
+```
+
+Open http://127.0.0.1:5190 and choose **Try example board**. Open the result in
+Excalidraw, move a card, and edit the text. Download to keep your changes.
+
+### Checks
 
 ```sh
 npm run format:check
@@ -146,6 +175,9 @@ v0.0.2 freezes the verified scope above, not the remaining fidelity work.
 Contributions and non-sensitive native test captures are welcome.
 
 ## Contributing and credits
+
+[Help with open issues](https://github.com/royalpinto007/boardeject/issues) ·
+[Buy me a coffee](https://www.buymeacoffee.com/royalpinto007)
 
 Read [CONTRIBUTING.md](CONTRIBUTING.md) and [SECURITY.md](SECURITY.md).
 Built on [libfreeform](https://github.com/can1357/libfreeform) and

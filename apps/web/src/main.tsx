@@ -109,7 +109,7 @@ function App() {
         <section className="hero" aria-labelledby="hero-title">
           <div className="hero-copy">
             <a className="preview-badge" href="#preview-status">
-              <span /> Open-source · v0.0.2 verified subset{" "}
+              <span /> Open source · See current support{" "}
               <span aria-hidden="true">↗</span>
             </a>
             <h1 id="hero-title">
@@ -118,8 +118,8 @@ function App() {
               <span>Your format.</span>
             </h1>
             <p className="intro">
-              An editable escape route from Apple Freeform to Excalidraw. Keep
-              working on your ideas, not a picture of them.
+              Convert Apple Freeform boards into editable Excalidraw files,
+              locally, privately, and without flattening.
             </p>
             <div className="actions hero-actions">
               <button onClick={example} disabled={busy}>
@@ -131,6 +131,9 @@ function App() {
             </div>
             <p className="hero-note">
               No account. No uploads. Your board stays yours.
+            </p>
+            <p className="hero-note">
+              An editable escape route, not another whiteboard.
             </p>
           </div>
           <figure className="demo" id="demo">
@@ -156,6 +159,7 @@ function App() {
             </figcaption>
           </figure>
         </section>
+        <p className="flow-label">How it works</p>
         <div className="flow" aria-label="Conversion workflow">
           <span>Apple Freeform</span>
           <span aria-hidden="true">→</span>
@@ -165,6 +169,11 @@ function App() {
           <span aria-hidden="true">→</span>
           <span>Editable Excalidraw</span>
         </div>
+        <p className="flow-note">
+          Copy your objects, save a capture with the macOS helper, then import
+          and review the result. Supported shapes, text and table cells stay
+          editable. <a href="#preview-status">Check support for your board.</a>
+        </p>
         <section className="workspace" id="import" aria-label="Import board">
           <div className="workspace-copy">
             <h2>
@@ -345,7 +354,7 @@ function App() {
           aria-labelledby="preview-title"
         >
           <div className="contribute-heading">
-            <span className="preview-badge">Built in the open</span>
+            <span className="preview-badge">Current status · v0.0.2</span>
             <h2 id="preview-title">Help build the escape route.</h2>
             <p>
               Try your board. Tell us what needs work. Help make the next one
@@ -376,8 +385,15 @@ function App() {
               </p>
             </div>
           </div>
+          <p className="status-boundary">
+            An early release with a verified subset of conversions. Freeform 4.5
+            version-7 boards are not generally supported: only tested tables and
+            single-object image/text captures with complete sidecars are
+            recovered. Keep your original board and review the conversion
+            report.
+          </p>
           <details className="support-notes">
-            <summary>What’s supported, and what isn’t?</summary>
+            <summary>Known limitations</summary>
             <p>
               Tested Freeform 4.5 captures include editable tables, colors,
               borders and attached text. Other version-7 layouts remain limited.
@@ -399,6 +415,13 @@ function App() {
               </a>
               .
             </p>
+            <p>
+              Native connectors on version-7 boards and nonidentity native group
+              transforms remain unsupported. Image effects stay attached to the
+              asset, not separate editing controls. Other crop/transform
+              variants are unsupported; some table edges and attachment padding
+              are approximated.
+            </p>
           </details>
           <div className="contribute-links">
             <a
@@ -417,6 +440,22 @@ function App() {
               Read the support details ↗
             </a>
           </div>
+          <p className="support-resources">
+            <a
+              href="https://github.com/royalpinto007/boardeject#support-matrix"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Support matrix ↗
+            </a>
+            <a
+              href="https://github.com/royalpinto007/boardeject#run-locally"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Run locally ↗
+            </a>
+          </p>
         </section>
         <footer className="site-footer">
           <div>
