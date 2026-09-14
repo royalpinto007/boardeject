@@ -383,8 +383,8 @@ a {
 }
 .fidelity-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 56px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 32px;
   margin: 35px 0;
   padding: 28px 0 0;
   border-top: 1px solid #cfd7c1;
@@ -405,6 +405,18 @@ a {
   align-items: center;
   gap: 24px;
   font-size: 13px;
+}
+.support-notes {
+  margin: 0 0 28px;
+  max-width: 720px;
+  font-size: 14px;
+}
+.support-notes summary {
+  cursor: pointer;
+  color: #294d36;
+}
+.support-notes p {
+  margin: 16px 0 0;
 }
 .site-footer {
   display: flex;

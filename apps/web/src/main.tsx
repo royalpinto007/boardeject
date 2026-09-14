@@ -172,8 +172,8 @@ function App() {
               Not a fresh start.
             </h2>
             <p>
-              Bring a capture from the macOS helper. Inspect what converted, see
-              what didn’t, and download your editable board.
+              Import your capture. Check the result. Keep creating in
+              Excalidraw.
             </p>
             <a
               target="_blank"
@@ -192,7 +192,7 @@ function App() {
               ↥
             </div>
             <h3>Import a Freeform capture</h3>
-            <p>Import a clipboard capture from the macOS helper.</p>
+            <p>Use the file or copied data from the macOS helper.</p>
             <div className="actions">
               <button disabled={busy} onClick={clipboard}>
                 Import copied BoardEject capture <span>↗</span>
@@ -221,10 +221,7 @@ function App() {
                 event.target.value = "";
               }}
             />
-            <p className="fine">
-              macOS helper required. Every capture is decoded in this browser
-              and is never uploaded.
-            </p>
+            <p className="fine">Processed in your browser. Never uploaded.</p>
             <p role="status" className="status">
               {status}
             </p>
@@ -351,9 +348,8 @@ function App() {
             <span className="preview-badge">Built in the open</span>
             <h2 id="preview-title">Help build the escape route.</h2>
             <p>
-              The editable example works today. Native Freeform conversion is
-              deliberately limited to fixture-backed behavior, not a finished
-              exporter.
+              Try your board. Tell us what needs work. Help make the next one
+              better.
             </p>
           </div>
           <div className="fidelity-grid">
@@ -361,65 +357,49 @@ function App() {
               <span className="state-label">Try now</span>
               <h3>Real editable output</h3>
               <p>
-                Move shapes, edit text, and watch bound arrows follow in the
-                synthetic example. Export a standard .excalidraw file.
+                Move shapes. Edit text. Keep supported connectors connected.
               </p>
             </div>
             <div>
-              <span className="state-label">Needs validation</span>
-              <h3>Native board fidelity</h3>
+              <span className="state-label">Know the limits</span>
+              <h3>Not every detail transfers</h3>
               <p>
-                Verified Freeform 4.5 table captures export editable cells,
-                including multiple tables, unequal dimensions, colors, borders,
-                and attached text. Other version-7 layouts remain limited.
-                iPad-originated validation remains required for Apple Pencil
-                pressure and erased ink. Keep your original board; unsupported
-                elements are reported.
-              </p>
-              <p>
-                Apple-generated width/force decoding has regression coverage.
-                Detected masked ink is omitted with a report, not restored
-                across hidden regions. Output still uses uniform-width strokes.
-                Freeform 4.5 on macOS emits Draw with Pen as vector shapes and
-                exposes no eraser in the tested flow. Genuine iPad Freeform
-                pressure and erased-ink round trips remain unverified. See{" "}
-                <a
-                  href="https://github.com/royalpinto007/boardeject/issues/20"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  issue #20 ↗
-                </a>
-                .
+                Some formatting is simplified. Unsupported elements are
+                reported. Always keep your original board.
               </p>
             </div>
             <div>
-              <span className="state-label">Verified subset</span>
-              <h3>Images and editable text</h3>
+              <span className="state-label">Join in</span>
+              <h3>Your board helps</h3>
               <p>
-                Genuine single-object captures verify original image pixels, one
-                Bezier mask, and one downward shadow. The mask and shadow remain
-                attached to a movable image; shadow blur is a documented visual
-                approximation because Excalidraw has no native image effect
-                fields.
-              </p>
-              <p>
-                Plain, mixed-style, and multiline text remains editable.
-                Excalidraw cannot display mixed bold or italic runs inside one
-                text element, so BoardEject retains those native runs as source
-                metadata instead of flattening the text. Unverified variants are
-                reported as unsupported. See{" "}
-                <a
-                  href="https://github.com/royalpinto007/boardeject/issues/14"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  scope details ↗
-                </a>
-                .
+                Found something broken? Report it or help improve a conversion.
               </p>
             </div>
           </div>
+          <details className="support-notes">
+            <summary>What’s supported, and what isn’t?</summary>
+            <p>
+              Tested Freeform 4.5 captures include editable tables, colors,
+              borders and attached text. Other version-7 layouts remain limited.
+              Verified image masks are preserved; shadow blur is approximate.
+              Text stays editable, but mixed bold/italic runs are retained as
+              metadata rather than displayed exactly.
+            </p>
+            <p>
+              macOS Draw with Pen exports vector shapes. Decoded ink uses
+              uniform widths; detected masked ink is omitted with a warning.
+              Apple Pencil pressure and erased ink still need iPad-originated
+              validation. See{" "}
+              <a
+                href="https://github.com/royalpinto007/boardeject/issues/20"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                issue #20 ↗
+              </a>
+              .
+            </p>
+          </details>
           <div className="contribute-links">
             <a
               className="button"

@@ -40,7 +40,7 @@ describe("public website essentials", () => {
   });
   it("routes the remaining Apple Pencil limitation to iPad validation", () => {
     expect(source).toContain("issues/20");
-    expect(source).toContain("iPad-originated validation");
+    expect(source).toMatch(/iPad-originated\s+validation/);
     expect(source).not.toContain("issues/13");
   });
 });
