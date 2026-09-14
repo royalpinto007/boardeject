@@ -303,6 +303,71 @@ if os.environ.get("TABLE_ISSUE15_PHASE") == "embedded":
     raise SystemExit(0)
 
 
+if os.environ.get("TABLE_ISSUE15_PHASE") == "border-details":
+    def open_style(prefix):
+        select_once(f"{prefix}-cell", 450, 250)
+        run(f"{prefix}-mover", [str(drag), "256", "113", "256", "113"])
+        run(f"{prefix}-open", [str(drag), "624", "108", "624", "108"])
+
+    new_table()
+    fill_baseline()
+    capture("border-width-before")
+    open_style("border-width")
+    ui(
+        "border-width-increment",
+        "click button 1 of incrementor 1 of pop over 1 of button 2 of scroll area 2 "
+        "of splitter group 1 of front window\n"
+        "click button 1 of incrementor 1 of pop over 1 of button 2 of scroll area 2 "
+        "of splitter group 1 of front window\ndelay 1",
+    )
+    capture("border-width-increased")
+
+    new_table()
+    fill_baseline()
+    capture("border-dash-before")
+    open_style("border-dash")
+    ui(
+        "border-dash-set",
+        "click pop up button 1 of pop over 1 of button 2 of scroll area 2 "
+        "of splitter group 1 of front window\ndelay 0.5\nkey code 125\nkey code 36\ndelay 1",
+    )
+    capture("border-dash-dotted")
+
+    new_table()
+    fill_baseline()
+    capture("border-color-before")
+    open_style("border-color")
+    ui(
+        "border-color-open",
+        "click color well 2 of pop over 1 of button 2 of scroll area 2 "
+        "of splitter group 1 of front window\ndelay 1\nreturn entire contents of front window",
+    )
+    run("border-color-palette", ["screencapture", "-x", str(out / "border-color-palette.png")])
+
+    new_table()
+    fill_baseline()
+    capture("border-outer-before")
+    open_style("border-outer")
+    ui(
+        "border-outer-set",
+        "click checkbox 3 of group 1 of pop over 1 of button 2 of scroll area 2 "
+        "of splitter group 1 of front window\ndelay 1",
+    )
+    capture("border-outer-only")
+
+    (out / "summary.json").write_text(
+        json.dumps(
+            {
+                "stage": "Issue 15 native border width, dash, color and edge details",
+                "verifiedFixture": False,
+                "rule": "Each property requires a visible and native differential",
+            },
+            indent=2,
+        )
+    )
+    raise SystemExit(0)
+
+
 if os.environ.get("TABLE_ISSUE15_PHASE") == "multiple":
     # Keep two tables spatially separate and give them unmistakable dimensions
     # and content so native item boundaries can be validated deterministically.

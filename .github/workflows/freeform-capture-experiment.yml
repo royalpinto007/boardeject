@@ -22,6 +22,7 @@ on:
             tables-issue-15-borders,
             tables-issue-15-embedded,
             tables-issue-15-multiple,
+            tables-issue-15-border-details,
           ]
         default: tables
 permissions:
@@ -68,6 +69,8 @@ jobs:
             TABLE_ISSUE15_PHASE=embedded python3 tools/freeform-experiment/tables_issue15.py
           elif [ "$CAPTURE_SCENARIO" = "tables-issue-15-multiple" ]; then
             TABLE_ISSUE15_PHASE=multiple python3 tools/freeform-experiment/tables_issue15.py
+          elif [ "$CAPTURE_SCENARIO" = "tables-issue-15-border-details" ]; then
+            TABLE_ISSUE15_PHASE=border-details python3 tools/freeform-experiment/tables_issue15.py
           else
             python3 tools/freeform-experiment/differential.py
           fi
