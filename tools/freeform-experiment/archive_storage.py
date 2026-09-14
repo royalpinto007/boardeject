@@ -52,6 +52,11 @@ ui("welcome", 'if exists static text "Welcome to Freeform" of group 1 of front w
 ui("new-board", 'click menu item "New Board" of menu "File" of menu bar item "File" of menu bar 1\ndelay 2')
 ui("file-menu-items", 'return name of every menu item of menu "File" of menu bar item "File" of menu bar 1')
 ui("front-window-tree", 'return entire contents of front window')
+ui(
+    "title-accessibility",
+    'set titleElement to static text 1 of group 1 of toolbar 1 of front window\n'
+    'return {properties of titleElement, name of every action of titleElement}',
+)
 ui("insert-marker", 'click menu item "Text Box" of menu "Insert" of menu bar item "Insert" of menu bar 1\ndelay 1\nkeystroke "BoardEject archive storage fixture"\ndelay 2\nkey code 53')
 ui(
     "rename-board",
