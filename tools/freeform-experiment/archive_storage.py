@@ -65,11 +65,11 @@ pointer = out / "native-pointer"
 pointer_compile = run("compile-native-pointer", ["xcrun", "swiftc", "tools/freeform-experiment/drag.swift", "-o", str(pointer)], 120)
 if pointer_compile.returncode != 0:
     raise SystemExit("Native pointer helper did not compile.")
-run("select-board-card", [str(pointer), "420", "260", "420", "260", "--click"])
 ui(
     "rename-board",
     'set boardCard to button 1 of list 1 of list 1 of scroll area 2 of splitter group 1 of front window\n'
-    'key code 36\ndelay 1\n'
+    'perform action "AXShowMenu" of boardCard\ndelay 1\n'
+    'click menu item "Rename" of menu 1 of boardCard\ndelay 1\n'
     'keystroke "BoardEject Archive Alpha"\nkey code 36\ndelay 3\n'
     'return value of static text 1 of boardCard',
 )
