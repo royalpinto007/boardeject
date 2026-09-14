@@ -13,6 +13,7 @@ export interface ArchiveBoardMetadata {
 
 export interface ArchiveSource {
   kind: "freeform-snapshot";
+  schemaStatus: "verified";
   databaseUserVersion: number;
   schemaFingerprint: string;
 }
@@ -135,6 +136,16 @@ export async function createArchive(input: ArchiveInput): Promise<Uint8Array> {
     );
   if (!input.source.schemaFingerprint)
     throw new Error("A verified schema fingerprint is required.");
+  if (input.source.schemaStatus !== "verified")
+    throw new Error(
+      "Unsupported Freeform database version. No files were modified.",
+    );
+  if (
+    !Object.keys(input.nativeFiles).some(
+      (name) => name.endsWith(".db") || name.endsWith(".sqlite"),
+    )
+  )
+    throw new Error("A native database snapshot is required.");
 
   const entries = new Map<
     string,
@@ -327,6 +338,8 @@ export async function verifyArchive(
     (manifest.format !== ARCHIVE_FORMAT || manifest.version !== ARCHIVE_VERSION)
   )
     errors.push("Unsupported archive manifest version.");
+  if (manifest?.source?.schemaStatus !== "verified")
+    errors.push("Archive source schema is not verified.");
 
   let filesChecked = 0;
   let corrupted = 0;
@@ -354,6 +367,16 @@ export async function verifyArchive(
       }
     }
   } else if (manifest) errors.push("Manifest file records are missing.");
+  if (manifest?.files) {
+    const declared = new Set(manifest.files.map((file) => file.path));
+    for (const path of Object.keys(entries))
+      if (
+        path !== "manifest.json" &&
+        path !== "integrity.json" &&
+        !declared.has(path)
+      )
+        errors.push(`Undeclared archive entry: ${path}`);
+  }
 
   let assetsVerified = 0;
   let missing = 0;

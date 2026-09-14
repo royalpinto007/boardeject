@@ -21,6 +21,7 @@ const base = (change: Partial<ArchiveInput> = {}): ArchiveInput => ({
   },
   source: {
     kind: "freeform-snapshot",
+    schemaStatus: "verified",
     databaseUserVersion: 16,
     schemaFingerprint: "fixture-schema-v16",
   },
@@ -171,6 +172,7 @@ describe("BoardEject archive format", () => {
         base({
           source: {
             kind: "freeform-snapshot",
+            schemaStatus: "verified",
             databaseUserVersion: 16,
             schemaFingerprint: "",
           },
@@ -180,6 +182,21 @@ describe("BoardEject archive format", () => {
     await expect(
       createArchive(base({ nativeFiles: { "../live.sqlite": text("no") } })),
     ).rejects.toThrow("Unsafe archive path");
+    await expect(
+      createArchive(
+        base({
+          source: {
+            kind: "freeform-snapshot",
+            schemaStatus: "experimental" as "verified",
+            databaseUserVersion: 99,
+            schemaFingerprint: "unknown",
+          },
+        }),
+      ),
+    ).rejects.toThrow("Unsupported Freeform database version");
+    await expect(createArchive(base({ nativeFiles: {} }))).rejects.toThrow(
+      "native database snapshot",
+    );
   });
 
   it("detects truncation, changed files, changed assets, and manifest tampering", async () => {
