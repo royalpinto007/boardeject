@@ -19,7 +19,7 @@ export function convert(board: Board) {
       strokeWidth: node.appearance.strokeWidth,
       opacity: node.appearance.opacity,
       fillStyle: "solid",
-      strokeStyle: "solid",
+      strokeStyle: node.appearance.strokeStyle ?? "solid",
       roughness: 0,
       roundness: null,
       seed: ordinal + 1,

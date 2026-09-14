@@ -135,9 +135,14 @@ export function normalize(pasteboard: FreeformPasteboard): Board {
               appearance: {
                 fill: "#ffffff",
                 stroke: table.borderMode === "none" ? "transparent" : "#24352d",
-                strokeWidth: 1,
+                strokeWidth: table.borderWidth,
+                strokeStyle: table.borderStyle,
                 opacity: 100,
               },
+              sourceStyle:
+                table.borderMode === "outer"
+                  ? { tableBorderMode: table.borderMode }
+                  : undefined,
             },
             board.issues,
           ),
@@ -148,6 +153,13 @@ export function normalize(pasteboard: FreeformPasteboard): Board {
           message:
             "Recovered a validated table layout from native version 7. Verified cell text, ordering, bounds, solid colors and text styles are retained; unverified rich text and border styling use defaults.",
         });
+        if (table.borderMode === "outer")
+          board.issues.push({
+            severity: "approximation",
+            itemId: table.id,
+            message:
+              "Freeform outer-only table borders are retained as source metadata; editable Excalidraw cell rectangles may show internal edges.",
+          });
       }
       if (native.items.length > tables.length)
         issue(

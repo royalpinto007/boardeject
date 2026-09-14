@@ -156,6 +156,34 @@ it("preserves a genuine native no-borders differential", () => {
   ).toBe(true);
 });
 
+it.each([
+  ["border-width-before", { borderWidth: 1 }],
+  ["border-width-increased", { borderWidth: 3 }],
+  ["border-dash-before", { borderStyle: "solid" }],
+  ["border-dash-dotted", { borderStyle: "dotted" }],
+  ["border-outer-before", { borderMode: "all" }],
+  ["border-outer-only", { borderMode: "outer" }],
+] as const)(
+  "preserves the verified %s border differential",
+  (name, expected) => {
+    const file = readFileSync(root + `variants/${name}.crlnative`),
+      table = recoverNativeTable(decodeCrlNative(file));
+    expect(table).toMatchObject(expected);
+  },
+);
+
+it("emits verified width and dotted style as editable Excalidraw cells", () => {
+  const file = readFileSync(root + "variants/border-dash-dotted.crlnative"),
+    document = convert(
+      inspectCaptureFile("border-dash-dotted.crlnative", file),
+    );
+  expect(
+    document.elements
+      .filter((element) => element.type === "rectangle")
+      .every((element) => element.strokeStyle === "dotted"),
+  ).toBe(true);
+});
+
 it("uses genuine native key-pool order after a column reorder", () => {
   const before = recoverNativeTable(
     decodeCrlNative(

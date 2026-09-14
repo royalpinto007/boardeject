@@ -153,25 +153,36 @@ function recoverNativeTableArchive(
     const props = all(bytes(path(objects[0], [4, 0], [4, 0])), 2).map(bytes);
     // A genuine fully empty table omits the attributed-text property pool.
     if (![4, 5].includes(props.length)) return;
-    let borderMode: "all" | "none" = "all";
+    let borderMode: "all" | "none" | "outer" = "all",
+      borderWidth = 1,
+      borderStyle: "solid" | "dotted" = "solid";
     if (props.length === 5) {
       try {
         const tableStyleEntries = all(bytes(path(props[4], [4, 0])), 2).map(
             bytes,
           ),
+          strokeRecord = bytes(
+            path(tableStyleEntries[0], [1, 0], [2, 0], [14, 0]),
+          ),
+          strokeKind = num(path(strokeRecord, [2, 0], [5, 0])),
           borderPresetKey = num(
             path(tableStyleEntries[1], [1, 0], [1, 0], [1, 0]),
           ),
           borderPreset = num(
             path(tableStyleEntries[1], [1, 0], [2, 0], [14, 0], [2, 0], [5, 0]),
           );
-        // Only the isolated native preset-0 differential is interpreted.
+        borderWidth = num(path(strokeRecord, [2, 2], [15, 0]));
+        if (borderWidth <= 0 || borderWidth > 100) return;
+        if (strokeKind === 0) borderStyle = "solid";
+        else if (strokeKind === 2) borderStyle = "dotted";
+        else return;
         if (
           tableStyleEntries.length === 6 &&
           borderPresetKey === 25 &&
-          borderPreset === 0
+          [0, 2, 14].includes(borderPreset)
         )
-          borderMode = "none";
+          borderMode =
+            borderPreset === 0 ? "none" : borderPreset === 2 ? "outer" : "all";
       } catch {
         // Preserve the established default for unrelated table variants.
       }
@@ -379,6 +390,8 @@ function recoverNativeTableArchive(
       rowHeights,
       columnWidths,
       borderMode,
+      borderWidth,
+      borderStyle,
       cells: completeCells,
     };
   } catch {

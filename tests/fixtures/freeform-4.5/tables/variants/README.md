@@ -55,6 +55,12 @@ visible disappearance of every table border and the isolated native preset
 change agree. The unsuccessful width edit and style-menu inventory were not
 promoted as fixtures.
 
+Run [34812708563](https://github.com/royalpinto007/boardeject/actions/runs/34812708563)
+produced isolated successful differentials for border width from 1 to 3 points,
+solid to dotted border style, and all to outer-only edges. Native values and
+screenshots agree. The border-color palette inventory was discovery only and
+was not promoted.
+
 The attempted combined resize, row reorder, insert, and delete operations did
 not produce the intended native change and were not promoted. A successful
 process exit is not treated as evidence.
