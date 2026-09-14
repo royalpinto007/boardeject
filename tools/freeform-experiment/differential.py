@@ -2,6 +2,7 @@
 import json
 import os
 from pathlib import Path
+import plistlib
 import subprocess
 
 out = Path(os.environ["CAPTURE_OUTPUT"])
@@ -99,8 +100,56 @@ ui("ink-after-tree", 'return entire contents of front window')
 ui("ink-menu-inventory", 'return entire contents of menu bar 1')
 ui("ink-toolbar-inventory", 'return entire contents of toolbar 1 of front window')
 run("tool-screen", ["screencapture", "-x", str(out / "tools.png")])
-(out / "summary.json").write_text(json.dumps({
-    "stage": "Differential cell edits attempted; verify every payload against the intended grid before interpreting changes",
-    "tableVerified": False, "inkVerified": False, "pressureVerified": False,
-    "importedDrawingUsed": False,
-}, indent=2))
+manifest = json.loads((out / "ink-own-pen-before" / "manifest.json").read_text())
+pasteboard_types = [flavor["uti"] for flavor in manifest["flavors"]]
+item_classes = []
+tsu_flavor = next(
+    (flavor for flavor in manifest["flavors"] if flavor["uti"] == "com.apple.freeform.TSUDescription"),
+    None,
+)
+if tsu_flavor:
+    description = plistlib.loads(
+        (out / "ink-own-pen-before" / tsu_flavor["file"]).read_bytes()
+    )
+
+    def collect_classes(value):
+        if isinstance(value, str) and value.startswith("Freeform.CRL"):
+            item_classes.append(value)
+        elif isinstance(value, dict):
+            for child in value.values():
+                collect_classes(child)
+        elif isinstance(value, list):
+            for child in value:
+                collect_classes(child)
+
+    collect_classes(description)
+
+inventories = "\n".join(
+    (out / name).read_text()
+    for name in ("ink-menu-inventory.json", "ink-toolbar-inventory.json")
+)
+drawing_present = "com.apple.drawing" in pasteboard_types
+freehand_present = "Freeform.CRLFreehandDrawingItem" in item_classes
+(out / "summary.json").write_text(
+    json.dumps(
+        {
+            "scenario": "issue-13-native-ink",
+            "nativeFreeformCopy": "com.apple.freeform.CRLNativeData" in pasteboard_types,
+            "pasteboardTypes": pasteboard_types,
+            "itemClasses": sorted(set(item_classes)),
+            "drawingFlavorPresent": drawing_present,
+            "freehandDrawingItemPresent": freehand_present,
+            "eraserControlObserved": "eraser" in inventories.lower(),
+            "inkVerified": drawing_present and freehand_present,
+            "pressureVerified": False,
+            "importedDrawingUsed": False,
+            "interpretation": (
+                "A genuine Freeform freehand selection was captured. Inspect pressure channels before making a fidelity claim."
+                if drawing_present and freehand_present
+                else "The macOS Draw with Pen result is not Freeform freehand ink. No pressure or eraser fidelity claim is possible."
+            ),
+        },
+        indent=2,
+        sort_keys=True,
+    )
+)
