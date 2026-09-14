@@ -116,9 +116,11 @@ export default function CaptureTester() {
         <p>
           Use the macOS helper’s <code>.boardeject</code> file (or its JSON
           envelope). Raw <code>.crlnative</code> and <code>.drawing</code>{" "}
-          fixtures can be inspected without companion assets. A verified
-          single-table layout can be recovered from version 7; other version-7
-          boards remain unsupported.
+          fixtures can be inspected without companion assets. Verified Freeform
+          4.5 table captures, including multiple tables, colors, borders, and
+          attached text, can be recovered from version 7. Other version-7 board
+          layouts remain unsupported unless a documented sidecar fallback
+          applies.
         </p>
         <a
           href="https://github.com/royalpinto007/boardeject/blob/main/docs/clipboard.md"

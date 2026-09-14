@@ -5,7 +5,9 @@ text, embedded files and metadata beyond what is visible on the board.
 
 Report suspected vulnerabilities privately to royalpinto007@gmail.com. Include
 reproduction instructions and a minimal non-sensitive fixture when possible.
-There are no supported public releases yet.
+Only the behavior listed in the README support matrix is supported by the early
+public releases. Conversion mistakes and unsupported native structures are not
+security vulnerabilities unless they cross a trust boundary or expose data.
 
 Untrusted captures are size limited and decoded in a terminable worker. The
 application does not upload board data. Native helper captures are explicit and

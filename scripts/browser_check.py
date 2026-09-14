@@ -1,8 +1,12 @@
 """Validate actual Excalidraw interactions, without fabricating native capture."""
+import os
+
 from playwright.sync_api import sync_playwright
 
+BASE = os.environ.get("BOARDEJECT_TEST_URL", "http://127.0.0.1:4190").rstrip("/")
 
-def open_example(page, base="http://127.0.0.1:4190"):
+
+def open_example(page, base=BASE):
     page.goto(base + "/?debug")
     page.locator(".hero").wait_for()
     for link in page.locator('a[href^="https://"]').all():
@@ -65,7 +69,7 @@ if __name__ == "__main__":
         errors = []
         remote = []
         page.on("pageerror", lambda error: errors.append(str(error)))
-        page.on("request", lambda request: remote.append(request.url) if not request.url.startswith(("http://127.0.0.1", "data:", "blob:")) else None)
+        page.on("request", lambda request: remote.append(request.url) if not request.url.startswith((BASE, "data:", "blob:")) else None)
         open_example(page)
         prove_editability(page)
         assert not errors, errors
@@ -77,5 +81,13 @@ if __name__ == "__main__":
         for width in (360, 768, 1280):
             page.set_viewport_size({"width": width, "height": 900})
             assert page.evaluate("document.documentElement.scrollWidth <= innerWidth")
+        for path, heading in (("/privacy", "Privacy"), ("/terms", "Terms of use")):
+            response = page.goto(BASE + path)
+            assert response.status == 200
+            page.get_by_role("heading", name=heading).wait_for()
+            assert page.locator(".brand").is_visible()
+            for width in (360, 1280):
+                page.set_viewport_size({"width": width, "height": 900})
+                assert page.evaluate("document.documentElement.scrollWidth <= innerWidth")
         browser.close()
         print("PASS: shape drag, bound arrow follows, editable text, no external requests, responsive layout")
