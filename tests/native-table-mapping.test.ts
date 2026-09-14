@@ -88,6 +88,7 @@ it("rejects unrelated real board captures", () => {
 it.each([
   ["unequal-columns-after", [258, 258], [244, 344]],
   ["unequal-rows-after", [157.5, 258], [344, 344]],
+  ["unequal-both-after", [157.5, 258], [244, 344]],
 ] as const)(
   "preserves genuine unequal dimensions in %s",
   (name, rowHeights, columnWidths) => {

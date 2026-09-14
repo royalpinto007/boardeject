@@ -18,6 +18,10 @@ produced:
 - successful unequal-column and unequal-row resize differentials
 - a successful column reorder differential
 
+Run [34809848610](https://github.com/royalpinto007/boardeject/actions/runs/34809848610)
+produced a successful combined unequal-column and unequal-row differential.
+The decoded dimensions and screenshot independently agree.
+
 The attempted combined resize, row reorder, insert, and delete operations did
 not produce the intended native change and were not promoted. A successful
 process exit is not treated as evidence.
