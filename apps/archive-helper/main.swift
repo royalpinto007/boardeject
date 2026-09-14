@@ -412,7 +412,7 @@ func preserveAssets(snapshot: URL, boardId: String, assetsRoot: URL, destination
     var completed = false
     defer { if !completed { try? manager.removeItem(at: staging) } }
     let filesDirectory = staging.appendingPathComponent("files", isDirectory: true)
-    try manager.createDirectory(at: filesDirectory)
+    try manager.createDirectory(at: filesDirectory, withIntermediateDirectories: false)
 
     let report = try openVerifiedSnapshot(snapshot: snapshot) { database, _, _ in
         struct Reference {
