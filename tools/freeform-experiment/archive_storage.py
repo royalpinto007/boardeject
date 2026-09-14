@@ -288,6 +288,45 @@ if not controlled_hashes.issubset(preserved_hashes):
 if any(asset.get("status") == "missing" for asset in preservation.get("assets", [])):
     raise SystemExit("A controlled genuine Freeform asset was unexpectedly missing.")
 
+archive_path = out / "selected-board.boardejectarchive"
+os.environ["BOARDEJECT_ARCHIVE_TIME"] = "2026-09-14T18:00:00.000Z"
+archive_result = run(
+    "create-portable-archive",
+    [
+        "node", "--experimental-strip-types", "scripts/archive-cli.ts", "create",
+        str(native_records), str(preserved_assets), str(archive_path),
+        f"Untitled {selected_board_id[:8]}",
+    ],
+    120,
+)
+if archive_result.returncode != 0 or not archive_path.is_file():
+    raise SystemExit("Portable selected-board archive could not be created.")
+verify_result = run(
+    "verify-portable-archive",
+    ["node", "--experimental-strip-types", "scripts/archive-cli.ts", "verify", str(archive_path)],
+    120,
+)
+if verify_result.returncode != 0:
+    raise SystemExit("Portable selected-board archive did not verify independently.")
+verified_archive = json.loads(verify_result.stdout)
+if (
+    not verified_archive.get("valid")
+    or verified_archive.get("assetsVerified") != len(preservation.get("assets", []))
+    or verified_archive.get("manifest", {}).get("board", {}).get("id") != selected_board_id
+):
+    raise SystemExit("Portable archive verification summary did not match the selected board.")
+corrupt_path = out / "corrupted-selected-board.boardejectarchive"
+corrupted = bytearray(archive_path.read_bytes())
+corrupted[len(corrupted) // 2] ^= 0x01
+corrupt_path.write_bytes(corrupted)
+corrupt_result = run(
+    "reject-corrupted-archive",
+    ["node", "--experimental-strip-types", "scripts/archive-cli.ts", "verify", str(corrupt_path)],
+    120,
+)
+if corrupt_result.returncode == 0:
+    raise SystemExit("Independent verification accepted a corrupted archive.")
+
 copied_db = snapshot / "boards.db"
 # `immutable=1` is deliberately not used: it can ignore committed schema and
 # rows that still live in the copied WAL. `mode=ro` plus query_only reads the
