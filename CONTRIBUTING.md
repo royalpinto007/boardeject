@@ -1,6 +1,6 @@
 # Contributing
 
-BoardEject is an open-source development preview seeking fidelity contributions.
+BoardEject is an early open-source exporter seeking fidelity contributions.
 Use Node 22.12+, `npm ci`, and the checks in README. Keep parser, intermediate
 model, converter and UI separate. Prefer small Conventional Commits.
 

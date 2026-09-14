@@ -1,20 +1,18 @@
-# v0.0.1 release checklist
+# v0.0.2 release checklist
 
 No tag, GitHub release, deployment or package publication happens automatically.
 The manual release-readiness workflow runs checks only and has read-only access.
 
-The owner has approved an early release with the README's limited support matrix.
-Incomplete fidelity is explicitly tracked, not silently promoted to support.
-Before publication:
+The owner approved an early release with the README's limited support matrix.
+Incomplete fidelity stays explicit and tracked. Before publication:
 
-- Obtain owner authorization and domain details.
-- Validate the actual Cmd+C capture path on a Mac.
-- Demonstrate a non-synthetic board with recovered text and connector identities.
-- Add native fixtures for every claimed supported element.
-- Freeze image, drawing, table and hierarchy claims to the documented evidence.
-- Record the actual import-to-edit workflow and verify its first frames.
-- Review security limits, license notices and embedded font licenses.
-- Set the approved GitHub social preview, review topics and repository visibility.
-- Update version from 0.0.0 to 0.0.1, changelog and installation instructions.
-- Run all 50 tests, formatter, lint, type checks, build, browser checks, native CI
-  and secret/history scans. Confirm a clean working tree before tagging.
+- [ ] Classify every open issue and confirm #20 is future iPad validation.
+- [ ] Verify README and website claims against genuine native fixtures.
+- [ ] Run all 125 tests, formatting, lint, type checks, and build.
+- [ ] Run local and production browser checks, including all genuine captures,
+      `/test-capture`, Privacy, Terms, demo, and responsive layouts.
+- [ ] Compile and smoke-test the Swift helper on a clean macOS runner.
+- [ ] Run dependency, Gitleaks, secret/history, and clean-tree checks.
+- [ ] Confirm CI and the manual native validation workflow are green.
+- [ ] Deploy the exact merged commit and repeat production checks.
+- [ ] Create and publish v0.0.2 only after every gate above passes.

@@ -19,4 +19,4 @@ jobs:
       - run: npm test
       - run: npm run build
       - run: npm audit --audit-level=moderate
-      - run: echo 'Readiness checks only. Domain, native validation, owner approval and v0.0.1 publication are separate gates.'
+      - run: echo 'Readiness checks only. Production validation, owner approval and publication are separate gates.'

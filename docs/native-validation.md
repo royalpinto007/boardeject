@@ -40,13 +40,13 @@ For spline endpoints, record reference points from PencilKit's
 `stroke.path.interpolatedPoints(by: .parametricStep(0.125))`, with the stroke
 transform applied. The uniform-basis tests cannot substitute for that reference.
 
-## Release status
+## Current release boundary
 
-GitHub's macOS runner provides usable Apple framework reference data even
-without a personal Mac. No additional real Freeform captures were found in
-upstream's current fixture tree or forks. End-to-end native fidelity remains
-unvalidated. The website is deployed as a development preview; a stable release
-must not be inferred from passing unit tests or the synthetic demo.
+GitHub's macOS runner provides usable Apple framework reference data and genuine
+Freeform 4.5 captures even without a personal Mac. This validates only the
+fixture-backed subsets in the README support matrix. It does not establish
+general Freeform 4.5 or cross-version compatibility, and the synthetic demo is
+proof of editability rather than native import fidelity.
 
 The [hosted Freeform UI experiment](freeform-capture-experiment.md) subsequently
 confirmed GUI automation is permitted and obtained experimental native payloads.
@@ -58,4 +58,6 @@ Native table behavior is covered by the supported subset. Freeform 4.5 on
 macOS emits Draw with Pen output as vector shapes and exposes no eraser in the
 tested flow. Apple Pencil pressure and erased ink require iPad-originated
 captures and remain unverified in [issue #20](https://github.com/royalpinto007/boardeject/issues/20).
-The production unsupported-version gate is unchanged.
+The production unsupported-version gate is unchanged. v0.0.2 is an early,
+limited-scope release with these boundaries, not a claim of complete native
+fidelity.

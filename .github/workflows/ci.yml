@@ -38,3 +38,11 @@ jobs:
     steps:
       - uses: actions/checkout@v7
       - run: swiftc apps/mac-helper/main.swift -o /tmp/boardeject-helper
+      - name: Verify helper command-line onboarding
+        run: |
+          set +e
+          output=$(/tmp/boardeject-helper 2>&1)
+          status=$?
+          set -e
+          test "$status" -eq 2
+          grep -F "Usage:" <<< "$output"

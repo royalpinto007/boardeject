@@ -113,6 +113,17 @@ with sync_playwright() as p:
     for width in (360, 768, 1280):
         page.set_viewport_size({"width": width, "height": 900})
         assert page.evaluate("document.documentElement.scrollWidth <= innerWidth")
+    # Every sanitized genuine Freeform capture must produce either a conversion
+    # report or a clean unsupported result in the production capture tester.
+    page.goto(base + "/test-capture")
+    picker = page.locator("#capture-file")
+    native_captures = sorted(Path("tests/fixtures/freeform-4.5").rglob("*.crlnative"))
+    for capture_path in native_captures:
+        picker.set_input_files(str(capture_path))
+        page.locator(".capture-report").wait_for()
+        assert page.locator('[role="alert"]').count() == 0, capture_path
+        assert page.locator(".capture-report").inner_text().strip(), capture_path
+    assert len(native_captures) >= 60, len(native_captures)
     assert not errors, errors
     assert all(method == "GET" for method, url in requests), requests
     assert not external_responses, external_responses
@@ -124,4 +135,4 @@ with sync_playwright() as p:
     if external_attempts:
         print(f"NOTE: {len(external_attempts)} external request attempts received no response (CSP-blocked); no uploads occurred")
     browser.close()
-    print("PASS: native file selection, failure clears stale output, ink drop, preview/download, responsive layout, no uploads/external responses")
+    print(f"PASS: {len(native_captures)} genuine native captures, file selection, safe failures, ink, preview/download, responsive layout, no uploads/external responses")
