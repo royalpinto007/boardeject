@@ -37,12 +37,30 @@ swiftc apps/archive-helper/main.swift -lsqlite3 -o /tmp/boardeject-archive-helpe
 /tmp/boardeject-archive-helper snapshot /path/to/boards.db /path/to/new-snapshot
 ```
 
+## Verified experimental evidence
+
+A genuine Freeform 4.5 run on macOS produced schema `user_version` 16 with the
+exact fingerprint
+`921b22ba14261263cf75237435f6667dde9620a8a3cbd4c651a8a28021ecf433`.
+BoardEject copied the database, WAL and SHM without changing their source
+hashes, opened only the copy with SQLite read-only and query-only modes, and
+confirmed that a write probe was rejected.
+
+Against that exact schema, the native helper now catalogs non-discardable
+boards by native UUID, modified timestamp, active object count and active asset
+reference count. The genuine regression board returned one board, three active
+objects and no asset references. Unknown schema versions or fingerprints fail
+closed.
+
+Freeform board-title decoding is not verified. The catalogue therefore uses a
+clearly marked fallback name and requires the native UUID for deterministic
+selection. This is not an archive compatibility claim.
+
 ## Work still requiring native evidence
 
 - locate Freeform storage reliably across supported macOS versions;
-- open only the copied database with SQLite read-only and query-only modes;
-- fingerprint a genuine schema and fail closed on unknown structures;
-- list and select the correct board using proven fields;
+- prove board-title storage using a genuine rename differential;
+- select and extract one board without including unrelated board rows;
 - prove board-scoped object and asset relationships;
 - resolve original image, video, PDF and file bytes inside the verified Assets
   root without following symlinks;
