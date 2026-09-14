@@ -156,6 +156,39 @@ def select_once(name, x, y):
     ui(f"{name}-settle", "delay 0.5")
 
 
+if os.environ.get("TABLE_ISSUE15_PHASE") == "style-controls":
+    new_table()
+    fill_baseline()
+    capture("style-baseline")
+    for slug, item in [("align-center", "Align Center"), ("align-right", "Align Right")]:
+        select_cell(f"{slug}-select", 450, 250)
+        ui(f"{slug}-select-text", 'keystroke "a" using command down')
+        format_menu(f"{slug}-apply", "Text", item)
+        capture(slug)
+        ui(f"{slug}-undo", 'keystroke "z" using command down\ndelay 1')
+
+    # Inspect the contextual color control for a selected cell. A later run
+    # will choose a deterministic swatch only after this UI is identified.
+    select_once("cell-style-select", 450, 250)
+    run("cell-style-screen", ["screencapture", "-x", str(out / "cell-style.png")])
+    ui("cell-style-tree", "return entire contents of front window")
+    run("cell-color-click", [str(drag), "438", "426", "438", "426"])
+    ui("cell-color-tree", "return entire contents of front window")
+    run("cell-color-screen", ["screencapture", "-x", str(out / "cell-color.png")])
+
+    (out / "summary.json").write_text(
+        json.dumps(
+            {
+                "stage": "Issue 15 native style differentials and control discovery",
+                "verifiedFixture": False,
+                "rule": "Promote only style changes proven by native records and screenshots",
+            },
+            indent=2,
+        )
+    )
+    raise SystemExit(0)
+
+
 if os.environ.get("TABLE_ISSUE15_PHASE") == "structure":
     # Structural commands require a selected cell, not text-edit mode. Each
     # command is isolated on a fresh table and verified only after capture.
