@@ -57,10 +57,17 @@ fixtures. All output goes to `RUNNER_TEMP`, never the repository.
   verified PencilKit drawing/erasing surface. These experimental outputs remain
   outside permanent fixtures. No before/after ink-erasure claim is possible
   from this run; Apple Pencil pressure remains explicitly unverified.
+- [Dedicated Issue #13 rerun](https://github.com/royalpinto007/boardeject/actions/runs/34815085421):
+  a genuine Freeform 4.5 copy again contained native CRL data, but its TSU class
+  was `CRLWPShapeItem`. It contained no `com.apple.drawing`, no
+  `CRLFreehandDrawingItem`, and the complete menu/toolbar accessibility
+  inventories exposed no eraser. The sanitized summary is regression-tested.
 
 The observed pen behavior agrees with [Apple's Mac shape guide](https://support.apple.com/en-gb/guide/freeform/frfm8479c716/mac).
 No permission bypass or imported PKDrawing was used in these differential runs.
-An actual Freeform ink-capable surface is still needed for the erasure test.
+The macOS route is exhausted at this platform boundary. A genuine
+iPad-originated Apple Pencil capture is needed for pressure and erasure testing;
+track it in [issue #20](https://github.com/royalpinto007/boardeject/issues/20).
 
 ## What the artifacts prove, and what they do not
 

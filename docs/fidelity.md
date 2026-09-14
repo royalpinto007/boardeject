@@ -104,9 +104,14 @@ unsupported report instead of restoring its hidden regions. This is conservative
 omission, not editable eraser reconstruction. Unmasked output remains a
 uniform-width approximation.
 
-Genuine Freeform eraser and pressure-sensitive round-trip captures remain
-unverified. [Issue #13](https://github.com/royalpinto007/boardeject/issues/13)
-stays open. See the [Apple reference provenance](../tests/fixtures/apple/README.md).
+Genuine Freeform 4.5 captures prove the macOS Draw with Pen tool emits
+`CRLWPShapeItem` vector shapes, not `com.apple.drawing` or
+`CRLFreehandDrawingItem`. The tested macOS UI exposes no eraser. This is a
+platform boundary, not missing BoardEject decoding. Apple Pencil pressure and
+erased-ink round trips are iPad-originated behavior and remain unverified in
+[Issue #20](https://github.com/royalpinto007/boardeject/issues/20). Apple
+framework fixtures validate decoder behavior only. See the
+[Apple reference provenance](../tests/fixtures/apple/README.md).
 
 The upstream `native-mixed` fixture exposes three identities but no geometry.
 The upstream `real-board` capture declares minimum version 7, which the decoder
@@ -142,7 +147,7 @@ properties, multiple independently framed tables, and attached text-box cell
 ownership. Merge and rotation are unavailable for tables in the tested
 Freeform version. Other version-7 layouts remain rejected.
 Track [table variants](https://github.com/royalpinto007/boardeject/issues/15) and
-[erased/pressure ink](https://github.com/royalpinto007/boardeject/issues/13).
+[iPad Apple Pencil ink](https://github.com/royalpinto007/boardeject/issues/20).
 
 The example board is synthetic. It is a converter demonstration, not a captured
 Apple Freeform board. No simulated Freeform UI or copy footage should be used in

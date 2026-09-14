@@ -30,7 +30,8 @@ personal board content.
 1. Two shapes, separately copied, then grouped without moving them.
 2. That same group translated, then rotated, each as a separate capture.
 3. A group nested inside another group, with one independently moved child.
-4. A pen curve with visible endpoints, a short two-point stroke and an erased stroke.
+4. On iPad, an Apple Pencil curve with visible pressure variation, then the same
+   curve with a bounded middle section erased.
 5. A labelled shape and bound arrow, a merged table cell, and an original image.
 
 Change one property per capture. This permits differential testing of native
@@ -53,5 +54,8 @@ Confirmed minimal text, connector and group captures have been promoted with
 provenance in `tests/fixtures/freeform-4.5/`. Table differentials additionally
 verify native row-major text and stable RTF structure; see
 [table evidence](../tests/fixtures/freeform-4.5/tables/README.md).
-Native CRL table geometry and erased/variable-width ink remain unverified.
+Native table behavior is covered by the supported subset. Freeform 4.5 on
+macOS emits Draw with Pen output as vector shapes and exposes no eraser in the
+tested flow. Apple Pencil pressure and erased ink require iPad-originated
+captures and remain unverified in [issue #20](https://github.com/royalpinto007/boardeject/issues/20).
 The production unsupported-version gate is unchanged.

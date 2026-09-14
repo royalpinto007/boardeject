@@ -1,0 +1,28 @@
+{
+  "drawingFlavorPresent": false,
+  "eraserControlObserved": false,
+  "freehandDrawingItemPresent": false,
+  "importedDrawingUsed": false,
+  "inkVerified": false,
+  "itemClasses": ["Freeform.CRLWPShapeItem"],
+  "nativeFreeformCopy": true,
+  "pasteboardTypes": [
+    "com.apple.freeform.CRLNativeMetadata",
+    "com.apple.freeform.CRLNativeData",
+    "com.apple.freeform.TSUDescription",
+    "com.apple.freeform.pasteboardState.hasNativeTypes",
+    "com.apple.freeform.pasteboardState.hasNativeBoardItems",
+    "com.apple.apps.content-language.canvas-object-1.0",
+    "public.png",
+    "Apple PNG pasteboard type",
+    "public.tiff",
+    "NeXT TIFF v4.0 pasteboard type"
+  ],
+  "pressureVerified": false,
+  "scenario": "issue-13-native-ink",
+  "source": {
+    "freeformVersion": "4.5",
+    "macOSVersion": "26.6.2",
+    "run": 34815085421
+  }
+}

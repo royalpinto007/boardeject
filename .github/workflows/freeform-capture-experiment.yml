@@ -27,6 +27,7 @@ on:
             tables-issue-15-border-color,
             tables-issue-15-embedded-direct,
             tables-issue-15-embedded-cells,
+            ink-issue-13,
           ]
         default: tables
 permissions:
@@ -45,7 +46,9 @@ jobs:
           TABLE_GEOMETRY_ONLY: "1"
           CAPTURE_SCENARIO: ${{ inputs.scenario }}
         run: |
-          if [ "$CAPTURE_SCENARIO" = "images-text" ]; then
+          if [ "$CAPTURE_SCENARIO" = "ink-issue-13" ]; then
+            TABLE_GEOMETRY_ONLY=0 python3 tools/freeform-experiment/differential.py
+          elif [ "$CAPTURE_SCENARIO" = "images-text" ]; then
             python3 tools/freeform-experiment/images_text.py
           elif [ "$CAPTURE_SCENARIO" = "tables-issue-15" ]; then
             python3 tools/freeform-experiment/tables_issue15.py
