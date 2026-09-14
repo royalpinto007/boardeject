@@ -66,6 +66,13 @@ produced the isolated border-color differential after the palette location was
 established. The native RGB components and visible red borders agree on
 `#ea4d3d`.
 
+Run [34813458665](https://github.com/royalpinto007/boardeject/actions/runs/34813458665)
+produced separate text-box attachments in A1 and B2. The trailing row and
+column identities in each attached object's native common record match the
+target cell's axis keys, while the specific record contains the visible text.
+The fixtures verify editable text and cell ownership. Exact Freeform padding
+inside the cell remains an approximation.
+
 The attempted combined resize, row reorder, insert, and delete operations did
 not produce the intended native change and were not promoted. A successful
 process exit is not treated as evidence.

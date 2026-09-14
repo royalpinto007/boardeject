@@ -201,6 +201,27 @@ it("preserves a genuine native border-color differential", () => {
   ).toBe(true);
 });
 
+it.each([
+  ["embedded-a1", 0, 0, "ANCHORED A1"],
+  ["embedded-b2", 1, 1, "ANCHORED B2"],
+] as const)(
+  "preserves verified attached text ownership from %s",
+  (name, row, column, text) => {
+    const file = readFileSync(root + `variants/${name}.crlnative`),
+      tables = recoverNativeTables(decodeCrlNative(file));
+    expect(tables).toHaveLength(1);
+    expect(tables[0].anchoredTexts).toEqual([{ row, column, text }]);
+    const board = inspectCaptureFile(`${name}.crlnative`, file),
+      attached = board.nodes.find((node) => node.id.endsWith("-anchored-0"));
+    expect(attached).toMatchObject({
+      kind: "text",
+      text,
+      groups: [tables[0].id],
+      sourceStyle: { anchoredTableCell: { row, column } },
+    });
+  },
+);
+
 it("uses genuine native key-pool order after a column reorder", () => {
   const before = recoverNativeTable(
     decodeCrlNative(

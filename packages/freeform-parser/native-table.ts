@@ -171,6 +171,11 @@ function recoverNativeTableArchive(
     const props = all(bytes(path(objects[0], [4, 0], [4, 0])), 2).map(bytes);
     // A genuine fully empty table omits the attributed-text property pool.
     if (![4, 5].includes(props.length)) return;
+    const anchoredRecordCount =
+      hex(props[0]) === "2200"
+        ? 0
+        : all(bytes(path(props[0], [4, 0])), 2).length;
+    if (anchoredRecordCount > 1) return;
     let borderMode: "all" | "none" | "outer" = "all",
       borderWidth = 1,
       borderStyle: "solid" | "dotted" = "solid",
@@ -413,8 +418,73 @@ function recoverNativeTableArchive(
       borderWidth,
       borderStyle,
       borderColor,
+      rowKeys: rows,
+      columnKeys: columns,
+      anchoredRecordCount,
+      anchoredTexts: [] as { row: number; column: number; text: string }[],
       cells: completeCells,
     };
+  } catch {
+    return;
+  }
+}
+
+function recoverAnchoredTextArchive(
+  data: Uint8Array,
+  rowKeys: string[],
+  columnKeys: string[],
+) {
+  try {
+    const headerLength = Number(
+        new DataView(data.buffer, data.byteOffset, 8).getBigUint64(0, true),
+      ),
+      header = data.subarray(8, 8 + headerLength),
+      descriptors = all(header, 5).map(bytes);
+    if (descriptors.length !== 2) return;
+    const names = ["commonCRDTData", "specificCRDTData"];
+    let offset = 8 + headerLength;
+    const records = descriptors.map((descriptor, index) => {
+      if (text(bytes(path(descriptor, [1, 0]))) !== names[index]) return fail();
+      const length = num(path(descriptor, [2, 0]));
+      if (
+        !Number.isInteger(length) ||
+        length < 8 ||
+        offset + length > data.length ||
+        text(data.subarray(offset, offset + 4)) !== "crdt" ||
+        new DataView(data.buffer, data.byteOffset + offset + 4, 4).getUint32(
+          0,
+          true,
+        ) !== 6
+      )
+        return fail();
+      const record = data.subarray(offset + 8, offset + length);
+      offset += length;
+      fields(record);
+      return record;
+    });
+    if (offset !== data.length) return;
+    const metadata = bytes(path(records[0], [6, 0], [1, 0]));
+    if (metadata.length < 32) return;
+    const rowKey = `02${hex(metadata.subarray(metadata.length - 32, metadata.length - 16))}`,
+      columnKey = `02${hex(metadata.subarray(metadata.length - 16))}`,
+      row = rowKeys.indexOf(rowKey),
+      column = columnKeys.indexOf(columnKey),
+      value = text(
+        bytes(
+          path(
+            records[1],
+            [1, 0],
+            [4, 0],
+            [2, 1],
+            [4, 0],
+            [2, 0],
+            [5, 0],
+            [1, 0],
+          ),
+        ),
+      );
+    if (row < 0 || column < 0 || !value || value.length > 100000) return;
+    return { row, column, text: value };
   } catch {
     return;
   }
@@ -475,14 +545,28 @@ export function recoverNativeTables(native: FreeformNative) {
   const remaining = new Set(native.items.map((item) => item.uuid));
   const tables: NonNullable<ReturnType<typeof recoverNativeTableArchive>>[] =
     [];
-  for (const section of sections) {
+  for (let sectionIndex = 0; sectionIndex < sections.length; sectionIndex++) {
+    const section = sections[sectionIndex];
     const matches = [...remaining]
       .map((id) => recoverNativeTableArchive(native, section, id))
       .filter((table): table is NonNullable<typeof table> => Boolean(table));
     if (matches.length > 1) return [];
     if (matches.length === 1) {
-      tables.push(matches[0]);
-      remaining.delete(matches[0].id);
+      const table = matches[0];
+      if (table.anchoredRecordCount) {
+        const attachedSection = sections[sectionIndex + 1];
+        if (!attachedSection) return [];
+        const anchor = recoverAnchoredTextArchive(
+          attachedSection,
+          table.rowKeys,
+          table.columnKeys,
+        );
+        if (!anchor) return [];
+        table.anchoredTexts.push(anchor);
+        sectionIndex++;
+      }
+      tables.push(table);
+      remaining.delete(table.id);
     }
   }
   return tables;

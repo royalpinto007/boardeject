@@ -150,6 +150,57 @@ export function normalize(pasteboard: FreeformPasteboard): Board {
             board.issues,
           ),
         );
+        const totalWidth = table.columnWidths.reduce(
+            (sum, value) => sum + value,
+            0,
+          ),
+          totalHeight = table.rowHeights.reduce((sum, value) => sum + value, 0);
+        for (const [anchorIndex, anchor] of table.anchoredTexts.entries()) {
+          const x =
+              table.bounds.x +
+              (table.columnWidths
+                .slice(0, anchor.column)
+                .reduce((sum, value) => sum + value, 0) /
+                totalWidth) *
+                table.bounds.width,
+            y =
+              table.bounds.y +
+              (table.rowHeights
+                .slice(0, anchor.row)
+                .reduce((sum, value) => sum + value, 0) /
+                totalHeight) *
+                table.bounds.height,
+            width =
+              (table.columnWidths[anchor.column] / totalWidth) *
+              table.bounds.width,
+            height =
+              (table.rowHeights[anchor.row] / totalHeight) *
+              table.bounds.height;
+          board.nodes.push({
+            id: `${table.id}-anchored-${anchorIndex}`,
+            kind: "text",
+            text: anchor.text,
+            fontSize: 18,
+            textAlign: "center",
+            bounds: {
+              x: x + 4,
+              y: y + Math.max(4, height / 2 - 12),
+              width: Math.max(1, width - 8),
+              height: 24,
+              rotation: 0,
+            },
+            groups: [table.id],
+            appearance: {
+              fill: "transparent",
+              stroke: "#202622",
+              strokeWidth: 1,
+              opacity: 100,
+            },
+            sourceStyle: {
+              anchoredTableCell: { row: anchor.row, column: anchor.column },
+            },
+          });
+        }
         board.issues.push({
           severity: "approximation",
           itemId: table.id,
@@ -162,6 +213,13 @@ export function normalize(pasteboard: FreeformPasteboard): Board {
             itemId: table.id,
             message:
               "Freeform outer-only table borders are retained as source metadata; editable Excalidraw cell rectangles may show internal edges.",
+          });
+        if (table.anchoredTexts.length)
+          board.issues.push({
+            severity: "approximation",
+            itemId: table.id,
+            message:
+              "Verified text-box cell attachments remain editable and grouped with their owning table; Freeform's exact internal text-box padding is approximated.",
           });
       }
       if (native.items.length > tables.length)
