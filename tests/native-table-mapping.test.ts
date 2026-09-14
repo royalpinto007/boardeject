@@ -139,6 +139,23 @@ it("preserves a genuine native table cell-fill differential", () => {
   ).toMatchObject({ backgroundColor: "#f6ce46" });
 });
 
+it("preserves a genuine native no-borders differential", () => {
+  const beforeFile = readFileSync(
+      root + "variants/border-mode-before.crlnative",
+    ),
+    noneFile = readFileSync(root + "variants/border-mode-none.crlnative"),
+    before = recoverNativeTable(decodeCrlNative(beforeFile)),
+    none = recoverNativeTable(decodeCrlNative(noneFile));
+  expect(before?.borderMode).toBe("all");
+  expect(none?.borderMode).toBe("none");
+  const board = inspectCaptureFile("border-mode-none.crlnative", noneFile);
+  expect(
+    board.nodes
+      .filter((node) => node.kind === "rectangle")
+      .every((node) => node.appearance.stroke === "transparent"),
+  ).toBe(true);
+});
+
 it("uses genuine native key-pool order after a column reorder", () => {
   const before = recoverNativeTable(
     decodeCrlNative(

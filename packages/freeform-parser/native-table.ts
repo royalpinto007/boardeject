@@ -153,6 +153,29 @@ function recoverNativeTableArchive(
     const props = all(bytes(path(objects[0], [4, 0], [4, 0])), 2).map(bytes);
     // A genuine fully empty table omits the attributed-text property pool.
     if (![4, 5].includes(props.length)) return;
+    let borderMode: "all" | "none" = "all";
+    if (props.length === 5) {
+      try {
+        const tableStyleEntries = all(bytes(path(props[4], [4, 0])), 2).map(
+            bytes,
+          ),
+          borderPresetKey = num(
+            path(tableStyleEntries[1], [1, 0], [1, 0], [1, 0]),
+          ),
+          borderPreset = num(
+            path(tableStyleEntries[1], [1, 0], [2, 0], [14, 0], [2, 0], [5, 0]),
+          );
+        // Only the isolated native preset-0 differential is interpreted.
+        if (
+          tableStyleEntries.length === 6 &&
+          borderPresetKey === 25 &&
+          borderPreset === 0
+        )
+          borderMode = "none";
+      } catch {
+        // Preserve the established default for unrelated table variants.
+      }
+    }
     const axisKeyIndices: number[][] = [];
     const axes = props.slice(1, 3).map((prop) => {
       const entries = all(bytes(path(prop, [9, 0], [1, 0])), 4).map(bytes);
@@ -355,6 +378,7 @@ function recoverNativeTableArchive(
       bounds,
       rowHeights,
       columnWidths,
+      borderMode,
       cells: completeCells,
     };
   } catch {

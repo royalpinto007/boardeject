@@ -49,6 +49,12 @@ that both tables can be separated without scanning for record markers, while
 the unrelated text remains explicitly unsupported by this version-7 recovery
 path.
 
+Run [34812119647](https://github.com/royalpinto007/boardeject/actions/runs/34812119647)
+produced a baseline and a single-property no-borders differential. Both the
+visible disappearance of every table border and the isolated native preset
+change agree. The unsuccessful width edit and style-menu inventory were not
+promoted as fixtures.
+
 The attempted combined resize, row reorder, insert, and delete operations did
 not produce the intended native change and were not promoted. A successful
 process exit is not treated as evidence.
