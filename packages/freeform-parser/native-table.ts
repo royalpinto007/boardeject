@@ -179,7 +179,7 @@ export function recoverNativeTable(native: FreeformNative) {
         bold?: boolean;
         italic?: boolean;
         fontSize?: number;
-        paragraphAlignment?: "left";
+        paragraphAlignment?: "left" | "center" | "right";
       };
     }[] = [];
     for (const obj of objects.slice(1)) {
@@ -247,8 +247,11 @@ export function recoverNativeTable(native: FreeformNative) {
               if (fontSize < 8 || fontSize > 500) return;
               style.fontSize = fontSize;
             } else if (name === "paragraphAlignment") {
-              if (num(path(valueRecord, [5, 0])) !== 0) return;
-              style.paragraphAlignment = "left";
+              const alignment = num(path(valueRecord, [5, 0]));
+              if (alignment === 0) style.paragraphAlignment = "left";
+              else if (alignment === 2) style.paragraphAlignment = "right";
+              else if (alignment === 4) style.paragraphAlignment = "center";
+              else return;
             } else return;
           }
         }

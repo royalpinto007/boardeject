@@ -204,6 +204,16 @@ it.each([
     { paragraphAlignment: "left" },
     { paragraphAlignment: "left", fontSize: 18 },
   ],
+  [
+    "align-center",
+    { paragraphAlignment: "center" },
+    { paragraphAlignment: "center", fontSize: 18 },
+  ],
+  [
+    "align-right",
+    { paragraphAlignment: "right" },
+    { paragraphAlignment: "right", fontSize: 18 },
+  ],
 ] as const)(
   "preserves verified native cell formatting in %s",
   (name, nativeStyle, convertedStyle) => {
@@ -215,7 +225,10 @@ it.each([
     expect(text).toMatchObject({
       text: "A1",
       fontSize: convertedStyle.fontSize,
-      textAlign: "left",
+      textAlign:
+        "paragraphAlignment" in convertedStyle
+          ? convertedStyle.paragraphAlignment
+          : "left",
       customData: { boardejectSourceStyle: { runs: [convertedStyle] } },
     });
   },
