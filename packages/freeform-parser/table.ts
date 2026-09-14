@@ -78,7 +78,7 @@ export function convertTable(
       bounds,
       groups,
     });
-    if (cell.text)
+    if (cell.text?.plain)
       result.push({
         ...base,
         id: `${base.id}-text-${index}`,

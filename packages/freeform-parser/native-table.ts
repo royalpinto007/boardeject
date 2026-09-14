@@ -131,7 +131,9 @@ export function recoverNativeTable(native: FreeformNative) {
     const objects = all(table, 4).map(bytes);
     if (!objects.length || objects.length > 11000) return;
     const props = all(bytes(path(objects[0], [4, 0], [4, 0])), 2).map(bytes);
-    if (props.length !== 5) return;
+    // A genuine fully empty table omits the attributed-text property pool.
+    if (![4, 5].includes(props.length)) return;
+    const axisKeyIndices: number[][] = [];
     const axes = props.slice(1, 3).map((prop) => {
       const entries = all(bytes(path(prop, [9, 0], [1, 0])), 4).map(bytes);
       const values = entries
@@ -142,14 +144,17 @@ export function recoverNativeTable(native: FreeformNative) {
             return fail();
           const key = keys[index];
           if (key.length !== 17 || key[0] !== 2) return fail();
-          return { order, key: hex(key) };
+          return { order, index, key: hex(key) };
         })
-        .sort((a, b) => a.order - b.order);
+        .sort((a, b) => a.index - b.index);
       if (
-        values.some((v, i) => v.order !== i + 1) ||
+        [...values]
+          .sort((a, b) => a.order - b.order)
+          .some((v, i) => v.order !== i + 1) ||
         new Set(values.map((v) => v.key)).size !== values.length
       )
         return fail();
+      axisKeyIndices.push(values.map((value) => value.index));
       return values.map((v) => v.key);
     });
     const [rows, columns] = axes;
@@ -159,6 +164,8 @@ export function recoverNativeTable(native: FreeformNative) {
       rows.length * columns.length > 10000 ||
       new Set([...rows, ...columns]).size !== rows.length + columns.length
     )
+      return;
+    if (axisKeyIndices.flat().some((index, expected) => index !== expected))
       return;
     const sizes = new Map<string, number>();
     const cells: { row: number; column: number; text: string }[] = [];
@@ -194,11 +201,21 @@ export function recoverNativeTable(native: FreeformNative) {
         cells.push({ row, column, text: content });
       } else return;
     }
-    if (
-      cells.length !== rows.length * columns.length ||
-      sizes.size !== rows.length + columns.length
-    )
-      return;
+    if (sizes.size !== rows.length + columns.length) return;
+    const completeCells = Array.from(
+      { length: rows.length * columns.length },
+      (_, index) => {
+        const row = Math.floor(index / columns.length),
+          column = index % columns.length;
+        return (
+          cells.find((cell) => cell.row === row && cell.column === column) ?? {
+            row,
+            column,
+            text: "",
+          }
+        );
+      },
+    );
     const rowHeights = rows.map((key) => sizes.get(key)!),
       columnWidths = columns.map((key) => sizes.get(key)!);
     const frame = bytes(
@@ -236,7 +253,7 @@ export function recoverNativeTable(native: FreeformNative) {
       bounds,
       rowHeights,
       columnWidths,
-      cells: cells.sort((a, b) => a.row - b.row || a.column - b.column),
+      cells: completeCells,
     };
   } catch {
     return;

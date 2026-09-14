@@ -84,6 +84,91 @@ it("rejects unrelated real board captures", () => {
     ),
   ).toBeUndefined();
 });
+
+it.each([
+  ["unequal-columns-after", [258, 258], [244, 344]],
+  ["unequal-rows-after", [157.5, 258], [344, 344]],
+] as const)(
+  "preserves genuine unequal dimensions in %s",
+  (name, rowHeights, columnWidths) => {
+    const native = decodeCrlNative(
+      readFileSync(root + "variants/" + name + ".crlnative"),
+    );
+    const table = recoverNativeTable(native);
+    expect(table).toBeDefined();
+    expect(table!.rowHeights).toEqual(rowHeights);
+    expect(table!.columnWidths).toEqual(columnWidths);
+    expect(table!.bounds.width).toBe(
+      columnWidths.reduce((sum, width) => sum + width, 0),
+    );
+    expect(table!.bounds.height).toBe(
+      rowHeights.reduce((sum, height) => sum + height, 0),
+    );
+  },
+);
+
+it("uses genuine native key-pool order after a column reorder", () => {
+  const before = recoverNativeTable(
+    decodeCrlNative(
+      readFileSync(root + "variants/column-reorder-before.crlnative"),
+    ),
+  );
+  const after = recoverNativeTable(
+    decodeCrlNative(
+      readFileSync(root + "variants/column-reorder-after.crlnative"),
+    ),
+  );
+  expect(before!.cells.map((cell) => cell.text)).toEqual([
+    "A1",
+    "B1",
+    "A2",
+    "B2",
+  ]);
+  expect(after!.cells.map((cell) => cell.text)).toEqual([
+    "B1",
+    "A1",
+    "B2",
+    "A2",
+  ]);
+});
+
+it("preserves genuine empty and multiline cells without inventing text", () => {
+  const empty = recoverNativeTable(
+    decodeCrlNative(readFileSync(root + "variants/empty-baseline.crlnative")),
+  );
+  expect(empty!.cells).toHaveLength(4);
+  expect(empty!.cells.every((cell) => cell.text === "")).toBe(true);
+  const emptyBoard = inspectCaptureFile(
+    "empty-baseline.crlnative",
+    readFileSync(root + "variants/empty-baseline.crlnative"),
+  );
+  expect(
+    emptyBoard.nodes.filter((node) => node.kind === "rectangle"),
+  ).toHaveLength(4);
+  expect(emptyBoard.nodes.filter((node) => node.kind === "text")).toHaveLength(
+    0,
+  );
+
+  const multiline = recoverNativeTable(
+    decodeCrlNative(readFileSync(root + "variants/multiline-A1.crlnative")),
+  );
+  expect(multiline!.cells.map((cell) => cell.text)).toEqual([
+    "TOP\nBOTTOM",
+    "B1",
+    "A2",
+    "B2",
+  ]);
+});
+
+it("fails safely for a genuine multiple-table selection", () => {
+  const file = readFileSync(root + "variants/multiple-tables.crlnative");
+  expect(recoverNativeTable(decodeCrlNative(file))).toBeUndefined();
+  const board = inspectCaptureFile("multiple-tables.crlnative", file);
+  expect(board.nodes).toHaveLength(0);
+  expect(board.issues.some((issue) => issue.severity === "unsupported")).toBe(
+    true,
+  );
+});
 it("rejects truncated archives and mismatched board identity", () => {
   const native = decodeCrlNative(
     readFileSync(root + "table-baseline.crlnative"),
