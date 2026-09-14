@@ -109,7 +109,7 @@ function App() {
         <section className="hero" aria-labelledby="hero-title">
           <div className="hero-copy">
             <a className="preview-badge" href="#preview-status">
-              <span /> Open-source · v0.0.1 early release{" "}
+              <span /> Open-source · v0.0.2 verified subset{" "}
               <span aria-hidden="true">↗</span>
             </a>
             <h1 id="hero-title">
@@ -352,7 +352,8 @@ function App() {
             <h2 id="preview-title">Help build the escape route.</h2>
             <p>
               The editable example works today. Native Freeform conversion is
-              limited in v0.0.1, not a finished exporter.
+              deliberately limited to fixture-backed behavior, not a finished
+              exporter.
             </p>
           </div>
           <div className="fidelity-grid">
@@ -368,10 +369,12 @@ function App() {
               <span className="state-label">Needs validation</span>
               <h3>Native board fidelity</h3>
               <p>
-                Verified native table layouts now export editable cells. Other
-                version-7 layouts remain limited. Apple Pencil pressure and
-                erased ink require iPad-originated validation. Keep your
-                original board; unsupported elements are reported.
+                Verified Freeform 4.5 table captures export editable cells,
+                including multiple tables, unequal dimensions, colors, borders,
+                and attached text. Other version-7 layouts remain limited.
+                iPad-originated validation remains required for Apple Pencil
+                pressure and erased ink. Keep your original board; unsupported
+                elements are reported.
               </p>
               <p>
                 Apple-generated width/force decoding has regression coverage.

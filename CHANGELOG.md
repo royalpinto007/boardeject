@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.0.2 - 2026-09-14
+
+- Added verified native table conversion for unequal dimensions, structural
+  edits, ordering, multiple tables, colors, borders, and attached text.
+- Preserved verified image masks and shadow parameters, with documented blur
+  approximation, plus improved editable mixed and multiline text handling.
+- Fixed ink mask safety and added Apple-generated width/force decoder coverage.
+- Documented genuine macOS Freeform 4.5 Pen behavior and moved Apple Pencil
+  pressure/eraser validation to future iPad work in issue #20.
+- Expanded browser checks to exercise all 68 genuine Freeform captures and the
+  legal, responsive, local-first website flow.
+
 ## 0.0.1 - 2026-09-13
 
 - Versioned clipboard envelope and libfreeform WASM decoding.
