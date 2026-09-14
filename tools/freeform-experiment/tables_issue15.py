@@ -397,6 +397,60 @@ if os.environ.get("TABLE_ISSUE15_PHASE") == "embedded-copy":
     raise SystemExit(0)
 
 
+if os.environ.get("TABLE_ISSUE15_PHASE") == "border-color":
+    new_table()
+    fill_baseline()
+    capture("border-color-before")
+    select_once("border-color-cell", 450, 250)
+    run("border-color-mover", [str(drag), "256", "113", "256", "113"])
+    run("border-color-style", [str(drag), "624", "108", "624", "108"])
+    ui(
+        "border-color-open",
+        "click color well 2 of pop over 1 of button 2 of scroll area 2 "
+        "of splitter group 1 of front window\ndelay 0.5",
+    )
+    run("border-color-red", [str(drag), "535", "278", "535", "278"])
+    capture("border-color-red")
+    (out / "summary.json").write_text(
+        json.dumps(
+            {
+                "stage": "Issue 15 isolated native border-color differential",
+                "verifiedFixture": False,
+                "rule": "Promote only if visible and native colors agree",
+            },
+            indent=2,
+        )
+    )
+    raise SystemExit(0)
+
+
+if os.environ.get("TABLE_ISSUE15_PHASE") == "embedded-direct":
+    new_table()
+    fill_baseline()
+    capture("embedded-direct-before")
+    ui(
+        "embedded-direct-create",
+        'click menu item "Text Box" of menu "Insert" of menu bar item "Insert" '
+        'of menu bar 1\ndelay 0.5\nkeystroke "ATTACHED OBJECT"\ndelay 0.5\nkey code 53\ndelay 0.5',
+    )
+    # The new text box remains selected. Drag it directly into A1 before any
+    # Select All operation can replace that selection.
+    run("embedded-direct-drag", [str(drag), "624", "395", "450", "250"])
+    ui("embedded-direct-settle", "delay 1")
+    capture("embedded-direct-after")
+    (out / "summary.json").write_text(
+        json.dumps(
+            {
+                "stage": "Issue 15 direct attached-cell object differential",
+                "verifiedFixture": False,
+                "rule": "Attachment requires native relationship and visual evidence",
+            },
+            indent=2,
+        )
+    )
+    raise SystemExit(0)
+
+
 if os.environ.get("TABLE_ISSUE15_PHASE") == "multiple":
     # Keep two tables spatially separate and give them unmistakable dimensions
     # and content so native item boundaries can be validated deterministically.
