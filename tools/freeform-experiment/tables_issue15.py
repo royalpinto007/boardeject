@@ -275,6 +275,73 @@ if os.environ.get("TABLE_ISSUE15_PHASE") == "borders":
     raise SystemExit(0)
 
 
+if os.environ.get("TABLE_ISSUE15_PHASE") == "embedded":
+    # Create the table and object independently, then drag the object into A1.
+    # Apple documents the cell highlight as the signal that attachment occurred.
+    new_table()
+    fill_baseline()
+    run("embedded-table-shrink", [str(drag), "969", "653", "760", "500"])
+    ui(
+        "embedded-create-text",
+        'click menu item "Text Box" of menu "Insert" of menu bar item "Insert" '
+        'of menu bar 1\ndelay 0.5\nkeystroke "CELL OBJECT"\ndelay 0.5\nkey code 53\ndelay 0.5',
+    )
+    capture("embedded-before")
+    run("embedded-drag", [str(drag), "624", "395", "410", "230"])
+    capture("embedded-after")
+
+    (out / "summary.json").write_text(
+        json.dumps(
+            {
+                "stage": "Issue 15 native attached-cell content differential",
+                "verifiedFixture": False,
+                "rule": "Attachment requires both a native relationship change and matching screenshot",
+            },
+            indent=2,
+        )
+    )
+    raise SystemExit(0)
+
+
+if os.environ.get("TABLE_ISSUE15_PHASE") == "multiple":
+    # Keep two tables spatially separate and give them unmistakable dimensions
+    # and content so native item boundaries can be validated deterministically.
+    new_table()
+    fill_baseline()
+    run("multiple-first-shrink", [str(drag), "969", "653", "650", "430"])
+    run("multiple-first-move", [str(drag), "256", "113", "330", "180"])
+    ui(
+        "multiple-second-create",
+        'click menu item "Table" of menu "Insert" of menu bar item "Insert" '
+        "of menu bar 1\ndelay 1",
+    )
+    set_cell("multiple-second-C1", 450, 250, "C1")
+    set_cell("multiple-second-D1", 800, 250, "D1")
+    set_cell("multiple-second-C2", 450, 500, "C2")
+    set_cell("multiple-second-D2", 800, 500, "D2")
+    run("multiple-second-resize-column", [str(drag), "624", "300", "724", "300"])
+    capture("multiple-two-tables")
+    ui(
+        "multiple-surrounding-text",
+        "click at {850, 100}\n"
+        'click menu item "Text Box" of menu "Insert" of menu bar item "Insert" '
+        'of menu bar 1\ndelay 0.5\nkeystroke "SURROUNDING TEXT"\ndelay 0.5\nkey code 53',
+    )
+    capture("multiple-with-text")
+
+    (out / "summary.json").write_text(
+        json.dumps(
+            {
+                "stage": "Issue 15 native multiple-table boundaries",
+                "verifiedFixture": False,
+                "rule": "Multiple-table support requires deterministic native item separation",
+            },
+            indent=2,
+        )
+    )
+    raise SystemExit(0)
+
+
 if os.environ.get("TABLE_ISSUE15_PHASE") == "colors":
     # Apply the same unmistakable red swatch to one property at a time.
     new_table()
