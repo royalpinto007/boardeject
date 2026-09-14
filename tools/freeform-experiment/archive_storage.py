@@ -64,7 +64,10 @@ ui("browser-file-menu-items", 'return name of every menu item of menu "File" of 
 ui(
     "rename-board",
     'set boardCard to button 1 of list 1 of list 1 of scroll area 2 of splitter group 1 of front window\n'
-    'click button 1 of boardCard\ndelay 1\n'
+    'set cardPosition to position of boardCard\nset cardSize to size of boardCard\n'
+    'set cardX to (item 1 of cardPosition) + ((item 1 of cardSize) / 2)\n'
+    'set cardY to (item 2 of cardPosition) + ((item 2 of cardSize) / 2)\n'
+    'key down control\nclick at {cardX, cardY}\nkey up control\ndelay 1\n'
     'click menu item "Rename" of menu 1\ndelay 1\n'
     'keystroke "BoardEject Archive Alpha"\nkey code 36\ndelay 3\n'
     'return value of static text 1 of boardCard',
