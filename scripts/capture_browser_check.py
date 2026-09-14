@@ -47,7 +47,7 @@ with sync_playwright() as p:
     assert len(document["elements"]) > 0
     page.get_by_role("button", name="Preview result").click()
     page.locator(".excalidraw").wait_for()
-    page.get_by_role("button", name="BoardEject").click()
+    page.get_by_role("button", name="← BoardEject", exact=True).click()
     picker.set_input_files("tests/fixtures/freeform-4.5/tables/table-baseline.crlnative")
     page.get_by_text("Recovered a validated table layout", exact=False).wait_for()
     with page.expect_download() as table_event:
@@ -105,7 +105,7 @@ with sync_playwright() as p:
             assert result["elements"][0]["textAlign"] == "center"
         page.get_by_role("button", name="Preview result").click()
         page.locator(".excalidraw").wait_for()
-        page.get_by_role("button", name="BoardEject").click()
+        page.get_by_role("button", name="← BoardEject", exact=True).click()
     envelope = json.dumps({"format":"boardeject.clipboard", "version":1, "flavors":[{"uti":"com.apple.freeform.CRLNativeData", "base64":base64.b64encode(Path("tests/fixtures/freeform-4.5/tables/table-baseline.crlnative").read_bytes()).decode()}]})
     page.goto(base + "/")
     page.locator('input[type="file"]').set_input_files({"name":"table.boardeject", "mimeType":"application/json", "buffer":envelope.encode()})
