@@ -84,15 +84,17 @@ const solidColor = (record: Uint8Array) => {
  * Object framing comes from length descriptors, never scanning for text/magic.
  * Native compatibility status is preserved; this recovers a verified subset.
  */
-export function recoverNativeTable(native: FreeformNative) {
+function recoverNativeTableArchive(
+  native: FreeformNative,
+  data: Uint8Array,
+  itemId: string,
+) {
   try {
     if (
-      native.items.length !== 1 ||
       native.compatibility.kind !== "unsupported" ||
       native.compatibility.minimumVersion !== 7
     )
       return;
-    const data = native.rawArchive;
     if (data.length < 8 || data.length > 2 * 1024 * 1024) return;
     const headerLength = Number(
       new DataView(data.buffer, data.byteOffset, 8).getBigUint64(0, true),
@@ -139,7 +141,7 @@ export function recoverNativeTable(native: FreeformNative) {
     if (
       metadata.length !== 64 ||
       hex(metadata.subarray(16, 32)) !==
-        native.items[0].uuid.replaceAll("-", "").toLowerCase()
+        itemId.replaceAll("-", "").toLowerCase()
     )
       return;
     const keys = all(bytes(path(table, [6, 0])), 3).map(bytes);
@@ -349,7 +351,7 @@ export function recoverNativeTable(native: FreeformNative) {
     )
       return;
     return {
-      id: native.items[0].uuid,
+      id: itemId,
       bounds,
       rowHeights,
       columnWidths,
@@ -358,4 +360,80 @@ export function recoverNativeTable(native: FreeformNative) {
   } catch {
     return;
   }
+}
+
+function archiveSections(data: Uint8Array): Uint8Array[] | undefined {
+  try {
+    const result: Uint8Array[] = [];
+    let start = 0;
+    while (start < data.length) {
+      if (data.length - start < 8) return;
+      const headerLength = Number(
+        new DataView(data.buffer, data.byteOffset + start, 8).getBigUint64(
+          0,
+          true,
+        ),
+      );
+      if (
+        !Number.isSafeInteger(headerLength) ||
+        headerLength < 1 ||
+        headerLength > data.length - start - 8
+      )
+        return;
+      const headerEnd = start + 8 + headerLength;
+      const header = data.subarray(start + 8, headerEnd);
+      const descriptors = all(header, 5).map(bytes);
+      if (!descriptors.length || descriptors.length > 16) return;
+      let end = headerEnd;
+      for (const descriptor of descriptors) {
+        const length = num(path(descriptor, [2, 0]));
+        if (
+          !Number.isInteger(length) ||
+          length < 8 ||
+          end + length > data.length
+        )
+          return;
+        end += length;
+      }
+      result.push(data.subarray(start, end));
+      start = end;
+    }
+    return result.length ? result : undefined;
+  } catch {
+    return;
+  }
+}
+
+/** Recover every independently framed, verified table bundle in a selection. */
+export function recoverNativeTables(native: FreeformNative) {
+  if (
+    native.compatibility.kind !== "unsupported" ||
+    native.compatibility.minimumVersion !== 7 ||
+    native.rawArchive.length > 8 * 1024 * 1024
+  )
+    return [];
+  const sections = archiveSections(native.rawArchive);
+  if (!sections) return [];
+  const remaining = new Set(native.items.map((item) => item.uuid));
+  const tables: NonNullable<ReturnType<typeof recoverNativeTableArchive>>[] =
+    [];
+  for (const section of sections) {
+    const matches = [...remaining]
+      .map((id) => recoverNativeTableArchive(native, section, id))
+      .filter((table): table is NonNullable<typeof table> => Boolean(table));
+    if (matches.length > 1) return [];
+    if (matches.length === 1) {
+      tables.push(matches[0]);
+      remaining.delete(matches[0].id);
+    }
+  }
+  return tables;
+}
+
+/** Backward-compatible single-table gate. Multi-table callers use the plural API. */
+export function recoverNativeTable(native: FreeformNative) {
+  const tables = recoverNativeTables(native);
+  return tables.length === 1 && archiveSections(native.rawArchive)?.length === 1
+    ? tables[0]
+    : undefined;
 }

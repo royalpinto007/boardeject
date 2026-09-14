@@ -1,7 +1,10 @@
 import { readFileSync } from "node:fs";
 import { decodeCrlNative } from "libfreeform";
 import { expect, it } from "vitest";
-import { recoverNativeTable } from "../packages/freeform-parser/native-table";
+import {
+  recoverNativeTable,
+  recoverNativeTables,
+} from "../packages/freeform-parser/native-table";
 import { inspectCaptureFile } from "../packages/freeform-parser/test-capture";
 import { convert } from "../packages/excalidraw-converter/index";
 const root = "tests/fixtures/freeform-4.5/tables/";
@@ -238,11 +241,34 @@ it.each([
   },
 );
 
-it("fails safely for a genuine multiple-table selection", () => {
-  const file = readFileSync(root + "variants/multiple-tables.crlnative");
-  expect(recoverNativeTable(decodeCrlNative(file))).toBeUndefined();
-  const board = inspectCaptureFile("multiple-tables.crlnative", file);
-  expect(board.nodes).toHaveLength(0);
+it.each([
+  ["multiple-tables", ["A1", "B1", "A2", "B2"]],
+  ["multiple-two-tables", ["A1", "B1", "A2", "B2", "C1", "D1", "C2", "D2"]],
+])("recovers independently framed tables from %s", (name, expectedText) => {
+  const file = readFileSync(root + `variants/${name}.crlnative`);
+  const native = decodeCrlNative(file);
+  expect(recoverNativeTable(native)).toBeUndefined();
+  const tables = recoverNativeTables(native);
+  expect(tables).toHaveLength(2);
+  expect(
+    tables
+      .flatMap((table) => table.cells.map((cell) => cell.text))
+      .filter(Boolean),
+  ).toEqual(expectedText);
+  const board = inspectCaptureFile(`${name}.crlnative`, file);
+  expect(board.nodes.filter((node) => node.kind === "rectangle")).toHaveLength(
+    8,
+  );
+});
+
+it("recovers two tables while rejecting unrelated surrounding native text", () => {
+  const name = "multiple-with-text";
+  const file = readFileSync(root + `variants/${name}.crlnative`);
+  expect(recoverNativeTables(decodeCrlNative(file))).toHaveLength(2);
+  const board = inspectCaptureFile(`${name}.crlnative`, file);
+  expect(board.nodes.filter((node) => node.kind === "rectangle")).toHaveLength(
+    8,
+  );
   expect(board.issues.some((issue) => issue.severity === "unsupported")).toBe(
     true,
   );

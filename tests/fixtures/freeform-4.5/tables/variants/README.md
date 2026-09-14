@@ -41,6 +41,14 @@ produced isolated text-color and cell-fill differentials. The decoded solid RGB
 values match the visible A1 text and cell colors. The fixture names retain the
 script's requested `red` label, while assertions use the exact resulting colors.
 
+Run [34812179351](https://github.com/royalpinto007/boardeject/actions/runs/34812179351)
+produced two spatially separate 2x2 tables with distinct A/B and C/D content,
+followed by the same tables plus a surrounding text box. Each native object is
+stored in an independently length-framed archive bundle. The fixtures verify
+that both tables can be separated without scanning for record markers, while
+the unrelated text remains explicitly unsupported by this version-7 recovery
+path.
+
 The attempted combined resize, row reorder, insert, and delete operations did
 not produce the intended native change and were not promoted. A successful
 process exit is not treated as evidence.

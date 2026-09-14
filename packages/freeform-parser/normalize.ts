@@ -1,7 +1,7 @@
 import type { FreeformPasteboard, FreeformPaint } from "libfreeform";
 import { embeddedImage, convertInk } from "./media";
 import { convertTable } from "./table";
-import { recoverNativeTable } from "./native-table";
+import { recoverNativeTables } from "./native-table";
 import { groupMembership } from "./groups";
 import { contentFallback } from "./content-fallback";
 import type {
@@ -47,106 +47,118 @@ export function normalize(pasteboard: FreeformPasteboard): Board {
   const native = pasteboard.native.value;
   board.sourceItems = native.items.length;
   if (native.compatibility.kind !== "supported") {
+    const tables = recoverNativeTables(native);
+    if (tables.length) {
+      for (const table of tables) {
+        board.nodes.push(
+          ...convertTable(
+            {
+              kind: "table",
+              rowHeights: table.rowHeights,
+              columnWidths: table.columnWidths,
+              cells: table.cells.map((cell) => ({
+                row: cell.row,
+                column: cell.column,
+                rowSpan: 1,
+                columnSpan: 1,
+                anchoredItemIds: [],
+                style: {
+                  shadows: [],
+                  ...(cell.style?.fillColor
+                    ? {
+                        fill: {
+                          kind: "solid" as const,
+                          color: {
+                            colorSpace: "sRGB",
+                            red:
+                              parseInt(cell.style.fillColor.slice(1, 3), 16) /
+                              255,
+                            green:
+                              parseInt(cell.style.fillColor.slice(3, 5), 16) /
+                              255,
+                            blue:
+                              parseInt(cell.style.fillColor.slice(5, 7), 16) /
+                              255,
+                            alpha: 1,
+                            hex: cell.style.fillColor,
+                          },
+                        },
+                      }
+                    : {}),
+                },
+                text: {
+                  plain: cell.text,
+                  runs: [
+                    {
+                      start: 0,
+                      end: cell.text.length,
+                      fontSize: cell.style?.fontSize ?? 18,
+                      bold: cell.style?.bold,
+                      italic: cell.style?.italic,
+                      paragraphAlignment: cell.style?.paragraphAlignment,
+                      ...(cell.style?.textColor
+                        ? {
+                            fill: {
+                              kind: "solid" as const,
+                              color: {
+                                colorSpace: "sRGB",
+                                red:
+                                  parseInt(
+                                    cell.style.textColor.slice(1, 3),
+                                    16,
+                                  ) / 255,
+                                green:
+                                  parseInt(
+                                    cell.style.textColor.slice(3, 5),
+                                    16,
+                                  ) / 255,
+                                blue:
+                                  parseInt(
+                                    cell.style.textColor.slice(5, 7),
+                                    16,
+                                  ) / 255,
+                                alpha: 1,
+                                hex: cell.style.textColor,
+                              },
+                            },
+                          }
+                        : {}),
+                    },
+                  ],
+                },
+              })),
+            },
+            {
+              id: table.id,
+              bounds: table.bounds,
+              groups: [],
+              appearance: {
+                fill: "#ffffff",
+                stroke: "#24352d",
+                strokeWidth: 1,
+                opacity: 100,
+              },
+            },
+            board.issues,
+          ),
+        );
+        board.issues.push({
+          severity: "approximation",
+          itemId: table.id,
+          message:
+            "Recovered a validated table layout from native version 7. Verified cell text, ordering, bounds, solid colors and text styles are retained; unverified rich text and border styling use defaults.",
+        });
+      }
+      if (native.items.length > tables.length)
+        issue(
+          `${native.items.length - tables.length} additional native item(s) could not be mapped safely.`,
+        );
+      return board;
+    }
     const recovered = contentFallback(pasteboard);
     if (recovered) {
       board.nodes.push(recovered.node);
       board.issues.push(...recovered.issues);
-      return board;
-    }
-    const table = recoverNativeTable(native);
-    if (table) {
-      board.nodes.push(
-        ...convertTable(
-          {
-            kind: "table",
-            rowHeights: table.rowHeights,
-            columnWidths: table.columnWidths,
-            cells: table.cells.map((cell) => ({
-              row: cell.row,
-              column: cell.column,
-              rowSpan: 1,
-              columnSpan: 1,
-              anchoredItemIds: [],
-              style: {
-                shadows: [],
-                ...(cell.style?.fillColor
-                  ? {
-                      fill: {
-                        kind: "solid" as const,
-                        color: {
-                          colorSpace: "sRGB",
-                          red:
-                            parseInt(cell.style.fillColor.slice(1, 3), 16) /
-                            255,
-                          green:
-                            parseInt(cell.style.fillColor.slice(3, 5), 16) /
-                            255,
-                          blue:
-                            parseInt(cell.style.fillColor.slice(5, 7), 16) /
-                            255,
-                          alpha: 1,
-                          hex: cell.style.fillColor,
-                        },
-                      },
-                    }
-                  : {}),
-              },
-              text: {
-                plain: cell.text,
-                runs: [
-                  {
-                    start: 0,
-                    end: cell.text.length,
-                    fontSize: cell.style?.fontSize ?? 18,
-                    bold: cell.style?.bold,
-                    italic: cell.style?.italic,
-                    paragraphAlignment: cell.style?.paragraphAlignment,
-                    ...(cell.style?.textColor
-                      ? {
-                          fill: {
-                            kind: "solid" as const,
-                            color: {
-                              colorSpace: "sRGB",
-                              red:
-                                parseInt(cell.style.textColor.slice(1, 3), 16) /
-                                255,
-                              green:
-                                parseInt(cell.style.textColor.slice(3, 5), 16) /
-                                255,
-                              blue:
-                                parseInt(cell.style.textColor.slice(5, 7), 16) /
-                                255,
-                              alpha: 1,
-                              hex: cell.style.textColor,
-                            },
-                          },
-                        }
-                      : {}),
-                  },
-                ],
-              },
-            })),
-          },
-          {
-            id: table.id,
-            bounds: table.bounds,
-            groups: [],
-            appearance: {
-              fill: "#ffffff",
-              stroke: "#24352d",
-              strokeWidth: 1,
-              opacity: 100,
-            },
-          },
-          board.issues,
-        ),
-      );
-      board.issues.push({
-        severity: "approximation",
-        itemId: table.id,
-        message:
-          "Recovered a validated single-table layout from native version 7. Verified cell text, ordering, bounds, solid colors and text styles are retained; unverified rich text and border styling use defaults. Other version-7 layouts remain unsupported.",
-      });
       return board;
     }
     issue(
