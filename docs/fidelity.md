@@ -131,14 +131,16 @@ be represented as proof of end-to-end Freeform support.
 - Nonidentity native group transforms (membership is implemented)
 - PencilKit masks and variable-width strokes (centerline endpoint sampling now matches a checked-in Apple framework reference; broader stroke cases remain unvalidated)
 - Native image resource/effect variants outside the verified single-object case
-- Editable native tables and merged cells
+- Native merged cells and attached item classes beyond verified text boxes
 - Rich-text visual runs beyond Excalidraw's element model, font matching, path shapes and routing
 - Full affine, flipped and nested geometry
 - End-to-end conversion of current version-7 Freeform boards
 
 Real Freeform GUI copy now has confirmed captures. Native table differential
-fixtures now prove cell-ID ordering, dimensions and translation for the single-table
-recovery path. Styling uses defaults. Other version-7 layouts remain rejected.
+fixtures prove structure, dimensions, ordering, selected formatting and border
+properties, multiple independently framed tables, and attached text-box cell
+ownership. Merge and rotation are unavailable for tables in the tested
+Freeform version. Other version-7 layouts remain rejected.
 Track [table variants](https://github.com/royalpinto007/boardeject/issues/15) and
 [erased/pressure ink](https://github.com/royalpinto007/boardeject/issues/13).
 

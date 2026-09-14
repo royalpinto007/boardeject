@@ -205,7 +205,7 @@ export function normalize(pasteboard: FreeformPasteboard): Board {
           severity: "approximation",
           itemId: table.id,
           message:
-            "Recovered a validated table layout from native version 7. Verified cell text, ordering, bounds, solid colors and text styles are retained; unverified rich text and border styling use defaults.",
+            "Recovered a validated table layout from native version 7. Verified cell text, ordering, bounds, solid colors, text styles and supported border properties are retained; unverified rich text remains approximate.",
         });
         if (table.borderMode === "outer")
           board.issues.push({
