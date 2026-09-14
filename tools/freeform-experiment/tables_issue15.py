@@ -156,6 +156,53 @@ def select_once(name, x, y):
     ui(f"{name}-settle", "delay 0.5")
 
 
+if os.environ.get("TABLE_ISSUE15_PHASE") == "advanced":
+    # Discover the actual text-color palette from the verified contextual
+    # toolbar location. No color is selected until its controls are known.
+    new_table()
+    fill_baseline()
+    select_once("text-color-cell", 450, 250)
+    run("text-color-open", [str(drag), "487", "426", "487", "426"])
+    ui("text-color-tree", "return entire contents of front window")
+    run("text-color-screen", ["screencapture", "-x", str(out / "text-color.png")])
+
+    # Apple documents Command-dragging an item's selection handle as rotation.
+    # Record before and after so table rotation is accepted only if the native
+    # frame and screenshot both prove it.
+    new_table()
+    fill_baseline()
+    capture("rotate-before")
+    run("rotate-command-drag", [str(drag), "969", "653", "900", "700", "--command"])
+    capture("rotate-after")
+
+    # Retry row reorder with a confirmed whole-row selection and a drop past
+    # the second-row midpoint.
+    new_table()
+    fill_baseline()
+    capture("row-reorder-before")
+    select_once("row-reorder-cell", 450, 250)
+    ui(
+        "row-reorder-select",
+        'click menu item "Row" of menu "Select" of menu item "Select" '
+        'of menu "Table" of menu item "Table" of menu "Format" '
+        'of menu bar item "Format" of menu bar 1\ndelay 1',
+    )
+    run("row-reorder-drag", [str(drag), "256", "267", "256", "620"])
+    capture("row-reorder-after")
+
+    (out / "summary.json").write_text(
+        json.dumps(
+            {
+                "stage": "Issue 15 advanced native table probes",
+                "verifiedFixture": False,
+                "rule": "Promote only native changes independently confirmed on screen",
+            },
+            indent=2,
+        )
+    )
+    raise SystemExit(0)
+
+
 if os.environ.get("TABLE_ISSUE15_PHASE") == "style-controls":
     new_table()
     fill_baseline()
