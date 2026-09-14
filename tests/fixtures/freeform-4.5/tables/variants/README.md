@@ -31,6 +31,11 @@ Run [34810302298](https://github.com/royalpinto007/boardeject/actions/runs/34810
 produced successful center- and right-alignment differentials. The native values
 and visible text placement agree.
 
+Run [34810514370](https://github.com/royalpinto007/boardeject/actions/runs/34810514370)
+produced a successful row-reorder differential. Its attempted rotation changed
+only the table dimensions and retained native rotation zero, so that attempt was
+not promoted.
+
 The attempted combined resize, row reorder, insert, and delete operations did
 not produce the intended native change and were not promoted. A successful
 process exit is not treated as evidence.

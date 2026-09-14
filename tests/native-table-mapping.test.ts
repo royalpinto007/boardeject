@@ -133,6 +133,31 @@ it("uses genuine native key-pool order after a column reorder", () => {
   ]);
 });
 
+it("uses genuine native key-pool order after a row reorder", () => {
+  const before = recoverNativeTable(
+    decodeCrlNative(
+      readFileSync(root + "variants/row-reorder-before.crlnative"),
+    ),
+  );
+  const after = recoverNativeTable(
+    decodeCrlNative(
+      readFileSync(root + "variants/row-reorder-after.crlnative"),
+    ),
+  );
+  expect(before!.cells.map((cell) => cell.text)).toEqual([
+    "A1",
+    "B1",
+    "A2",
+    "B2",
+  ]);
+  expect(after!.cells.map((cell) => cell.text)).toEqual([
+    "A2",
+    "B2",
+    "A1",
+    "B1",
+  ]);
+});
+
 it("preserves genuine empty and multiline cells without inventing text", () => {
   const empty = recoverNativeTable(
     decodeCrlNative(readFileSync(root + "variants/empty-baseline.crlnative")),
