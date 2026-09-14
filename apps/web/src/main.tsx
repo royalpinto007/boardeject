@@ -183,8 +183,8 @@ function App() {
               Set up the macOS helper ↗
             </a>
             <p className="fine">
-              Browser paste alone can’t read Apple’s native Freeform clipboard.
-              The helper bridges that gap.
+              Direct Freeform paste is unavailable in browsers. Copy a
+              BoardEject JSON capture here, or choose the helper’s file.
             </p>
           </div>
           <div className="import">
@@ -195,7 +195,7 @@ function App() {
             <p>Import a clipboard capture from the macOS helper.</p>
             <div className="actions">
               <button disabled={busy} onClick={clipboard}>
-                Import Freeform Clipboard <span>↗</span>
+                Import copied BoardEject capture <span>↗</span>
               </button>
               <button
                 className="secondary"
