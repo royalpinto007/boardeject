@@ -5,7 +5,29 @@ on:
       scenario:
         description: Native capture scenario
         type: choice
-        options: [tables, images-text]
+        options:
+          [
+            tables,
+            images-text,
+            tables-issue-15,
+            tables-issue-15-geometry,
+            tables-issue-15-controls,
+            tables-issue-15-structure,
+            tables-issue-15-style-controls,
+            tables-issue-15-advanced,
+            tables-issue-15-rotation,
+            tables-issue-15-palettes,
+            tables-issue-15-colors,
+            tables-issue-15-remaining,
+            tables-issue-15-borders,
+            tables-issue-15-embedded,
+            tables-issue-15-multiple,
+            tables-issue-15-border-details,
+            tables-issue-15-embedded-copy,
+            tables-issue-15-border-color,
+            tables-issue-15-embedded-direct,
+            tables-issue-15-embedded-cells,
+          ]
         default: tables
 permissions:
   contents: read
@@ -25,6 +47,42 @@ jobs:
         run: |
           if [ "$CAPTURE_SCENARIO" = "images-text" ]; then
             python3 tools/freeform-experiment/images_text.py
+          elif [ "$CAPTURE_SCENARIO" = "tables-issue-15" ]; then
+            python3 tools/freeform-experiment/tables_issue15.py
+          elif [ "$CAPTURE_SCENARIO" = "tables-issue-15-geometry" ]; then
+            TABLE_ISSUE15_PHASE=geometry python3 tools/freeform-experiment/tables_issue15.py
+          elif [ "$CAPTURE_SCENARIO" = "tables-issue-15-controls" ]; then
+            TABLE_ISSUE15_PHASE=controls python3 tools/freeform-experiment/tables_issue15.py
+          elif [ "$CAPTURE_SCENARIO" = "tables-issue-15-structure" ]; then
+            TABLE_ISSUE15_PHASE=structure python3 tools/freeform-experiment/tables_issue15.py
+          elif [ "$CAPTURE_SCENARIO" = "tables-issue-15-style-controls" ]; then
+            TABLE_ISSUE15_PHASE=style-controls python3 tools/freeform-experiment/tables_issue15.py
+          elif [ "$CAPTURE_SCENARIO" = "tables-issue-15-advanced" ]; then
+            TABLE_ISSUE15_PHASE=advanced python3 tools/freeform-experiment/tables_issue15.py
+          elif [ "$CAPTURE_SCENARIO" = "tables-issue-15-rotation" ]; then
+            TABLE_ISSUE15_PHASE=rotation python3 tools/freeform-experiment/tables_issue15.py
+          elif [ "$CAPTURE_SCENARIO" = "tables-issue-15-palettes" ]; then
+            TABLE_ISSUE15_PHASE=palettes python3 tools/freeform-experiment/tables_issue15.py
+          elif [ "$CAPTURE_SCENARIO" = "tables-issue-15-colors" ]; then
+            TABLE_ISSUE15_PHASE=colors python3 tools/freeform-experiment/tables_issue15.py
+          elif [ "$CAPTURE_SCENARIO" = "tables-issue-15-remaining" ]; then
+            TABLE_ISSUE15_PHASE=remaining python3 tools/freeform-experiment/tables_issue15.py
+          elif [ "$CAPTURE_SCENARIO" = "tables-issue-15-borders" ]; then
+            TABLE_ISSUE15_PHASE=borders python3 tools/freeform-experiment/tables_issue15.py
+          elif [ "$CAPTURE_SCENARIO" = "tables-issue-15-embedded" ]; then
+            TABLE_ISSUE15_PHASE=embedded python3 tools/freeform-experiment/tables_issue15.py
+          elif [ "$CAPTURE_SCENARIO" = "tables-issue-15-multiple" ]; then
+            TABLE_ISSUE15_PHASE=multiple python3 tools/freeform-experiment/tables_issue15.py
+          elif [ "$CAPTURE_SCENARIO" = "tables-issue-15-border-details" ]; then
+            TABLE_ISSUE15_PHASE=border-details python3 tools/freeform-experiment/tables_issue15.py
+          elif [ "$CAPTURE_SCENARIO" = "tables-issue-15-embedded-copy" ]; then
+            TABLE_ISSUE15_PHASE=embedded-copy python3 tools/freeform-experiment/tables_issue15.py
+          elif [ "$CAPTURE_SCENARIO" = "tables-issue-15-border-color" ]; then
+            TABLE_ISSUE15_PHASE=border-color python3 tools/freeform-experiment/tables_issue15.py
+          elif [ "$CAPTURE_SCENARIO" = "tables-issue-15-embedded-direct" ]; then
+            TABLE_ISSUE15_PHASE=embedded-direct python3 tools/freeform-experiment/tables_issue15.py
+          elif [ "$CAPTURE_SCENARIO" = "tables-issue-15-embedded-cells" ]; then
+            TABLE_ISSUE15_PHASE=embedded-cells python3 tools/freeform-experiment/tables_issue15.py
           else
             python3 tools/freeform-experiment/differential.py
           fi

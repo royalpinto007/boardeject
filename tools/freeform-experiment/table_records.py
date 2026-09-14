@@ -29,7 +29,9 @@ def inspect(path):
             key_index = at(entry, (2, 0), (1, 0), (2, 0), (17, 0))
             order = at(entry, (2, 0), (1, 0), (1, 0), (2, 0))
             axis.append((order, keys[key_index]))
-        axes.append([key for _, key in sorted(axis)])
+        # Native column reordering changes key-pool order. The embedded CRDT
+        # ordinal remains a logical value and is not the visual axis order.
+        axes.append(sorted((key for _, key in axis), key=keys.index))
     rows, cols = axes
     sizes, cells = {}, []
     for obj in objects[1:]:

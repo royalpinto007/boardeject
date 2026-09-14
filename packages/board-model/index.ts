@@ -15,6 +15,7 @@ export interface Appearance {
   fill: string;
   stroke: string;
   strokeWidth: number;
+  strokeStyle?: "solid" | "dashed" | "dotted";
   opacity: number;
 }
 export interface BaseNode {

@@ -73,14 +73,28 @@ export function convertTable(
     const groups = [base.id, ...base.groups];
     result.push({
       ...base,
+      appearance: {
+        ...base.appearance,
+        fill:
+          cell.style.fill?.kind === "solid"
+            ? cell.style.fill.color.hex
+            : base.appearance.fill,
+      },
       id: `${base.id}-cell-${index}`,
       kind: "rectangle",
       bounds,
       groups,
     });
-    if (cell.text)
+    if (cell.text?.plain)
       result.push({
         ...base,
+        appearance: {
+          ...base.appearance,
+          stroke:
+            cell.text.runs[0]?.fill?.kind === "solid"
+              ? cell.text.runs[0].fill.color.hex
+              : base.appearance.stroke,
+        },
         id: `${base.id}-text-${index}`,
         kind: "text",
         bounds: {
@@ -93,6 +107,15 @@ export function convertTable(
         groups,
         text: cell.text.plain,
         fontSize: Math.max(8, Math.min(100, cell.text.runs[0]?.fontSize ?? 16)),
+        textAlign: (["left", "center", "right"] as const).includes(
+          cell.text.runs[0]?.paragraphAlignment as never,
+        )
+          ? (cell.text.runs[0].paragraphAlignment as
+              "left" | "center" | "right")
+          : undefined,
+        sourceStyle: cell.text.runs.length
+          ? { runs: cell.text.runs }
+          : undefined,
       });
   }
   if (occupied.size !== rows.length * cols.length)
@@ -101,7 +124,7 @@ export function convertTable(
     itemId: base.id,
     severity: "approximation",
     message:
-      "Table becomes grouped editable cells and text. Cell-specific styling, formulas and rich text are not preserved.",
+      "Table becomes grouped editable cells and text. Verified solid cell/text colors are preserved; formulas and unverified rich styling are not.",
   });
   return result;
 }

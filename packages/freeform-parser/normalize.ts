@@ -1,7 +1,7 @@
 import type { FreeformPasteboard, FreeformPaint } from "libfreeform";
 import { embeddedImage, convertInk } from "./media";
 import { convertTable } from "./table";
-import { recoverNativeTable } from "./native-table";
+import { recoverNativeTables } from "./native-table";
 import { groupMembership } from "./groups";
 import { contentFallback } from "./content-fallback";
 import type {
@@ -47,50 +47,191 @@ export function normalize(pasteboard: FreeformPasteboard): Board {
   const native = pasteboard.native.value;
   board.sourceItems = native.items.length;
   if (native.compatibility.kind !== "supported") {
+    const tables = recoverNativeTables(native);
+    if (tables.length) {
+      for (const table of tables) {
+        board.nodes.push(
+          ...convertTable(
+            {
+              kind: "table",
+              rowHeights: table.rowHeights,
+              columnWidths: table.columnWidths,
+              cells: table.cells.map((cell) => ({
+                row: cell.row,
+                column: cell.column,
+                rowSpan: 1,
+                columnSpan: 1,
+                anchoredItemIds: [],
+                style: {
+                  shadows: [],
+                  ...(cell.style?.fillColor
+                    ? {
+                        fill: {
+                          kind: "solid" as const,
+                          color: {
+                            colorSpace: "sRGB",
+                            red:
+                              parseInt(cell.style.fillColor.slice(1, 3), 16) /
+                              255,
+                            green:
+                              parseInt(cell.style.fillColor.slice(3, 5), 16) /
+                              255,
+                            blue:
+                              parseInt(cell.style.fillColor.slice(5, 7), 16) /
+                              255,
+                            alpha: 1,
+                            hex: cell.style.fillColor,
+                          },
+                        },
+                      }
+                    : {}),
+                },
+                text: {
+                  plain: cell.text,
+                  runs: [
+                    {
+                      start: 0,
+                      end: cell.text.length,
+                      fontSize: cell.style?.fontSize ?? 18,
+                      bold: cell.style?.bold,
+                      italic: cell.style?.italic,
+                      paragraphAlignment: cell.style?.paragraphAlignment,
+                      ...(cell.style?.textColor
+                        ? {
+                            fill: {
+                              kind: "solid" as const,
+                              color: {
+                                colorSpace: "sRGB",
+                                red:
+                                  parseInt(
+                                    cell.style.textColor.slice(1, 3),
+                                    16,
+                                  ) / 255,
+                                green:
+                                  parseInt(
+                                    cell.style.textColor.slice(3, 5),
+                                    16,
+                                  ) / 255,
+                                blue:
+                                  parseInt(
+                                    cell.style.textColor.slice(5, 7),
+                                    16,
+                                  ) / 255,
+                                alpha: 1,
+                                hex: cell.style.textColor,
+                              },
+                            },
+                          }
+                        : {}),
+                    },
+                  ],
+                },
+              })),
+            },
+            {
+              id: table.id,
+              bounds: table.bounds,
+              groups: [],
+              appearance: {
+                fill: "#ffffff",
+                stroke:
+                  table.borderMode === "none"
+                    ? "transparent"
+                    : table.borderColor,
+                strokeWidth: table.borderWidth,
+                strokeStyle: table.borderStyle,
+                opacity: 100,
+              },
+              sourceStyle:
+                table.borderMode === "outer"
+                  ? { tableBorderMode: table.borderMode }
+                  : undefined,
+            },
+            board.issues,
+          ),
+        );
+        const totalWidth = table.columnWidths.reduce(
+            (sum, value) => sum + value,
+            0,
+          ),
+          totalHeight = table.rowHeights.reduce((sum, value) => sum + value, 0);
+        for (const [anchorIndex, anchor] of table.anchoredTexts.entries()) {
+          const x =
+              table.bounds.x +
+              (table.columnWidths
+                .slice(0, anchor.column)
+                .reduce((sum, value) => sum + value, 0) /
+                totalWidth) *
+                table.bounds.width,
+            y =
+              table.bounds.y +
+              (table.rowHeights
+                .slice(0, anchor.row)
+                .reduce((sum, value) => sum + value, 0) /
+                totalHeight) *
+                table.bounds.height,
+            width =
+              (table.columnWidths[anchor.column] / totalWidth) *
+              table.bounds.width,
+            height =
+              (table.rowHeights[anchor.row] / totalHeight) *
+              table.bounds.height;
+          board.nodes.push({
+            id: `${table.id}-anchored-${anchorIndex}`,
+            kind: "text",
+            text: anchor.text,
+            fontSize: 18,
+            textAlign: "center",
+            bounds: {
+              x: x + 4,
+              y: y + Math.max(4, height / 2 - 12),
+              width: Math.max(1, width - 8),
+              height: 24,
+              rotation: 0,
+            },
+            groups: [table.id],
+            appearance: {
+              fill: "transparent",
+              stroke: "#202622",
+              strokeWidth: 1,
+              opacity: 100,
+            },
+            sourceStyle: {
+              anchoredTableCell: { row: anchor.row, column: anchor.column },
+            },
+          });
+        }
+        board.issues.push({
+          severity: "approximation",
+          itemId: table.id,
+          message:
+            "Recovered a validated table layout from native version 7. Verified cell text, ordering, bounds, solid colors, text styles and supported border properties are retained; unverified rich text remains approximate.",
+        });
+        if (table.borderMode === "outer")
+          board.issues.push({
+            severity: "approximation",
+            itemId: table.id,
+            message:
+              "Freeform outer-only table borders are retained as source metadata; editable Excalidraw cell rectangles may show internal edges.",
+          });
+        if (table.anchoredTexts.length)
+          board.issues.push({
+            severity: "approximation",
+            itemId: table.id,
+            message:
+              "Verified text-box cell attachments remain editable and grouped with their owning table; Freeform's exact internal text-box padding is approximated.",
+          });
+      }
+      if (native.items.length > tables.length)
+        issue(
+          `${native.items.length - tables.length} additional native item(s) could not be mapped safely.`,
+        );
+      return board;
+    }
     const recovered = contentFallback(pasteboard);
     if (recovered) {
       board.nodes.push(recovered.node);
       board.issues.push(...recovered.issues);
-      return board;
-    }
-    const table = recoverNativeTable(native);
-    if (table) {
-      board.nodes.push(
-        ...convertTable(
-          {
-            kind: "table",
-            rowHeights: table.rowHeights,
-            columnWidths: table.columnWidths,
-            cells: table.cells.map((cell) => ({
-              row: cell.row,
-              column: cell.column,
-              rowSpan: 1,
-              columnSpan: 1,
-              anchoredItemIds: [],
-              style: { shadows: [] },
-              text: { plain: cell.text, runs: [] },
-            })),
-          },
-          {
-            id: table.id,
-            bounds: table.bounds,
-            groups: [],
-            appearance: {
-              fill: "#ffffff",
-              stroke: "#24352d",
-              strokeWidth: 1,
-              opacity: 100,
-            },
-          },
-          board.issues,
-        ),
-      );
-      board.issues.push({
-        severity: "approximation",
-        itemId: table.id,
-        message:
-          "Recovered a validated single-table layout from native version 7. Cell text, ordering and bounds are retained; fonts, colors, rich text and border styling use defaults. Other version-7 layouts remain unsupported.",
-      });
       return board;
     }
     issue(
