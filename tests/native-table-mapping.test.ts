@@ -184,6 +184,23 @@ it("emits verified width and dotted style as editable Excalidraw cells", () => {
   ).toBe(true);
 });
 
+it("preserves a genuine native border-color differential", () => {
+  const before = recoverNativeTable(
+      decodeCrlNative(
+        readFileSync(root + "variants/border-color-before.crlnative"),
+      ),
+    ),
+    redFile = readFileSync(root + "variants/border-color-red.crlnative"),
+    red = recoverNativeTable(decodeCrlNative(redFile));
+  expect(before?.borderColor).toBe("#bfbfbf");
+  expect(red?.borderColor).toBe("#ea4d3d");
+  expect(
+    inspectCaptureFile("border-color-red.crlnative", redFile)
+      .nodes.filter((node) => node.kind === "rectangle")
+      .every((node) => node.appearance.stroke === "#ea4d3d"),
+  ).toBe(true);
+});
+
 it("uses genuine native key-pool order after a column reorder", () => {
   const before = recoverNativeTable(
     decodeCrlNative(

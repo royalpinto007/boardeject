@@ -61,6 +61,11 @@ solid to dotted border style, and all to outer-only edges. Native values and
 screenshots agree. The border-color palette inventory was discovery only and
 was not promoted.
 
+Run [34812981175](https://github.com/royalpinto007/boardeject/actions/runs/34812981175)
+produced the isolated border-color differential after the palette location was
+established. The native RGB components and visible red borders agree on
+`#ea4d3d`.
+
 The attempted combined resize, row reorder, insert, and delete operations did
 not produce the intended native change and were not promoted. A successful
 process exit is not treated as evidence.

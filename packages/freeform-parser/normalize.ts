@@ -134,7 +134,10 @@ export function normalize(pasteboard: FreeformPasteboard): Board {
               groups: [],
               appearance: {
                 fill: "#ffffff",
-                stroke: table.borderMode === "none" ? "transparent" : "#24352d",
+                stroke:
+                  table.borderMode === "none"
+                    ? "transparent"
+                    : table.borderColor,
                 strokeWidth: table.borderWidth,
                 strokeStyle: table.borderStyle,
                 opacity: 100,

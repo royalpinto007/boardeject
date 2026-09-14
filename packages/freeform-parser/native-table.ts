@@ -79,6 +79,24 @@ const solidColor = (record: Uint8Array) => {
     )
     .join("")}`;
 };
+const strokeColor = (record: Uint8Array) => {
+  const color = bytes(path(record, [2, 1], [14, 0], [2, 0], [14, 0])),
+    components = all(color, 2);
+  if (hex(bytes(path(record, [2, 1], [14, 0], [1, 0]))) !== "01") return fail();
+  if (components.length !== 4 || num(path(bytes(components[0]), [5, 0])) !== 0)
+    return fail();
+  const rgb = components
+    .slice(1)
+    .map((component) => num(path(bytes(component), [15, 0])));
+  if (rgb.some((component) => component < 0 || component > 1)) return fail();
+  return `#${rgb
+    .map((component) =>
+      Math.round(component * 255)
+        .toString(16)
+        .padStart(2, "0"),
+    )
+    .join("")}`;
+};
 
 /** Narrow Freeform 4.5 single-table layout. Unknown structures fail closed.
  * Object framing comes from length descriptors, never scanning for text/magic.
@@ -155,7 +173,8 @@ function recoverNativeTableArchive(
     if (![4, 5].includes(props.length)) return;
     let borderMode: "all" | "none" | "outer" = "all",
       borderWidth = 1,
-      borderStyle: "solid" | "dotted" = "solid";
+      borderStyle: "solid" | "dotted" = "solid",
+      borderColor = "#bfbfbf";
     if (props.length === 5) {
       try {
         const tableStyleEntries = all(bytes(path(props[4], [4, 0])), 2).map(
@@ -172,6 +191,7 @@ function recoverNativeTableArchive(
             path(tableStyleEntries[1], [1, 0], [2, 0], [14, 0], [2, 0], [5, 0]),
           );
         borderWidth = num(path(strokeRecord, [2, 2], [15, 0]));
+        borderColor = strokeColor(strokeRecord);
         if (borderWidth <= 0 || borderWidth > 100) return;
         if (strokeKind === 0) borderStyle = "solid";
         else if (strokeKind === 2) borderStyle = "dotted";
@@ -392,6 +412,7 @@ function recoverNativeTableArchive(
       borderMode,
       borderWidth,
       borderStyle,
+      borderColor,
       cells: completeCells,
     };
   } catch {
