@@ -69,7 +69,7 @@ ui(
     "rename-board",
     'set boardCard to button 1 of list 1 of list 1 of scroll area 2 of splitter group 1 of front window\n'
     'perform action "AXShowMenu" of boardCard\ndelay 1\n'
-    'click menu item "Rename" of menu 1 of boardCard\ndelay 1\n'
+    'click menu item "Rename" of menu 1\ndelay 1\n'
     'keystroke "BoardEject Archive Alpha"\nkey code 36\ndelay 3\n'
     'return value of static text 1 of boardCard',
 )
