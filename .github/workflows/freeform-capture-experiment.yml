@@ -6,7 +6,7 @@ on:
         description: Native capture scenario
         type: choice
         options:
-          [tables, images-text, tables-issue-15, tables-issue-15-geometry]
+          [tables, images-text, tables-issue-15, tables-issue-15-geometry, tables-issue-15-controls]
         default: tables
 permissions:
   contents: read
@@ -30,6 +30,8 @@ jobs:
             python3 tools/freeform-experiment/tables_issue15.py
           elif [ "$CAPTURE_SCENARIO" = "tables-issue-15-geometry" ]; then
             TABLE_ISSUE15_PHASE=geometry python3 tools/freeform-experiment/tables_issue15.py
+          elif [ "$CAPTURE_SCENARIO" = "tables-issue-15-controls" ]; then
+            TABLE_ISSUE15_PHASE=controls python3 tools/freeform-experiment/tables_issue15.py
           else
             python3 tools/freeform-experiment/differential.py
           fi

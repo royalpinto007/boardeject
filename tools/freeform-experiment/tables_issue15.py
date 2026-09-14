@@ -151,6 +151,53 @@ def fill_baseline():
         set_cell(f"baseline-{value}", x, y, value)
 
 
+if os.environ.get("TABLE_ISSUE15_PHASE") == "controls":
+    # Discover Freeform's real controls before attempting further structural
+    # mutations. Screenshots and accessibility output are evidence; clicks are
+    # not considered successful unless a later clipboard differential agrees.
+    new_table()
+    fill_baseline()
+    capture("controls-baseline")
+    run("column-handle-click", [str(drag), "459", "113", "459", "113"])
+    ui("column-handle-tree", "return entire contents of front window")
+    run("column-handle-screen", ["screencapture", "-x", str(out / "column-handle.png")])
+    ui("column-handle-format-menu", 'return entire contents of menu "Format" of menu bar item "Format" of menu bar 1')
+    ui("column-handle-dismiss", "key code 53\ndelay 0.5")
+
+    run("row-handle-click", [str(drag), "256", "267", "256", "267"])
+    ui("row-handle-tree", "return entire contents of front window")
+    run("row-handle-screen", ["screencapture", "-x", str(out / "row-handle.png")])
+    ui("row-handle-format-menu", 'return entire contents of menu "Format" of menu bar item "Format" of menu bar 1')
+    ui("row-handle-dismiss", "key code 53\ndelay 0.5")
+
+    # The verified column resize moves the divider from x=624 to x=524. Retry
+    # the row resize well inside the second column so it cannot select/move the
+    # table through the vertical divider.
+    new_table()
+    fill_baseline()
+    capture("unequal-both-before")
+    run("unequal-both-column-drag", [str(drag), "624", "300", "524", "300"])
+    run("unequal-both-row-drag", [str(drag), "700", "395", "700", "295"])
+    capture("unequal-both-after")
+
+    # Inventory table and arrange commands while the table is selected. This
+    # establishes whether merge and rotation are exposed by Freeform 4.5.
+    ui("select-table", "click at {300, 100}\ndelay 0.5")
+    ui("table-menu-tree", 'return entire contents of menu "Table" of menu item "Table" of menu "Format" of menu bar item "Format" of menu bar 1')
+    ui("arrange-menu-tree", 'return entire contents of menu "Arrange" of menu bar item "Arrange" of menu bar 1')
+    (out / "summary.json").write_text(
+        json.dumps(
+            {
+                "stage": "Issue 15 native control discovery",
+                "verifiedFixture": False,
+                "rule": "Promote only mutations confirmed by clipboard records and screenshots",
+            },
+            indent=2,
+        )
+    )
+    raise SystemExit(0)
+
+
 if os.environ.get("TABLE_ISSUE15_PHASE") == "geometry":
     # Coordinates come from the selected-table screenshot at 100 percent zoom:
     # table bounds x=280..969, y=138..653, with dividers x=624 and y=395.
