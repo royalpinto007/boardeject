@@ -41,8 +41,9 @@ Apple Freeform → select objects → Cmd+C → capture → BoardEject → Excal
 
 Browsers cannot reliably read Apple's private clipboard types. The tiny
 [macOS helper](docs/clipboard.md) saves a `.boardeject` capture for the file picker.
-The clipboard button accepts that same envelope copied as text. It does not
-claim direct access to private pasteboard formats. PDF is not supported input.
+The **Import copied BoardEject capture** button accepts that same envelope copied
+as text. It does not claim direct access to private pasteboard formats. PDF is
+not supported input.
 
 The helper compiles and passes its command-line smoke check in clean macOS CI.
 Real Freeform 4.5 GUI captures on hosted macOS validate the listed conversion

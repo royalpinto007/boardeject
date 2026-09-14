@@ -78,7 +78,7 @@ if __name__ == "__main__":
         assert not remote_responses, remote_responses
         if BASE.startswith("http://127.0.0.1"):
             assert not remote, remote
-        page.get_by_role("button", name="BoardEject").click()
+        page.get_by_role("button", name="← BoardEject", exact=True).click()
         page.locator("video").evaluate("video => video.play()")
         page.wait_for_timeout(500)
         assert page.locator("video").evaluate("video => video.currentTime > 0 && video.videoWidth > 0 && !video.error")
