@@ -26,6 +26,7 @@ on:
             tables-issue-15-embedded-copy,
             tables-issue-15-border-color,
             tables-issue-15-embedded-direct,
+            tables-issue-15-embedded-cells,
           ]
         default: tables
 permissions:
@@ -80,6 +81,8 @@ jobs:
             TABLE_ISSUE15_PHASE=border-color python3 tools/freeform-experiment/tables_issue15.py
           elif [ "$CAPTURE_SCENARIO" = "tables-issue-15-embedded-direct" ]; then
             TABLE_ISSUE15_PHASE=embedded-direct python3 tools/freeform-experiment/tables_issue15.py
+          elif [ "$CAPTURE_SCENARIO" = "tables-issue-15-embedded-cells" ]; then
+            TABLE_ISSUE15_PHASE=embedded-cells python3 tools/freeform-experiment/tables_issue15.py
           else
             python3 tools/freeform-experiment/differential.py
           fi

@@ -451,6 +451,55 @@ if os.environ.get("TABLE_ISSUE15_PHASE") == "embedded-direct":
     raise SystemExit(0)
 
 
+if os.environ.get("TABLE_ISSUE15_PHASE") == "embedded-cells":
+    for slug, value, target_x, target_y in [
+        ("a1", "ANCHORED A1", 450, 250),
+        ("b2", "ANCHORED B2", 800, 500),
+    ]:
+        new_table()
+        fill_baseline()
+        ui(
+            f"embedded-{slug}-create",
+            'click menu item "Text Box" of menu "Insert" of menu bar item "Insert" '
+            f'of menu bar 1\ndelay 0.5\nkeystroke "{value}"\ndelay 0.5\n'
+            "key code 53\ndelay 0.5",
+        )
+        run(
+            f"embedded-{slug}-drag",
+            [str(drag), "624", "395", str(target_x), str(target_y)],
+        )
+        ui(f"embedded-{slug}-settle", "delay 1")
+        capture(f"embedded-{slug}")
+    # Move the selected A1 table on a separate board after attachment. The
+    # object must follow for the relationship to count as native attachment.
+    new_table()
+    fill_baseline()
+    ui(
+        "embedded-move-create",
+        'click menu item "Text Box" of menu "Insert" of menu bar item "Insert" '
+        'of menu bar 1\ndelay 0.5\nkeystroke "MOVES WITH TABLE"\ndelay 0.5\n'
+        "key code 53\ndelay 0.5",
+    )
+    run("embedded-move-drag", [str(drag), "624", "395", "450", "250"])
+    ui(
+        "embedded-move-table",
+        "click at {300, 100}\nkeystroke \"a\" using command down\n"
+        "repeat 20 times\nkey code 124\nend repeat\ndelay 1",
+    )
+    capture("embedded-moved")
+    (out / "summary.json").write_text(
+        json.dumps(
+            {
+                "stage": "Issue 15 attached-cell identity and movement differentials",
+                "verifiedFixture": False,
+                "rule": "Cell ownership requires distinct A1/B2 native references",
+            },
+            indent=2,
+        )
+    )
+    raise SystemExit(0)
+
+
 if os.environ.get("TABLE_ISSUE15_PHASE") == "multiple":
     # Keep two tables spatially separate and give them unmistakable dimensions
     # and content so native item boundaries can be validated deterministically.
