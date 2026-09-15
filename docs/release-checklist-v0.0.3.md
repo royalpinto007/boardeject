@@ -4,18 +4,18 @@ The target release adds Local Freeform Backup / Archive for the exact verified
 Freeform 4.5 schema. No tag, release or deployment should happen until every
 release-critical gate passes.
 
-- [ ] Re-run the genuine `scan → choose → create → verify` macOS workflow.
-- [ ] Verify board titles and safe UUID fallback.
-- [ ] Verify selected-board isolation and zero unrelated rows.
-- [ ] Verify live DB/WAL/SHM hashes remain unchanged and copied SQLite rejects writes.
-- [ ] Verify original image, PDF, video and generic file bytes and SHA-256 hashes.
-- [ ] Verify duplicate and missing assets, deterministic archives, corruption,
+- [x] Re-run the genuine `scan → choose → create → verify` macOS workflow.
+- [x] Verify board titles and safe UUID fallback.
+- [x] Verify selected-board isolation and zero unrelated rows.
+- [x] Verify live DB/WAL/SHM hashes remain unchanged and copied SQLite rejects writes.
+- [x] Verify original image, PDF, video and generic file bytes and SHA-256 hashes.
+- [x] Verify duplicate and missing assets, deterministic archives, corruption,
       tampering, unknown schemas and unsafe paths.
-- [ ] Run all tests, formatting, lint, TypeScript and production build.
-- [ ] Run local and production browser checks, including genuine captures,
+- [x] Run all tests, formatting, lint, TypeScript and production build.
+- [x] Run local browser checks, including genuine captures,
       `/test-capture`, responsive layouts, Privacy and Terms.
-- [ ] Run macOS helper compilation, main CI, dependency audit and Gitleaks.
-- [ ] Confirm a clean tree and synchronized local and remote `main`.
+- [x] Run macOS helper compilation, candidate CI, dependency audit and Gitleaks.
+- [x] Confirm a clean release-candidate tree synchronized with its remote branch.
 - [ ] Deploy the exact release commit and repeat production smoke checks.
 - [ ] Publish v0.0.3 only after every gate above passes.
 
