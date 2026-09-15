@@ -130,10 +130,10 @@ and links to remaining work.
 
 ### Mac helper status
 
-The downloadable CI-built preview removes the Node, npm, Git, and Swift
+The downloadable Apple-silicon preview removes the Node, npm, Git, and Swift
 toolchain requirements from normal use. It remains unsigned and command-line
-based. A signed universal Mac app with browser detection is the next onboarding
-step.
+based; Intel Macs use the source build for now. A signed universal Mac app with
+browser detection is the next onboarding step.
 
 ## Support matrix
 
