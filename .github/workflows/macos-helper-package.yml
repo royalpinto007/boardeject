@@ -24,18 +24,34 @@ jobs:
       - name: Smoke-check package without repository toolchain
         run: |
           set +e
-          output=$(dist/macos-helper/boardeject-mac 2>&1)
+          output=$("dist/macos-helper/BoardEject Helper.app/Contents/MacOS/boardeject-mac" 2>&1)
           status=$?
           set -e
           test "$status" -eq 2
           grep -F "boardeject-mac scan" <<< "$output"
-          test -x dist/macos-helper/boardeject-archive-native
-          test -x dist/macos-helper/boardeject-capture
+          executables="dist/macos-helper/BoardEject Helper.app/Contents/MacOS"
+          test -x "$executables/boardeject-archive-native"
+          test -x "$executables/boardeject-capture"
+          "$executables/boardeject-bridge" >/tmp/boardeject-bridge.log 2>&1 &
+          bridge_pid=$!
+          trap 'kill "$bridge_pid" 2>/dev/null || true' EXIT
+          for attempt in {1..20}; do
+            curl --fail --silent --header 'Origin: https://boardeject.dev' http://127.0.0.1:48117/v1/status > /tmp/status.json && break
+            sleep 0.25
+          done
+          grep -F 'boardeject-local-helper' /tmp/status.json
+          kill "$bridge_pid"
+          wait "$bridge_pid" || true
+          trap - EXIT
       - name: Record packaged architecture
         run: |
           uname -m
-          file dist/macos-helper/boardeject-mac
-          file dist/macos-helper/boardeject-capture
+          executables="dist/macos-helper/BoardEject Helper.app/Contents/MacOS"
+          for executable in "$executables"/*; do
+            file "$executable"
+            lipo -verify_arch arm64 x86_64 "$executable"
+          done
+          codesign --verify --deep --strict "dist/macos-helper/BoardEject Helper.app"
       - run: ditto -c -k --sequesterRsrc --keepParent dist/macos-helper BoardEject-macOS.zip
       - uses: actions/upload-artifact@v4
         with:
