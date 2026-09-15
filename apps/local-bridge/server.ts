@@ -1,5 +1,9 @@
 import { randomBytes } from "node:crypto";
-import { createServer, type IncomingMessage, type ServerResponse } from "node:http";
+import {
+  createServer,
+  type IncomingMessage,
+  type ServerResponse,
+} from "node:http";
 import {
   createFreeformArchive,
   scanFreeformBoards,
@@ -45,6 +49,7 @@ function setCors(response: ServerResponse, origin: string) {
     "Content-Type, X-BoardEject-Token",
   );
   response.setHeader("Access-Control-Allow-Private-Network", "true");
+  response.setHeader("Access-Control-Expose-Headers", "Content-Disposition");
   response.setHeader("Access-Control-Max-Age", "600");
   response.setHeader("Vary", "Origin");
 }
@@ -66,7 +71,8 @@ async function readBody(request: IncomingMessage, limit: number) {
   for await (const chunk of request) {
     const bytes = Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk);
     size += bytes.length;
-    if (size > limit) throw new HttpError(413, "The local request is too large.");
+    if (size > limit)
+      throw new HttpError(413, "The local request is too large.");
     chunks.push(bytes);
   }
   return Buffer.concat(chunks);
@@ -92,11 +98,17 @@ function safeFilename(value: string) {
 }
 
 function publicError(error: unknown) {
-  const message = error instanceof Error ? error.message : "The helper could not complete the request.";
+  const message =
+    error instanceof Error
+      ? error.message
+      : "The helper could not complete the request.";
   if (message.includes("ENOENT") || message.includes("No such file")) {
     return "Freeform data was not found on this Mac. Open Freeform once, then try again.";
   }
-  if (message.includes("permission") || message.includes("Operation not permitted")) {
+  if (
+    message.includes("permission") ||
+    message.includes("Operation not permitted")
+  ) {
     return "BoardEject cannot read Freeform yet. Allow file access in System Settings, then try again.";
   }
   return message;
@@ -114,10 +126,15 @@ export function createBridgeServer(options: BridgeOptions = {}) {
   const server = createServer(async (request, response) => {
     try {
       const origin = request.headers.origin;
-      if (!origin || !origins.has(origin)) throw new HttpError(403, "Origin not allowed.");
+      if (!origin || !origins.has(origin))
+        throw new HttpError(403, "Origin not allowed.");
       const address = server.address();
-      const activePort = typeof address === "object" && address ? address.port : port;
-      const expectedHost = new Set([`${host}:${activePort}`, `localhost:${activePort}`]);
+      const activePort =
+        typeof address === "object" && address ? address.port : port;
+      const expectedHost = new Set([
+        `${host}:${activePort}`,
+        `localhost:${activePort}`,
+      ]);
       if (!request.headers.host || !expectedHost.has(request.headers.host)) {
         throw new HttpError(403, "Host not allowed.");
       }
@@ -138,7 +155,10 @@ export function createBridgeServer(options: BridgeOptions = {}) {
         return;
       }
       if (request.headers["x-boardeject-token"] !== token) {
-        throw new HttpError(401, "Reconnect to the local helper and try again.");
+        throw new HttpError(
+          401,
+          "Reconnect to the local helper and try again.",
+        );
       }
       if (request.method === "POST" && url.pathname === "/v1/boards/scan") {
         json(response, 200, await scan());
@@ -158,7 +178,10 @@ export function createBridgeServer(options: BridgeOptions = {}) {
         ) {
           throw new HttpError(400, "Choose a valid Freeform board.");
         }
-        const title = "title" in payload && typeof payload.title === "string" ? payload.title.slice(0, 250) : undefined;
+        const title =
+          "title" in payload && typeof payload.title === "string"
+            ? payload.title.slice(0, 250)
+            : undefined;
         const bytes = await create(payload.boardId, title);
         response.writeHead(200, {
           "Cache-Control": "no-store",
@@ -171,8 +194,15 @@ export function createBridgeServer(options: BridgeOptions = {}) {
         return;
       }
       if (request.method === "POST" && url.pathname === "/v1/archives/verify") {
-        if (!request.headers["content-type"]?.startsWith("application/vnd.boardeject.archive")) {
-          throw new HttpError(415, "Choose a .boardejectarchive file to verify.");
+        if (
+          !request.headers["content-type"]?.startsWith(
+            "application/vnd.boardeject.archive",
+          )
+        ) {
+          throw new HttpError(
+            415,
+            "Choose a .boardejectarchive file to verify.",
+          );
         }
         const report = await verify(await readBody(request, ARCHIVE_LIMIT));
         json(response, report.valid ? 200 : 422, report);
@@ -205,5 +235,7 @@ export function createBridgeServer(options: BridgeOptions = {}) {
 if ((import.meta as ImportMeta & { main?: boolean }).main) {
   const bridge = createBridgeServer();
   await bridge.listen();
-  console.log(`BoardEject helper is available at http://${bridge.host}:${bridge.port}`);
+  console.log(
+    `BoardEject helper is available at http://${bridge.host}:${bridge.port}`,
+  );
 }

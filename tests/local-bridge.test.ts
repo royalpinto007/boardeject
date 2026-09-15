@@ -38,7 +38,8 @@ async function start(overrides: Parameters<typeof createBridgeServer>[0] = {}) {
   await bridge.listen();
   instances.push(bridge);
   const address = bridge.server.address();
-  if (!address || typeof address === "string") throw new Error("No bridge address");
+  if (!address || typeof address === "string")
+    throw new Error("No bridge address");
   return { bridge, url: `http://127.0.0.1:${address.port}` };
 }
 
@@ -47,7 +48,9 @@ afterEach(async () => {
 });
 
 async function connect(url: string) {
-  const response = await fetch(`${url}/v1/status`, { headers: { Origin: origin } });
+  const response = await fetch(`${url}/v1/status`, {
+    headers: { Origin: origin },
+  });
   expect(response.status).toBe(200);
   return (await response.json()) as { token: string };
 }
@@ -95,13 +98,20 @@ describe("localhost bridge", () => {
       },
       body: archive,
     });
-    expect(await verified.json()).toMatchObject({ valid: true, filesChecked: 10 });
+    expect(await verified.json()).toMatchObject({
+      valid: true,
+      filesChecked: 10,
+    });
   });
 
   it("rejects foreign origins, DNS rebinding hosts, and unauthenticated writes", async () => {
     const { url } = await start();
     expect(
-      (await fetch(`${url}/v1/status`, { headers: { Origin: "https://evil.example" } })).status,
+      (
+        await fetch(`${url}/v1/status`, {
+          headers: { Origin: "https://evil.example" },
+        })
+      ).status,
     ).toBe(403);
     expect(
       (
@@ -126,6 +136,8 @@ describe("localhost bridge", () => {
       body: JSON.stringify({ boardId: "not-a-uuid" }),
     });
     expect(response.status).toBe(400);
-    expect(await response.json()).toEqual({ error: "Choose a valid Freeform board." });
+    expect(await response.json()).toEqual({
+      error: "Choose a valid Freeform board.",
+    });
   });
 });
