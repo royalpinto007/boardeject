@@ -116,27 +116,6 @@
 .capture-tester h1 {
   margin: 24px 0;
 }
-.capture-samples {
-  margin: 18px 0 30px;
-  padding: 22px;
-  border: 1px solid #d9ddcf;
-  border-radius: 14px;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 14px 24px;
-}
-.capture-samples div,
-.capture-samples small {
-  flex-basis: 100%;
-}
-.capture-samples p {
-  margin: 4px 0 0;
-  color: #637059;
-}
-.capture-samples > a {
-  font-size: 14px;
-  font-weight: 600;
-}
 .capture-report dl > div {
   background: #f5f6ef;
   padding: 16px;

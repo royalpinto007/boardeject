@@ -165,24 +165,6 @@ export default function CaptureTester() {
             previous result.
           </small>
         </section>
-        <aside className="capture-samples">
-          <div>
-            <strong>No capture handy?</strong>
-            <p>Download a sample, then choose it above.</p>
-          </div>
-          <a href="/samples/ink-pen.drawing" download>
-            Download ink sample ↗
-          </a>
-          <a href="/samples/real-board.crlnative" download>
-            Download unsupported board ↗
-          </a>
-          <small>
-            The ink sample tests editable output. The board sample tests the
-            version-7 rejection report. These are upstream parser fixtures; the
-            ink sample does not prove Freeform pressure fidelity.{" "}
-            <a href="/samples/source">Source and license</a>.
-          </small>
-        </aside>
         <p role="status" aria-live="polite">
           {busy ? status : board ? "Ready to review." : ""}
         </p>
