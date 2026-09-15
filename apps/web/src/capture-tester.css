@@ -67,23 +67,6 @@
   display: grid;
   gap: 16px;
 }
-.capture-drop label {
-  font-weight: 700;
-}
-.capture-drop input {
-  max-width: 100%;
-}
-.capture-drop input::file-selector-button {
-  background: #264b36;
-  color: #fffdf7;
-  border: 0;
-  padding: 14px 22px;
-  border-radius: 9px;
-  font: inherit;
-  font-weight: 600;
-  margin-right: 14px;
-  cursor: pointer;
-}
 .capture-drop {
   text-align: center;
   justify-items: center;
@@ -101,9 +84,46 @@
   border-radius: 16px;
   font-size: 32px;
 }
-.capture-drop label {
+.capture-drop-title {
   font-size: 21px;
   letter-spacing: -0.5px;
+}
+.capture-file-input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+.capture-file-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 46px;
+  padding: 12px 20px;
+  border-radius: 8px;
+  background: #264b36;
+  color: #fffdf7;
+  font-size: 14px;
+  font-weight: 650;
+  cursor: pointer;
+}
+.capture-file-button:hover {
+  background: #3e6043;
+}
+.capture-file-input:focus-visible + .capture-file-button {
+  outline: 3px solid #638450;
+  outline-offset: 4px;
+}
+.capture-file-name {
+  max-width: min(100%, 440px);
+  color: #637059;
+  font-size: 13px;
+  overflow-wrap: anywhere;
 }
 .capture-tester .preview-badge {
   display: inline-flex;
@@ -220,5 +240,14 @@
   }
   .capture-report dl {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .capture-drop {
+    padding: 32px 18px;
+  }
+  .capture-drop-title {
+    font-size: 19px;
+  }
+  .capture-file-button {
+    width: min(100%, 220px);
   }
 }

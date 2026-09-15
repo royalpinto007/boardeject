@@ -98,10 +98,19 @@ if __name__ == "__main__":
         for width in (360, 768, 1280):
             page.set_viewport_size({"width": width, "height": 900})
             assert page.evaluate("document.documentElement.scrollWidth <= innerWidth")
+        page.goto(BASE + "/test-capture")
+        page.get_by_role("heading", name="Test your actual capture.").wait_for()
+        page.set_viewport_size({"width": 360, "height": 900})
+        picker = page.locator(".capture-file-button").bounding_box()
+        drop = page.locator(".capture-drop").bounding_box()
+        assert picker and drop
+        assert abs((picker["x"] + picker["width"] / 2) - (drop["x"] + drop["width"] / 2)) < 2
+        assert page.get_by_text("No file selected", exact=True).is_visible()
+        assert page.evaluate("document.documentElement.scrollWidth <= innerWidth")
         for path, heading in (
             ("/privacy", "Privacy"),
             ("/terms", "Terms of use"),
-            ("/mac-helper", "Use BoardEject with your own Freeform boards"),
+            ("/mac-helper", "BoardEject for your Mac."),
             ("/support", "Useful where verified. Safe where uncertain."),
             ("/license", "MIT License"),
             ("/samples/source", "Sample source and license"),
@@ -109,7 +118,7 @@ if __name__ == "__main__":
             response = page.goto(BASE + path)
             assert response.status == 200
             page.get_by_role("heading", name=heading).wait_for()
-            assert page.locator(".brand").is_visible()
+            assert page.locator("header .brand").is_visible()
             for width in (360, 1280):
                 page.set_viewport_size({"width": width, "height": 900})
                 assert page.evaluate("document.documentElement.scrollWidth <= innerWidth")

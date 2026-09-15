@@ -47,6 +47,16 @@ header nav {
   letter-spacing: -1px;
   text-decoration: none;
 }
+.brand > span {
+  display: inline-grid;
+  place-items: center;
+  width: 30px;
+  height: 34px;
+  border-radius: 6px;
+  background: #264b36;
+  color: #f5f5e8;
+  font-size: 25px;
+}
 main {
   max-width: 800px;
 }

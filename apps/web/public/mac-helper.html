@@ -14,17 +14,16 @@
     <link rel="stylesheet" href="/mac-helper.css" />
   </head>
   <body class="helper-page">
-    <header>
-      <a class="brand" href="/"
-        ><img src="/favicon.svg" width="34" height="34" alt="" />BoardEject</a
-      >
-      <nav>
-        <a href="/test-capture">Capture tester</a>
+    <header class="site-header">
+      <a class="brand" href="/"><span aria-hidden="true">↗</span> BoardEject</a>
+      <nav aria-label="Main navigation">
+        <a href="/test-capture">Test a capture ↗</a>
         <a
+          class="nav-source"
           href="https://github.com/royalpinto007/boardeject"
           target="_blank"
           rel="noopener noreferrer"
-          >Source ↗</a
+          >GitHub ↗</a
         >
       </nav>
     </header>
@@ -32,7 +31,7 @@
       <section class="helper-hero">
         <div class="helper-copy">
           <p class="setup-kicker">BoardEject for macOS</p>
-          <h1>Use BoardEject with your own Freeform boards</h1>
+          <h1>BoardEject for your Mac.</h1>
           <p class="setup-intro">
             One small local helper gives BoardEject access to the private
             Freeform data a browser cannot read.
@@ -52,9 +51,7 @@
         </div>
         <div class="mac-stage" aria-label="BoardEject helper package preview">
           <div class="mac-window">
-            <div class="mac-bar">
-              <i></i><i></i><i></i><span>BoardEject</span>
-            </div>
+            <div class="mac-bar"><i></i><i></i><i></i></div>
             <div class="package-icon"><span>↗</span></div>
             <strong>BoardEject-macOS</strong>
             <small>Capture · Scan · Back up · Verify</small>
@@ -155,9 +152,34 @@ npm ci</code></pre>
         </div>
       </details>
     </main>
-    <footer>
-      <a href="/">Back to BoardEject</a><a href="/privacy">Privacy</a
-      ><a href="/terms">Terms</a>
+    <footer class="site-footer">
+      <div>
+        <a class="brand" href="/"
+          ><span aria-hidden="true">↗</span> BoardEject</a
+        >
+        <p>Your board. Your format.</p>
+      </div>
+      <div class="footer-links">
+        <a href="/mac-helper">Mac helper</a>
+        <a href="/privacy">Privacy</a>
+        <a href="/terms">Terms</a>
+        <a
+          href="https://github.com/royalpinto007/boardeject"
+          target="_blank"
+          rel="noopener noreferrer"
+          >Source code ↗</a
+        >
+        <a
+          href="https://www.buymeacoffee.com/royalpinto007"
+          target="_blank"
+          rel="noopener noreferrer"
+          >Buy me a coffee ↗</a
+        >
+      </div>
+      <p class="footer-disclaimer">
+        Independent open-source project. Not affiliated with Apple or
+        Excalidraw.
+      </p>
     </footer>
   </body>
 </html>

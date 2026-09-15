@@ -10,6 +10,7 @@ export default function CaptureTester() {
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
   const [editing, setEditing] = useState(false);
+  const [fileName, setFileName] = useState("No file selected");
   const worker = useRef<Worker | null>(null);
   const timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const sequence = useRef(0);
@@ -38,6 +39,7 @@ export default function CaptureTester() {
       return;
     }
     const file = files[0];
+    setFileName(file.name);
     if (file.size > 45 * 1024 * 1024) {
       setError("File exceeds 45 MiB. Copy a smaller selection.");
       return;
@@ -101,7 +103,7 @@ export default function CaptureTester() {
     <>
       <header className="site-header">
         <a className="brand" href="/">
-          <img src="/favicon.svg" width="34" height="34" alt="" /> BoardEject
+          <span aria-hidden="true">↗</span> BoardEject
         </a>
         <nav aria-label="Main navigation">
           <a href="/">Back to BoardEject</a>
@@ -140,18 +142,20 @@ export default function CaptureTester() {
           onDragOver={(e) => e.preventDefault()}
           onDrop={(e) => {
             e.preventDefault();
-            void inspect(Array.from(e.dataTransfer.files));
+            const files = Array.from(e.dataTransfer.files);
+            if (files.length) void inspect(files);
           }}
           aria-label="Capture file drop area"
         >
           <span className="capture-icon" aria-hidden="true">
             ↥
           </span>
-          <label htmlFor="capture-file">
-            Choose capture file or drop it here
-          </label>
+          <strong className="capture-drop-title">
+            Choose a capture or drop it here
+          </strong>
           <input
             id="capture-file"
+            className="capture-file-input"
             type="file"
             accept=".boardeject,.json,.crlnative,.drawing"
             onChange={(e) => {
@@ -160,6 +164,12 @@ export default function CaptureTester() {
               if (files.length) void inspect(files);
             }}
           />
+          <label className="capture-file-button" htmlFor="capture-file">
+            Choose capture
+          </label>
+          <span className="capture-file-name" aria-live="polite">
+            {fileName}
+          </span>
           <small>
             32 MiB raw payload / 45 MiB envelope. New selections replace the
             previous result.
