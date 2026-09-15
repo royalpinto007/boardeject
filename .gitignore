@@ -14,6 +14,7 @@ test-results/
 __pycache__/
 *.boardeject
 !examples/*.boardeject
+*.boardejectarchive
 
 # Internal planning and agent state never belong in the public source tree.
 .agents/

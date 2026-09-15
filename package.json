@@ -20,7 +20,9 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "demo": "python3 scripts/record_demo.py",
-    "fixtures": "node --experimental-strip-types scripts/export-example.ts"
+    "fixtures": "node --experimental-strip-types scripts/export-example.ts",
+    "archive": "node --experimental-strip-types scripts/archive-cli.ts",
+    "archive:freeform": "node --experimental-strip-types scripts/archive-freeform.ts"
   },
   "overrides": {
     "@excalidraw/excalidraw": {
@@ -33,6 +35,7 @@
   },
   "dependencies": {
     "@excalidraw/excalidraw": "0.18.1",
+    "fflate": "^0.8.3",
     "libfreeform": "1.0.0",
     "react": "18.3.1",
     "react-dom": "18.3.1"

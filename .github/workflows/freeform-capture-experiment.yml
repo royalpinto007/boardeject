@@ -28,6 +28,7 @@ on:
             tables-issue-15-embedded-direct,
             tables-issue-15-embedded-cells,
             ink-issue-13,
+            archive-storage,
           ]
         default: tables
 permissions:
@@ -40,6 +41,9 @@ jobs:
       - uses: actions/checkout@v4
         with:
           persist-credentials: false
+      - name: Install archive dependencies
+        if: inputs.scenario == 'archive-storage'
+        run: npm ci --ignore-scripts
       - name: Probe actual Freeform session
         env:
           CAPTURE_OUTPUT: ${{ runner.temp }}/freeform-capture-experiment
@@ -48,6 +52,8 @@ jobs:
         run: |
           if [ "$CAPTURE_SCENARIO" = "ink-issue-13" ]; then
             TABLE_GEOMETRY_ONLY=0 python3 tools/freeform-experiment/differential.py
+          elif [ "$CAPTURE_SCENARIO" = "archive-storage" ]; then
+            python3 tools/freeform-experiment/archive_storage.py
           elif [ "$CAPTURE_SCENARIO" = "images-text" ]; then
             python3 tools/freeform-experiment/images_text.py
           elif [ "$CAPTURE_SCENARIO" = "tables-issue-15" ]; then

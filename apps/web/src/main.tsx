@@ -456,6 +456,30 @@ function App() {
               Run locally ↗
             </a>
           </p>
+          <details className="support-notes archive-preview">
+            <summary>Local Freeform Archive · experimental</summary>
+            <p>
+              Creates a local, verifiable archive of your Freeform board and
+              original assets. Restore back into Apple Freeform is not supported
+              yet.
+            </p>
+            <p>
+              Genuine Freeform 4.5 validation now covers read-only snapshots,
+              one-board extraction, original image, PDF, video and file bytes,
+              verified board titles, and independent SHA-256 verification. The
+              experimental macOS flow can scan, create and verify an archive.
+              Database-to-Excalidraw conversion remains unavailable because
+              native records are not Freeform clipboard envelopes, so no archive
+              compatibility is advertised yet.
+            </p>
+            <a
+              href="https://github.com/royalpinto007/boardeject/blob/main/docs/local-archive.md"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Read the development status ↗
+            </a>
+          </details>
         </section>
         <footer className="site-footer">
           <div>
