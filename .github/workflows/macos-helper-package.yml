@@ -31,10 +31,14 @@ jobs:
           grep -F "boardeject-mac scan" <<< "$output"
           test -x dist/macos-helper/boardeject-archive-native
           test -x dist/macos-helper/boardeject-capture
-      - run: ditto -c -k --sequesterRsrc --keepParent dist/macos-helper BoardEject-macOS-arm64.zip
+      - name: Confirm packaged architecture
+        run: |
+          test "$(uname -m)" = "x86_64"
+          file dist/macos-helper/boardeject-mac | grep -F "x86_64"
+      - run: ditto -c -k --sequesterRsrc --keepParent dist/macos-helper BoardEject-macOS-x64.zip
       - uses: actions/upload-artifact@v4
         with:
-          name: BoardEject-macOS-arm64
-          path: BoardEject-macOS-arm64.zip
+          name: BoardEject-macOS-x64
+          path: BoardEject-macOS-x64.zip
           if-no-files-found: error
           retention-days: 30
