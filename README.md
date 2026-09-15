@@ -40,8 +40,8 @@ Freeform clipboard → editable Excalidraw.
 
 ![Real Freeform 4.5 archive output: scan, select, create, verify, detect corruption](docs/archive-demo.gif)
 
-_14-second replay of output from the real macOS validation run. Processing time
-is compressed and output excerpted. This is the command-line archive flow._
+_12-second product walkthrough using the verified Freeform 4.5 run result. The
+interface is an interactive replay; creating a backup still uses the macOS helper._
 
 [Watch archive MP4](docs/archive-demo.mp4) · [Demo evidence](docs/media.md)
 
