@@ -776,7 +776,11 @@ a {
   width: 7px;
   height: 7px;
   border-radius: 50%;
-  background: #6d895c;
+  background: #a1aaa0;
+}
+.utility-light.connected {
+  background: #5f8b59;
+  box-shadow: 0 0 0 3px rgba(95, 139, 89, 0.12);
 }
 .utility-local {
   margin-left: auto;
@@ -810,6 +814,28 @@ a {
   background: #e3e9dc;
   color: #31563d;
   font-size: 25px;
+}
+.utility-icon.offline {
+  background: #eceee8;
+  color: #687267;
+}
+.utility-icon.success {
+  border-radius: 50%;
+}
+.utility-icon.activity {
+  width: 34px;
+  height: 34px;
+  border: 3px solid #d9dfd4;
+  border-top-color: #315b3b;
+  border-radius: 50%;
+  background: transparent;
+  animation: spin 0.8s linear infinite;
+}
+.utility-center .utility-actions {
+  align-items: center;
+}
+.utility-center .utility-actions .button {
+  min-height: 44px;
 }
 .utility-content {
   padding: 26px 20px 12px;
@@ -855,6 +881,12 @@ a {
   background: #fff !important;
   color: #294134 !important;
   border-radius: 11px !important;
+}
+.board-list {
+  max-height: 245px;
+  overflow: auto;
+  margin-bottom: 8px;
+  padding-right: 3px;
 }
 .board-row:hover,
 .board-row.selected {
@@ -1015,6 +1047,13 @@ a {
   text-align: center;
   color: #7c887b;
   font-size: 9px;
+}
+.utility-message {
+  margin: 12px 0;
+  text-align: center;
+}
+.error-state p {
+  max-width: 40ch;
 }
 .archive-demo-mode .site-header,
 .archive-demo-mode .product-hero,

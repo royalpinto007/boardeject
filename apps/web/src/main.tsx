@@ -3,101 +3,213 @@ import { createRoot } from "react-dom/client";
 import { exampleBoard } from "../../../examples/board";
 import type { Board } from "../../../packages/board-model/index";
 import { convert } from "../../../packages/excalidraw-converter/index";
+import {
+  connectLocalHelper,
+  type CreatedArchive,
+  type LocalBoard,
+  type LocalHelper,
+  type LocalVerification,
+  saveArchive,
+} from "./local-helper";
 import "./style.css";
 Object.assign(window, { EXCALIDRAW_ASSET_PATH: "/vendor/excalidraw/" });
 const Editor = lazy(() => import("./editor"));
 const CaptureTester = lazy(() => import("./capture-tester"));
 
 type ArchiveStep =
-  "idle" | "boards" | "selected" | "creating" | "created" | "verified";
+  | "connecting"
+  | "offline"
+  | "ready"
+  | "scanning"
+  | "boards"
+  | "creating"
+  | "created"
+  | "verifying"
+  | "verified"
+  | "error";
 
-function ArchiveDemo() {
-  const [step, setStep] = useState<ArchiveStep>("idle");
+function LocalArchive() {
+  const [step, setStep] = useState<ArchiveStep>("connecting");
+  const [helper, setHelper] = useState<LocalHelper>();
+  const [boards, setBoards] = useState<LocalBoard[]>([]);
+  const [selected, setSelected] = useState<LocalBoard>();
+  const [archive, setArchive] = useState<CreatedArchive>();
+  const [verification, setVerification] = useState<LocalVerification>();
+  const [message, setMessage] = useState("");
+
+  async function connect() {
+    setStep("connecting");
+    try {
+      const connected = await connectLocalHelper();
+      setHelper(connected);
+      setStep("ready");
+    } catch {
+      setStep("offline");
+    }
+  }
+
   useEffect(() => {
-    if (!new URLSearchParams(location.search).has("archive-demo")) return;
-    document.documentElement.classList.add("archive-demo-mode");
-    const sequence: Array<[number, ArchiveStep]> = [
-      [1200, "boards"],
-      [3000, "selected"],
-      [4200, "creating"],
-      [6500, "created"],
-      [9000, "verified"],
-    ];
-    const timers = sequence.map(([delay, next]) =>
-      window.setTimeout(() => setStep(next), delay),
-    );
-    return () => {
-      document.documentElement.classList.remove("archive-demo-mode");
-      timers.forEach(window.clearTimeout);
-    };
+    void connect();
   }, []);
-  const choose = () => setStep("selected");
-  const create = () => {
+
+  async function scan() {
+    if (!helper) return connect();
+    setStep("scanning");
+    setMessage("");
+    try {
+      const catalog = await helper.scan();
+      setBoards(catalog.boards);
+      setSelected(undefined);
+      setStep("boards");
+      if (!catalog.boards.length)
+        setMessage("No Freeform boards were found on this Mac.");
+    } catch (error) {
+      setMessage(
+        error instanceof Error
+          ? error.message
+          : "Freeform could not be scanned.",
+      );
+      setStep("error");
+    }
+  }
+
+  async function create() {
+    if (!helper || !selected) return;
     setStep("creating");
-    window.setTimeout(() => setStep("created"), 1200);
-  };
+    setMessage("");
+    try {
+      setArchive(await helper.create(selected));
+      setStep("created");
+    } catch (error) {
+      setMessage(
+        error instanceof Error
+          ? error.message
+          : "The backup could not be created.",
+      );
+      setStep("error");
+    }
+  }
+
+  async function verify() {
+    if (!helper || !archive) return;
+    setStep("verifying");
+    try {
+      const report = await helper.verify(archive.bytes);
+      setVerification(report);
+      setStep(report.valid ? "verified" : "error");
+      if (!report.valid) setMessage(report.errors.join(" "));
+    } catch (error) {
+      setMessage(
+        error instanceof Error
+          ? error.message
+          : "The backup could not be verified.",
+      );
+      setStep("error");
+    }
+  }
+
+  const selectedName = selected?.displayName ?? "Freeform board";
   return (
     <div className="archive-utility" data-step={step}>
       <div className="utility-topline">
-        <span className="utility-light" /> Demo · verified Freeform 4.5 result
-        <span className="utility-local">Replay</span>
+        <span className={`utility-light ${helper ? "connected" : ""}`} />
+        {helper ? "Mac helper connected" : "Local Mac helper"}
+        <span className="utility-local">On this Mac</span>
       </div>
-      {step === "idle" && (
+      {step === "connecting" && (
         <div className="utility-center">
           <span className="utility-icon" aria-hidden="true">
             ⌁
           </span>
-          <h3>Find your Freeform boards</h3>
-          <p>The helper reads a stable local copy.</p>
-          <button onClick={() => setStep("boards")}>Scan Freeform</button>
+          <h3>Finding the helper…</h3>
+          <p>Checking this Mac only.</p>
         </div>
       )}
-      {(step === "boards" || step === "selected") && (
+      {step === "offline" && (
+        <div className="utility-center">
+          <span className="utility-icon offline" aria-hidden="true">
+            ↓
+          </span>
+          <h3>Connect the Mac helper</h3>
+          <p>Install it once, then open it to use your own boards here.</p>
+          <div className="utility-actions">
+            <a className="button" href="/mac-helper">
+              Get the helper
+            </a>
+            <button className="secondary" onClick={connect}>
+              Check again
+            </button>
+          </div>
+        </div>
+      )}
+      {step === "ready" && (
+        <div className="utility-center">
+          <span className="utility-icon success" aria-hidden="true">
+            ✓
+          </span>
+          <h3>Helper connected</h3>
+          <p>Freeform stays on this Mac.</p>
+          <button onClick={scan}>Scan Freeform</button>
+        </div>
+      )}
+      {step === "scanning" && (
+        <div className="utility-center">
+          <span className="utility-icon activity" aria-hidden="true" />
+          <h3>Scanning Freeform…</h3>
+          <p>Making a stable read-only snapshot.</p>
+        </div>
+      )}
+      {step === "boards" && (
         <div className="utility-content">
           <div className="utility-heading">
             <div>
               <span className="success-mark">✓</span>
-              <h3>2 boards found</h3>
+              <h3>
+                {boards.length} {boards.length === 1 ? "board" : "boards"} found
+              </h3>
             </div>
-            <button className="quiet-action" onClick={() => setStep("boards")}>
+            <button className="quiet-action" onClick={scan}>
               Scan again
             </button>
           </div>
-          <button
-            className={`board-row ${step === "selected" ? "selected" : ""}`}
-            onClick={choose}
-            aria-pressed={step === "selected"}
-          >
-            <span className="board-thumb">
-              <i />
-              <i />
-              <i />
-            </span>
-            <span>
-              <strong>Untitled 2</strong>
-              <small>Modified today · 7 objects · 7 assets</small>
-            </span>
-            <span className="radio-mark">{step === "selected" ? "✓" : ""}</span>
-          </button>
-          <button className="board-row muted" onClick={choose}>
-            <span className="board-thumb">
-              <i />
-              <i />
-            </span>
-            <span>
-              <strong>Untitled 3</strong>
-              <small>Modified today · 3 objects</small>
-            </span>
-            <span className="radio-mark" />
-          </button>
-          <button disabled={step !== "selected"} onClick={create}>
+          <div className="board-list">
+            {boards.map((board) => (
+              <button
+                key={board.id}
+                className={`board-row ${selected?.id === board.id ? "selected" : ""}`}
+                onClick={() => setSelected(board)}
+                aria-pressed={selected?.id === board.id}
+              >
+                <span className="board-thumb">
+                  <i />
+                  <i />
+                  <i />
+                </span>
+                <span>
+                  <strong>{board.displayName}</strong>
+                  <small>
+                    {board.modifiedAt
+                      ? `Modified ${new Date(board.modifiedAt * 1000).toLocaleDateString()} · `
+                      : ""}
+                    {board.objectCount} objects · {board.assetReferenceCount}{" "}
+                    assets
+                  </small>
+                </span>
+                <span className="radio-mark">
+                  {selected?.id === board.id ? "✓" : ""}
+                </span>
+              </button>
+            ))}
+          </div>
+          {message && <p className="utility-message">{message}</p>}
+          <button disabled={!selected} onClick={create}>
             Create local backup
           </button>
         </div>
       )}
       {step === "creating" && (
         <div className="utility-content">
-          <span className="utility-kicker">Creating Untitled 2</span>
+          <span className="utility-kicker">Creating {selectedName}</span>
           <h3>Packaging your board…</h3>
           <ul className="progress-list">
             <li className="done">✓ Board data copied</li>
@@ -113,41 +225,69 @@ function ArchiveDemo() {
         <div className="utility-content result-state">
           <div className="result-label">
             <span className="result-icon">✓</span>
-            <span className="utility-kicker">Untitled 2.boardejectarchive</span>
+            <span className="utility-kicker">{archive?.filename}</span>
           </div>
           <h3>Backup created</h3>
-          <p>10 files · 7 assets · 0 missing</p>
+          <p>Your board and original referenced files are ready.</p>
           <div className="utility-actions">
-            <button className="secondary" disabled>
-              Save archive ✓
+            <button
+              className="secondary"
+              onClick={() => archive && saveArchive(archive)}
+            >
+              Save archive
             </button>
-            <button onClick={() => setStep("verified")}>Verify now</button>
+            <button onClick={verify}>Verify now</button>
           </div>
         </div>
       )}
-      {step === "verified" && (
+      {step === "verifying" && (
+        <div className="utility-center">
+          <span className="utility-icon activity" aria-hidden="true" />
+          <h3>Verifying backup…</h3>
+          <p>Checking every manifest hash locally.</p>
+        </div>
+      )}
+      {step === "verified" && verification && (
         <div className="utility-content result-state">
           <div className="result-label">
             <span className="result-icon">✓</span>
-            <span className="utility-kicker">Untitled 2.boardejectarchive</span>
+            <span className="utility-kicker">{archive?.filename}</span>
           </div>
           <h3>Archive verified</h3>
           <div className="proof-grid">
             <span>
-              <strong>10/10</strong> files intact
+              <strong>{verification.filesChecked}</strong> files intact
             </span>
             <span>
-              <strong>7/7</strong> assets verified
+              <strong>{verification.assetsVerified}</strong> assets verified
             </span>
           </div>
           <p>No missing or corrupted files.</p>
-          <button className="quiet-action" onClick={() => setStep("idle")}>
-            Start again
-          </button>
+          <div className="utility-actions">
+            <button
+              className="secondary"
+              onClick={() => archive && saveArchive(archive)}
+            >
+              Save archive
+            </button>
+            <button className="quiet-action" onClick={scan}>
+              Another board
+            </button>
+          </div>
+        </div>
+      )}
+      {step === "error" && (
+        <div className="utility-center error-state">
+          <span className="utility-icon offline" aria-hidden="true">
+            !
+          </span>
+          <h3>That did not work</h3>
+          <p>{message}</p>
+          <button onClick={connect}>Reconnect helper</button>
         </div>
       )}
       <p className="utility-disclosure">
-        Demo only. Install the macOS helper to back up your own boards.
+        Local only. The live Freeform database is never modified.
       </p>
     </div>
   );
@@ -369,34 +509,23 @@ function App() {
           <article className="product-card archive-card" id="archive">
             <span className="card-number">02</span>
             <div className="product-card-copy">
-              <span className="state-label">Local Backup / Archive · Demo</span>
+              <span className="state-label">Local Backup / Archive</span>
               <h2>One board. Original files. Verified.</h2>
               <p>Freeform → local `.boardejectarchive`.</p>
               <p className="workflow-note">
-                <strong>This panel is a demo.</strong> Real backups use the
-                macOS helper because a website cannot read Freeform's local
-                database.
+                <strong>Use your real boards here.</strong> The website connects
+                to the helper on this Mac. Nothing is uploaded.
               </p>
               <div className="actions">
                 <a className="button" href="/mac-helper">
-                  Set up the Mac helper <span>→</span>
+                  Get the Mac helper <span>→</span>
                 </a>
-                <button
-                  className="secondary"
-                  onClick={() =>
-                    document
-                      .querySelector<HTMLElement>("#archive .archive-utility")
-                      ?.scrollIntoView({ block: "center", behavior: "smooth" })
-                  }
-                >
-                  Try the demo
-                </button>
               </div>
               <p className="fine">
                 Freeform 4.5 verified. Restore is not supported.
               </p>
             </div>
-            <ArchiveDemo />
+            <LocalArchive />
           </article>
         </section>
         {board && (
