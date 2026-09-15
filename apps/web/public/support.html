@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Support and limitations | BoardEject</title>
+    <meta
+      name="description"
+      content="What BoardEject currently converts, archives, approximates, and safely rejects."
+    />
+    <link rel="canonical" href="https://boardeject.dev/support" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="/legal.css" />
+  </head>
+  <body>
+    <header>
+      <a class="brand" href="/"
+        ><img src="/favicon.svg" width="34" height="34" alt="" />BoardEject</a
+      >
+      <nav>
+        <a href="/mac-helper">Mac helper</a
+        ><a href="/test-capture">Capture tester</a>
+      </nav>
+    </header>
+    <main>
+      <p class="setup-kicker">Current support</p>
+      <h1>Useful where verified. Safe where uncertain.</h1>
+      <p class="setup-intro">
+        BoardEject reports unsupported content instead of silently pretending
+        every conversion is perfect.
+      </p>
+      <div class="support-cards">
+        <section>
+          <h2>Editable export</h2>
+          <p>
+            Fixture-backed Freeform 4.5 paths preserve supported shapes,
+            editable text, tables, images, groups, transforms, connectors, and
+            ink.
+          </p>
+          <p>
+            Some rich-text styling, shadows, table behavior, and geometry use
+            documented editable approximations. Apple Pencil pressure and erased
+            ink remain unverified from iPad-originated captures.
+          </p>
+        </section>
+        <section>
+          <h2>Local backup</h2>
+          <p>
+            The helper supports only the exact verified Freeform 4.5 schema. It
+            snapshots the live store without modifying it and archives only the
+            selected board with reachable original assets and integrity hashes.
+          </p>
+          <p>
+            Unknown schemas stop safely. Restore, write-back, iCloud
+            manipulation, and unverified database-to-Excalidraw reconstruction
+            are not supported.
+          </p>
+        </section>
+      </div>
+      <h2>Need the detailed evidence?</h2>
+      <p>
+        Implementation notes, fixture provenance, and the complete support
+        matrix remain available in the
+        <a
+          href="https://github.com/royalpinto007/boardeject#support-matrix"
+          target="_blank"
+          rel="noopener noreferrer"
+          >open-source repository ↗</a
+        >.
+      </p>
+    </main>
+    <footer>
+      <a href="/">Back to BoardEject</a><a href="/privacy">Privacy</a
+      ><a href="/terms">Terms</a>
+    </footer>
+  </body>
+</html>

@@ -102,6 +102,9 @@ if __name__ == "__main__":
             ("/privacy", "Privacy"),
             ("/terms", "Terms of use"),
             ("/mac-helper", "Use BoardEject with your own Freeform boards"),
+            ("/support", "Useful where verified. Safe where uncertain."),
+            ("/license", "MIT License"),
+            ("/samples/source", "Sample source and license"),
         ):
             response = page.goto(BASE + path)
             assert response.status == 200
