@@ -1,9 +1,10 @@
 import { execFile } from "node:child_process";
-import { mkdtemp, realpath, rm } from "node:fs/promises";
+import { mkdtemp, readFile, realpath, rm } from "node:fs/promises";
 import { homedir, tmpdir } from "node:os";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { promisify } from "node:util";
+import { verifyArchive } from "../packages/archive/index.ts";
 
 const run = promisify(execFile);
 const repository = resolve(dirname(fileURLToPath(import.meta.url)), "..");
@@ -141,13 +142,9 @@ async function create(args: string[]) {
 }
 
 async function verify(path: string) {
-  const { stdout } = await run(process.execPath, [
-    "--experimental-strip-types",
-    join(repository, "scripts/archive-cli.ts"),
-    "verify",
-    await realpath(path),
-  ]);
-  console.log(stdout.trim());
+  const report = await verifyArchive(await readFile(await realpath(path)));
+  console.log(JSON.stringify(report, null, 2));
+  if (!report.valid) process.exitCode = 1;
 }
 
 const [command, ...args] = process.argv.slice(2);
