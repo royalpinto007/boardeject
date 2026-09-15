@@ -10,8 +10,7 @@ labels: bug
 
 ## Reproduction
 
-Include browser, operating system, Freeform version and BoardEject commit.
-Do not attach private board captures. Use a minimal non-sensitive example.
+Include browser, operating system, Freeform version and BoardEject commit. Do not attach private board captures. Use a minimal non-sensitive example.
 
 ## Conversion report
 

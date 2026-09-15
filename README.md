@@ -2,11 +2,9 @@
 
 **Your board. Your format.**
 
-Export Apple Freeform boards to editable Excalidraw files or preserve a selected
-board in a verified local archive. Both workflows stay on your device.
+Export Apple Freeform boards to editable Excalidraw files or preserve a selected board in a verified local archive. Both workflows stay on your device.
 
-An editable escape route, not another whiteboard. No account, no board uploads,
-no cloud storage.
+An editable escape route, not another whiteboard. No account, no board uploads, no cloud storage.
 
 [Export to Excalidraw](https://boardeject.dev/#export) · **[Back up a Freeform board](https://boardeject.dev/#archive)**
 
@@ -22,8 +20,7 @@ _Browser recording with a synthetic example: demonstrates editable output, not a
 - **Keep your board private:** processing happens in your browser, with no account, board uploads or cloud storage.
 - **Know what transferred:** preview the result and review partial or unsupported elements before downloading.
 
-Support varies by Freeform version and object type. Keep your original board;
-see [Current status](#current-status) before importing real work.
+Support varies by Freeform version and object type. Keep your original board; see [Current status](#current-status) before importing real work.
 
 ## How it works
 
@@ -34,7 +31,7 @@ BoardEject has two separate local-first workflows:
 Freeform clipboard → editable Excalidraw.
 
 1. Copy your objects in Apple Freeform.
-2. Save a capture with the [macOS helper](docs/clipboard.md).
+2. Save a capture with the [macOS helper](docs/guide.md).
 3. Import it into BoardEject, inspect the report and preview the result.
 4. Download your editable `.excalidraw` file.
 
@@ -42,74 +39,44 @@ Freeform clipboard → editable Excalidraw.
 
 ![Real Freeform 4.5 archive output: scan, select, create, verify, detect corruption](docs/archive-demo.gif)
 
-_12-second product walkthrough using the verified Freeform 4.5 run result. The
-interface is an interactive replay; creating a backup still uses the macOS helper._
+_12-second product walkthrough using the verified Freeform 4.5 run result. The interface is an interactive replay; creating a backup still uses the macOS helper._
 
-[Watch archive MP4](docs/archive-demo.mp4) · [Demo evidence](docs/media.md)
+[Watch archive MP4](docs/archive-demo.mp4) · [Setup and usage](docs/guide.md)
 
-Freeform database → portable `.boardejectarchive` containing only the selected
-board's native records, original referenced assets, verified metadata, hashes
-and integrity information.
+Freeform database → portable `.boardejectarchive` containing only the selected board's native records, original referenced assets, verified metadata, hashes and integrity information.
 
 1. **Scan Freeform.**
 2. Choose a board.
 3. **Create archive** and save the `.boardejectarchive` file.
-4. **Verify archive** to see the board name, object and asset counts, checked
-   files, missing or corrupted files, and final integrity status.
+4. **Verify archive** to see the board name, object and asset counts, checked files, missing or corrupted files, and final integrity status.
 
-BoardEject never modifies the live Freeform database and does not upload board
-or archive data. Restore or write-back into Apple Freeform is not supported.
-See [Local Freeform Backup / Archive](docs/local-archive.md) for the verified
-Freeform-version boundary and macOS commands.
+BoardEject never modifies the live Freeform database and does not upload board or archive data. Restore or write-back into Apple Freeform is not supported. See the [BoardEject guide](docs/guide.md) for setup, commands, safety boundaries, and the verified Freeform-version boundary.
 
-No Mac handy? Choose **Try example board** on the website to explore editable
-output, or use [Capture Tester](https://boardeject.dev/test-capture) with an existing capture.
+No Mac handy? Choose **Try example board** on the website to explore editable output, or use [Capture Tester](https://boardeject.dev/test-capture) with an existing capture.
 
 ## Import from Freeform
 
 Apple Freeform → select objects → Cmd+C → capture → BoardEject → Excalidraw.
 
-Browsers cannot reliably read Apple's private clipboard types. The tiny
-[macOS helper](docs/clipboard.md) saves a `.boardeject` capture for the file picker.
-The **Import copied BoardEject capture** button accepts that same envelope copied
-as text. It does not claim direct access to private pasteboard formats. PDF is
-not supported input.
+Browsers cannot reliably read Apple's private clipboard types. The tiny [macOS helper](docs/guide.md) saves a `.boardeject` capture for the file picker. The **Import copied BoardEject capture** button accepts that same envelope copied as text. It does not claim direct access to private pasteboard formats. PDF is not supported input.
 
-The helper compiles and passes its command-line smoke check in clean macOS CI.
-Real Freeform 4.5 GUI captures on hosted macOS validate the listed conversion
-subsets, not every Freeform object or version. Unsupported structures are
-withheld instead of producing misleading exports.
+The helper compiles and passes its command-line smoke check in clean macOS CI. Real Freeform 4.5 GUI captures on hosted macOS validate the listed conversion subsets, not every Freeform object or version. Unsupported structures are withheld instead of producing misleading exports.
 
 ## Test your own capture
 
-Open [Experimental Capture Tester](https://boardeject.dev/test-capture) and
-choose/drop a `.boardeject` capture (or its JSON envelope). Single `.crlnative`
-and `.drawing` payloads are also accepted, but lack companion assets. Processing
-stays in your browser. Review detected/converted counts and diagnostics, preview
-recovered output and download `.excalidraw`. Unsupported or malformed captures
-do not get substituted with an example. Normal import remains unchanged.
+Open [Experimental Capture Tester](https://boardeject.dev/test-capture) and choose/drop a `.boardeject` capture (or its JSON envelope). Single `.crlnative` and `.drawing` payloads are also accepted, but lack companion assets. Processing stays in your browser. Review detected/converted counts and diagnostics, preview recovered output and download `.excalidraw`. Unsupported or malformed captures do not get substituted with an example. Normal import remains unchanged.
 
-Run `python3 scripts/capture_browser_check.py` against the preview server to
-exercise file selection, drop, failed input, preview and download. Set
-`BOARDEJECT_TEST_URL` to check a deployed site with the same public test fixtures.
+Run `python3 scripts/capture_browser_check.py` against the preview server to exercise file selection, drop, failed input, preview and download. Set `BOARDEJECT_TEST_URL` to check a deployed site with the same public test fixtures.
 
 ## Current status
 
 ### Editable Export status
 
-Supported fixture-backed shapes, text, tables, assets, ink, and connectors are
-converted to editable Excalidraw elements. Freeform 4.5 version-7 boards are
-supported only through the specific native paths listed in the matrix below.
+Supported fixture-backed shapes, text, tables, assets, ink, and connectors are converted to editable Excalidraw elements. Freeform 4.5 version-7 boards are supported only through the specific native paths listed in the matrix below.
 
 ### Archive status
 
-**v0.0.3 includes Local Freeform Backup / Archive for the exact verified Freeform
-4.5 schema alongside the existing editable export.** The demo uses a synthetic
-example to demonstrate editable output, not a complete Freeform import.
-Freeform 4.5 version-7 data is not generally supported. Only the fixture-backed
-table and single-object sidecar fallbacks described below are recovered.
-See the [support matrix](#support-matrix) and [fidelity report](docs/fidelity.md)
-before importing real work.
+**v0.0.3 includes Local Freeform Backup / Archive for the exact verified Freeform 4.5 schema alongside the existing editable export.** The demo uses a synthetic example to demonstrate editable output, not a complete Freeform import. Freeform 4.5 version-7 data is not generally supported. Only the fixture-backed table and single-object sidecar fallbacks described below are recovered. See the [support matrix](#support-matrix) and [fidelity report](docs/fidelity.md) before importing real work.
 
 ## Known limitations
 
@@ -117,63 +84,46 @@ before importing real work.
 - Mixed styles and exact fonts remain metadata; image shadow blur and some table edges/padding are approximations.
 - iPad-originated Apple Pencil pressure and erased-ink round trips remain unverified in [#20](https://github.com/royalpinto007/boardeject/issues/20).
 - PDF is not supported input. Raw clipboard payloads may lack companion assets.
-- Archive restore/write-back and iCloud manipulation are not supported. Archive
-  creation accepts only the exact verified Freeform 4.5 schema and fails closed
-  for unknown versions or structural fingerprints.
-- Database-native archive records are not reconstructed into an unverified
-  clipboard payload. An optional Excalidraw file is included only when a
-  verified conversion path supplies it; the current database archive path does
-  not produce one.
+- Archive restore/write-back and iCloud manipulation are not supported. Archive creation accepts only the exact verified Freeform 4.5 schema and fails closed for unknown versions or structural fingerprints.
+- Database-native archive records are not reconstructed into an unverified clipboard payload. An optional Excalidraw file is included only when a verified conversion path supplies it; the current database archive path does not produce one.
 
-The matrix below specifies each tested boundary, including the native evidence
-and links to remaining work.
+The matrix below specifies each tested boundary, including the native evidence and links to remaining work.
 
 ### Mac helper status
 
-The downloadable Apple-silicon preview removes the Node, npm, Git, and Swift
-toolchain requirements from normal use. It remains unsigned and command-line
-based; Intel Macs use the source build for now. A signed universal Mac app with
-browser detection is the next onboarding step.
+The downloadable Apple-silicon preview removes the Node, npm, Git, and Swift toolchain requirements from normal use. It remains unsigned and command-line based; Intel Macs use the source build for now. A signed universal Mac app with browser detection is the next onboarding step.
 
 ## Support matrix
 
-**Table update:** verified native layouts now preserve unequal dimensions,
-structure changes, ordering, text styles/alignment, solid colors, border
-properties, multiple tables, and attached text boxes as editable output. Merge
-and rotation are unavailable for tables in the tested Freeform version. See
-[mapping evidence](docs/native-table-mapping.md).
+**Table update:** verified native layouts now preserve unequal dimensions, structure changes, ordering, text styles/alignment, solid colors, border properties, multiple tables, and attached text boxes as editable output. Merge and rotation are unavailable for tables in the tested Freeform version. See [fidelity evidence](docs/fidelity.md).
 
-Native capture evidence and working end-to-end conversion are different things.
-Keep your original board and inspect the conversion report.
+Native capture evidence and working end-to-end conversion are different things. Keep your original board and inspect the conversion report.
 
 ### Native image and rich-text boundary
 
-| Native capture                  | Tested output and limits                                                                                                                                                                                                                                           |
-| ------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Native capture | Tested output and limits |
+| --- | --- |
 | Image with verified mask/shadow | Original PNG resource and Bézier mask preserved in an embedded SVG image. Downward shadow offset/color/opacity retained; blur is approximate. Effects are part of the image asset, not editable effect controls. Other crop/transform variants remain unsupported. |
-| Plain/bold/mixed text           | One editable text element with decoded first-run size/alignment. Original run boundaries, font names, bold/italic and sizes remain in metadata. Mixed styling and exact fonts are not visually preserved; wrapping, padding and color use defaults.                |
+| Plain/bold/mixed text | One editable text element with decoded first-run size/alignment. Original run boundaries, font names, bold/italic and sizes remain in metadata. Mixed styling and exact fonts are not visually preserved; wrapping, padding and color use defaults. |
 
-These paths require the complete capture sidecars, not standalone CRL. They do
-not enable arbitrary version-7 boards. [Issue #14](https://github.com/royalpinto007/boardeject/issues/14)
-records the completed implementation and destination-format limits.
+These paths require the complete capture sidecars, not standalone CRL. They do not enable arbitrary version-7 boards. [Issue #14](https://github.com/royalpinto007/boardeject/issues/14) records the completed implementation and destination-format limits.
 
-| Capability                           | v0.0.3 evidence and boundary                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
-| ------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Editable Excalidraw output           | Browser-tested shape movement, following bound arrows and text editing; demo input is synthetic.                                                                                                                                                                                                                                                                                                                                                                                                |
-| Shapes and text                      | Explicit preset mapping and recovered plain text on supported decoded inputs. Verified single-object plain, mixed and multiline native text remains editable with first-run size/alignment. Native run boundaries, font names, sizes, bold and italic descriptors are retained in metadata. Excalidraw cannot visually render mixed weight/italic runs. [#9](https://github.com/royalpinto007/boardeject/issues/9), [#14](https://github.com/royalpinto007/boardeject/issues/14).               |
-| Connectors                           | Reciprocal output bindings tested. Real captures contain matching object-ID anchors; those version-7 boards remain rejected. [#9](https://github.com/royalpinto007/boardeject/issues/9).                                                                                                                                                                                                                                                                                                        |
-| Groups/transforms                    | Identity-transform membership tested. Real nested scale/rotation captures exist; nonidentity native transform conversion is not supported. [#8](https://github.com/royalpinto007/boardeject/issues/8).                                                                                                                                                                                                                                                                                          |
-| Splines and ink                      | Centerline spline endpoints match 25 Apple PencilKit reference samples. Supported decoded ink produces freedraw output. Genuine Freeform 4.5 macOS evidence identifies Draw with Pen output as `CRLWPShapeItem` vector shapes, with no `com.apple.drawing` or `CRLFreehandDrawingItem`.                                                                                                                                                                                                         |
-| Width/force decoding and mask safety | Apple-generated width/force data decoding has regression coverage. The tested geometric mask is detected and the stroke omitted with a report, rather than incorrectly restoring hidden ink. Output remains a uniform-width approximation.                                                                                                                                                                                                                                                      |
-| Pressure-sensitive / erased ink      | **iPad-originated Apple Pencil pressure and erased-ink round trips remain unverified.** Freeform 4.5 on macOS exposes neither PencilKit ink output nor an eraser in the tested flow. Apple framework fixtures validate decoding, not a Freeform round trip. Follow [#20](https://github.com/royalpinto007/boardeject/issues/20).                                                                                                                                                                |
-| Images/assets                        | Verified single-object native PNG resources retain original pixels and the captured Bézier mask in an editable/movable SVG image asset. Captured shadow offset/color/opacity are retained; blur is calibrated but approximate. Effects are not independent Excalidraw controls. Other resources, crops/transforms and shadow variants remain unsupported. [#14](https://github.com/royalpinto007/boardeject/issues/14).                                                                         |
-| Tables                               | **Verified subset:** editable cell IDs/text, unequal dimensions, insert/delete/reorder, multiline/empty content, font metadata/alignment, solid text/background colors, border visibility/width/color/solid-or-dotted style, multiple tables, and attached text boxes. Outer-only edges and attachment padding are approximated. Freeform 4.5 exposes no table merge or rotation operation; other attachment classes fail safely. [#15](https://github.com/royalpinto007/boardeject/issues/15). |
-| Reporting and privacy                | Unsupported elements/versions reported; no fabricated replacement output. Browser processing, no accounts, board uploads or cloud storage.                                                                                                                                                                                                                                                                                                                                                      |
-| Freeform version compatibility       | Compatible native versions reported by libfreeform use the normal adapter. Genuine Freeform 4.5 captures declare minimum version 7, which is not generally supported. Only verified table and single-object image/text sidecar fallbacks are recovered; other version-7 structures are withheld. Cross-version validation remains [#6](https://github.com/royalpinto007/boardeject/issues/6).                                                                                                   |
-| Local Backup / Archive               | Freeform 4.5 schema version 16 with fingerprint `921b22ba…f433` supports verified board discovery, strict title decoding with UUID fallback, selected-board-only extraction, original image/PDF/video/file preservation, deterministic archives and independent integrity verification. Unknown schemas fail closed. No restore or database-native Excalidraw conversion.                                                                                                                       |
+| Capability | v0.0.3 evidence and boundary |
+| --- | --- |
+| Editable Excalidraw output | Browser-tested shape movement, following bound arrows and text editing; demo input is synthetic. |
+| Shapes and text | Explicit preset mapping and recovered plain text on supported decoded inputs. Verified single-object plain, mixed and multiline native text remains editable with first-run size/alignment. Native run boundaries, font names, sizes, bold and italic descriptors are retained in metadata. Excalidraw cannot visually render mixed weight/italic runs. [#9](https://github.com/royalpinto007/boardeject/issues/9), [#14](https://github.com/royalpinto007/boardeject/issues/14). |
+| Connectors | Reciprocal output bindings tested. Real captures contain matching object-ID anchors; those version-7 boards remain rejected. [#9](https://github.com/royalpinto007/boardeject/issues/9). |
+| Groups/transforms | Identity-transform membership tested. Real nested scale/rotation captures exist; nonidentity native transform conversion is not supported. [#8](https://github.com/royalpinto007/boardeject/issues/8). |
+| Splines and ink | Centerline spline endpoints match 25 Apple PencilKit reference samples. Supported decoded ink produces freedraw output. Genuine Freeform 4.5 macOS evidence identifies Draw with Pen output as `CRLWPShapeItem` vector shapes, with no `com.apple.drawing` or `CRLFreehandDrawingItem`. |
+| Width/force decoding and mask safety | Apple-generated width/force data decoding has regression coverage. The tested geometric mask is detected and the stroke omitted with a report, rather than incorrectly restoring hidden ink. Output remains a uniform-width approximation. |
+| Pressure-sensitive / erased ink | **iPad-originated Apple Pencil pressure and erased-ink round trips remain unverified.** Freeform 4.5 on macOS exposes neither PencilKit ink output nor an eraser in the tested flow. Apple framework fixtures validate decoding, not a Freeform round trip. Follow [#20](https://github.com/royalpinto007/boardeject/issues/20). |
+| Images/assets | Verified single-object native PNG resources retain original pixels and the captured Bézier mask in an editable/movable SVG image asset. Captured shadow offset/color/opacity are retained; blur is calibrated but approximate. Effects are not independent Excalidraw controls. Other resources, crops/transforms and shadow variants remain unsupported. [#14](https://github.com/royalpinto007/boardeject/issues/14). |
+| Tables | **Verified subset:** editable cell IDs/text, unequal dimensions, insert/delete/reorder, multiline/empty content, font metadata/alignment, solid text/background colors, border visibility/width/color/solid-or-dotted style, multiple tables, and attached text boxes. Outer-only edges and attachment padding are approximated. Freeform 4.5 exposes no table merge or rotation operation; other attachment classes fail safely. [#15](https://github.com/royalpinto007/boardeject/issues/15). |
+| Reporting and privacy | Unsupported elements/versions reported; no fabricated replacement output. Browser processing, no accounts, board uploads or cloud storage. |
+| Freeform version compatibility | Compatible native versions reported by libfreeform use the normal adapter. Genuine Freeform 4.5 captures declare minimum version 7, which is not generally supported. Only verified table and single-object image/text sidecar fallbacks are recovered; other version-7 structures are withheld. Cross-version validation remains [#6](https://github.com/royalpinto007/boardeject/issues/6). |
+| Local Backup / Archive | Freeform 4.5 schema version 16 with fingerprint `921b22ba…f433` supports verified board discovery, strict title decoding with UUID fallback, selected-board-only extraction, original image/PDF/video/file preservation, deterministic archives and independent integrity verification. Unknown schemas fail closed. No restore or database-native Excalidraw conversion. |
 
-See [fidelity details](docs/fidelity.md), [native evidence](docs/freeform-capture-experiment.md),
-[privacy](https://boardeject.dev/privacy) and [terms](https://boardeject.dev/terms).
+See [fidelity and native evidence](docs/fidelity.md), [privacy](https://boardeject.dev/privacy) and [terms](https://boardeject.dev/terms).
 
 ## Architecture
 
@@ -190,8 +140,7 @@ npm ci
 npm run dev
 ```
 
-Open http://127.0.0.1:5190 and choose **Try example board**. Open the result in
-Excalidraw, move a card, and edit the text. Download to keep your changes.
+Open http://127.0.0.1:5190 and choose **Try example board**. Open the result in Excalidraw, move a card, and edit the text. Download to keep your changes.
 
 ### Checks
 
@@ -206,43 +155,26 @@ npm run preview
 python3 scripts/browser_check.py
 ```
 
-Browser checks require Python Playwright and Google Chrome. They verify shape
-movement, a following bound arrow, text editing, responsive layout and zero
-external requests during the tested flow.
+Browser checks require Python Playwright and Google Chrome. They verify shape movement, a following bound arrow, text editing, responsive layout and zero external requests during the tested flow.
 
 ## Demo
 
-With the preview server running, use `npm run demo`. FFmpeg and Python Playwright
-are required. To regenerate existing assets:
-`python3 scripts/record_demo.py --replace`.
-The MP4/GIF are real browser recordings, not generated animation. They begin in
-Excalidraw and demonstrate converter output, not the unverified Freeform copy step.
+With the preview server running, use `npm run demo`. FFmpeg and Python Playwright are required. To regenerate existing assets: `python3 scripts/record_demo.py --replace`. The MP4/GIF are real browser recordings, not generated animation. They begin in Excalidraw and demonstrate converter output, not the unverified Freeform copy step.
 
 ## Roadmap
 
-- Extend **Local Freeform Backup / Archive** only when additional Freeform
-  database schemas have genuine native validation. See the
-  [safety boundary](docs/local-archive.md) and stable
-  [archive format](docs/archive-format.md).
-- Add fixture-backed native conversion for labelled shapes, connectors and
-  nonidentity group transforms.
+- Extend **Local Freeform Backup / Archive** only when additional Freeform database schemas have genuine native validation. See the [safety boundary](docs/guide.md) and stable [archive format](docs/archive-format.md).
+- Add fixture-backed native conversion for labelled shapes, connectors and nonidentity group transforms.
 - Validate Freeform clipboard captures across additional macOS versions.
-- Validate iPad-originated Apple Pencil pressure and erasure in
-  [#20](https://github.com/royalpinto007/boardeject/issues/20).
+- Validate iPad-originated Apple Pencil pressure and erasure in [#20](https://github.com/royalpinto007/boardeject/issues/20).
 - Add a one-click native helper onboarding flow.
 
-v0.0.3 freezes the verified scope above, not the remaining fidelity work.
-Contributions and non-sensitive native test captures are welcome.
+v0.0.3 freezes the verified scope above, not the remaining fidelity work. Contributions and non-sensitive native test captures are welcome.
 
-**Creates a local, verifiable archive of your Freeform board and original
-assets. Restore back into Apple Freeform is not supported yet.**
+**Creates a local, verifiable archive of your Freeform board and original assets. Restore back into Apple Freeform is not supported yet.**
 
 ## Contributing and credits
 
-[Help with open issues](https://github.com/royalpinto007/boardeject/issues) ·
-[Buy me a coffee](https://www.buymeacoffee.com/royalpinto007)
+[Help with open issues](https://github.com/royalpinto007/boardeject/issues) · [Buy me a coffee](https://www.buymeacoffee.com/royalpinto007)
 
-Read [CONTRIBUTING.md](CONTRIBUTING.md) and [SECURITY.md](SECURITY.md).
-Built on [libfreeform](https://github.com/can1357/libfreeform) and
-[Excalidraw](https://github.com/excalidraw/excalidraw). BoardEject is independent
-of Apple and Excalidraw. Third-party code and fonts retain their original licenses.
+Read [CONTRIBUTING.md](CONTRIBUTING.md) and [SECURITY.md](SECURITY.md). Built on [libfreeform](https://github.com/can1357/libfreeform) and [Excalidraw](https://github.com/excalidraw/excalidraw). BoardEject is independent of Apple and Excalidraw. Third-party code and fonts retain their original licenses.
