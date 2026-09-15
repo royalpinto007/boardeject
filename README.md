@@ -130,10 +130,10 @@ and links to remaining work.
 
 ### Mac helper status
 
-The downloadable Intel preview, also usable through Rosetta on Apple silicon,
-removes the Node, npm, Git, and Swift toolchain requirements from normal use.
-It remains unsigned and command-line based. A signed universal Mac app with
-browser detection is the next onboarding step.
+The downloadable CI-built preview removes the Node, npm, Git, and Swift
+toolchain requirements from normal use. It remains unsigned and command-line
+based. A signed universal Mac app with browser detection is the next onboarding
+step.
 
 ## Support matrix
 
