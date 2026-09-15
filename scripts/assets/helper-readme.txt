@@ -14,4 +14,4 @@ CLI fallback for developers:
 
 macOS may require file access before Freeform storage can be read. BoardEject copies a stable snapshot and never writes to the live Freeform database. Only the exact verified Freeform 4.5 schema is accepted.
 
-This app is ad-hoc signed but not Apple-notarized. If macOS blocks the first launch, Control-click the app, choose Open, and confirm once.
+This app is ad-hoc signed but not Apple-notarized. On the first launch, double-click it once and dismiss the warning. Open System Settings > Privacy & Security, scroll to Security, click Open Anyway, authenticate, then confirm Open. macOS saves this exception for later launches.

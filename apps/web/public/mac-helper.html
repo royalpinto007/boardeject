@@ -57,6 +57,10 @@
             <span>Local only</span><span>No account</span
             ><span>No uploads</span>
           </div>
+          <p class="unsigned-note">
+            Unnotarized build. macOS asks for one manual approval on first open.
+            <a href="#first-open">See the exact steps</a>
+          </p>
         </div>
         <div class="mac-stage" aria-label="BoardEject helper package preview">
           <div class="mac-window">
@@ -79,6 +83,33 @@
             </div>
           </div>
         </div>
+      </section>
+
+      <section class="gatekeeper-card" id="first-open">
+        <div>
+          <p class="setup-kicker">First open</p>
+          <h2>Approve the unsigned helper once.</h2>
+          <p>
+            BoardEject is ad-hoc signed but not Apple-notarized yet. macOS will
+            block the first launch by design.
+          </p>
+        </div>
+        <ol>
+          <li>Double-click the app once and dismiss the warning.</li>
+          <li>Open System Settings → Privacy &amp; Security.</li>
+          <li>Scroll to Security and click Open Anyway.</li>
+          <li>Authenticate, then confirm Open.</li>
+        </ol>
+        <p>
+          macOS remembers this exception for later launches. Only approve the
+          helper downloaded from this page. These steps follow
+          <a
+            href="https://support.apple.com/guide/mac-help/open-a-mac-app-from-an-unidentified-developer-mh40616/mac"
+            target="_blank"
+            rel="noopener noreferrer"
+            >Apple's Gatekeeper guidance ↗</a
+          >.
+        </p>
       </section>
 
       <section class="helper-install" id="use-helper">

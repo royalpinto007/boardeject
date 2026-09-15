@@ -155,6 +155,8 @@ if __name__ == "__main__":
                 assert download_link.get_attribute("download") is not None
                 intel_link = page.get_by_role("link", name="Intel Mac download")
                 assert intel_link.get_attribute("href") == "/downloads/BoardEject-macOS-x86_64.zip"
+                page.get_by_role("heading", name="Approve the unsigned helper once.").wait_for()
+                assert page.get_by_role("link", name="Apple's Gatekeeper guidance ↗").get_attribute("href").startswith("https://support.apple.com/")
             else:
                 assert page.locator('header a[href="/mac-helper"]').is_visible()
             for width in (360, 1280):

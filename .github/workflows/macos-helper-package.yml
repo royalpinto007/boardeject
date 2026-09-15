@@ -85,3 +85,68 @@ jobs:
           path: BoardEject-macOS-x86_64.zip
           if-no-files-found: error
           retention-days: 30
+
+  gatekeeper:
+    needs: package
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - runner: macos-14
+            artifact: BoardEject-macOS-arm64
+            archive: BoardEject-macOS-arm64.zip
+            architecture: arm64
+          - runner: macos-15-intel
+            artifact: BoardEject-macOS-x86_64
+            archive: BoardEject-macOS-x86_64.zip
+            architecture: x86_64
+          - runner: macos-14
+            artifact: BoardEject-macOS-universal
+            archive: BoardEject-macOS.zip
+            architecture: universal
+    runs-on: ${{ matrix.runner }}
+    steps:
+      - uses: actions/download-artifact@v5
+        with:
+          name: ${{ matrix.artifact }}
+      - name: Validate downloaded unsigned helper and Gatekeeper boundary
+        env:
+          ARCHIVE: ${{ matrix.archive }}
+          EXPECTED_ARCHITECTURE: ${{ matrix.architecture }}
+        run: |
+          set -euo pipefail
+          destination="$RUNNER_TEMP/clean-download"
+          mkdir -p "$destination"
+          ditto -x -k "$ARCHIVE" "$destination"
+          app=$(find "$destination" -type d -name 'BoardEject Helper.app' -print -quit)
+          test -n "$app"
+          executable="$app/Contents/MacOS/BoardEject Helper"
+          test -x "$executable"
+          codesign --verify --deep --strict "$app"
+          if [ "$EXPECTED_ARCHITECTURE" = universal ]; then
+            lipo "$executable" -verify_arch arm64 x86_64
+          else
+            test "$(lipo -archs "$executable")" = "$EXPECTED_ARCHITECTURE"
+            test "$(uname -m)" = "$EXPECTED_ARCHITECTURE"
+          fi
+
+          xattr -w com.apple.quarantine "0083;$(printf '%x' "$(date +%s)");BoardEject;https://boardeject.dev/" "$app"
+          if spctl --assess --type execute --verbose=4 "$app" 2>gatekeeper.txt; then
+            echo "Expected the ad-hoc signed, unnotarized helper to require approval." >&2
+            exit 1
+          fi
+          grep -Eiq 'rejected|not accepted|unnotarized|no usable signature' gatekeeper.txt
+
+          # Hosted runners cannot approve the authenticated System Settings
+          # prompt. Removing this test quarantine marker models the state after
+          # the user completes Apple's documented Open Anyway flow.
+          xattr -dr com.apple.quarantine "$app"
+          open "$app"
+          for attempt in {1..40}; do
+            if curl --fail --silent --header 'Origin: https://boardeject.dev' http://127.0.0.1:48117/v1/status >status.json; then
+              break
+            fi
+            sleep 0.25
+          done
+          grep -F 'boardeject-local-helper' status.json
+          pkill -f 'BoardEject Helper.app/Contents/MacOS' || true

@@ -91,7 +91,7 @@ The matrix below specifies each tested boundary, including the native evidence a
 
 ### Mac helper status
 
-The helper is now a Universal macOS app for Apple silicon and Intel. Open it once and boardeject.dev detects the localhost-only bridge, scans Freeform, creates the selected board archive, and verifies it without terminal commands. The existing CLI remains available as a fallback. The app is not Apple-notarized yet.
+The helper ships as native Apple silicon and Intel downloads, plus a Universal CI artifact. Open it once and boardeject.dev detects the localhost-only bridge, scans Freeform, creates the selected board archive, and verifies it without terminal commands. The existing CLI remains available as a fallback. The app is ad-hoc signed but not Apple-notarized, so the first launch requires the documented [Gatekeeper approval](docs/guide.md#install-the-mac-helper).
 
 ## Support matrix
 

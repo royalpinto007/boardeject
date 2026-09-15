@@ -96,6 +96,15 @@
   margin-right: 6px;
   color: #52754e;
 }
+.unsigned-note {
+  max-width: 500px;
+  margin: 18px 0 0;
+  color: #69766d;
+  font-size: 13px;
+}
+.unsigned-note a {
+  font-weight: 650;
+}
 .mac-stage {
   position: relative;
   padding: 64px;
@@ -213,6 +222,37 @@
   color: #607064;
   font-size: 14px;
 }
+.gatekeeper-card {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 48px;
+  margin: 72px 0 0;
+  padding: 40px;
+  border: 1px solid #d9ddcf;
+  border-radius: 20px;
+  background: #fbfaf6;
+}
+.gatekeeper-card h2 {
+  margin: 10px 0 12px;
+  font-size: 30px;
+}
+.gatekeeper-card p,
+.gatekeeper-card ol {
+  margin-top: 0;
+  color: #607064;
+  font-size: 14px;
+}
+.gatekeeper-card ol {
+  margin-bottom: 0;
+  padding-left: 22px;
+}
+.gatekeeper-card li + li {
+  margin-top: 8px;
+}
+.gatekeeper-card > p {
+  grid-column: 1 / -1;
+  margin-bottom: 0;
+}
 .workflow-shell {
   padding: 94px 0 54px;
 }
@@ -328,6 +368,13 @@
   }
   .helper-boundary {
     grid-template-columns: 1fr;
+  }
+  .gatekeeper-card {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+  .gatekeeper-card > p {
+    grid-column: auto;
   }
   .helper-page .setup-choice {
     grid-template-columns: 1fr;
