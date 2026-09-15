@@ -69,10 +69,19 @@ jobs:
           done
       - uses: actions/upload-artifact@v4
         with:
-          name: BoardEject-macOS
-          path: |
-            BoardEject-macOS.zip
-            BoardEject-macOS-arm64.zip
-            BoardEject-macOS-x86_64.zip
+          name: BoardEject-macOS-universal
+          path: BoardEject-macOS.zip
+          if-no-files-found: error
+          retention-days: 30
+      - uses: actions/upload-artifact@v4
+        with:
+          name: BoardEject-macOS-arm64
+          path: BoardEject-macOS-arm64.zip
+          if-no-files-found: error
+          retention-days: 30
+      - uses: actions/upload-artifact@v4
+        with:
+          name: BoardEject-macOS-x86_64
+          path: BoardEject-macOS-x86_64.zip
           if-no-files-found: error
           retention-days: 30
