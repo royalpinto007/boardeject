@@ -83,6 +83,10 @@ if __name__ == "__main__":
         page.wait_for_timeout(500)
         assert page.locator("#demo video").evaluate("video => video.currentTime > 0 && video.videoWidth > 0 && !video.error")
         page.goto(BASE + "/")
+        clipboard_box = page.get_by_role("button", name="Use copied BoardEject capture").bounding_box()
+        helper_box = page.get_by_role("link", name="Set up the macOS helper").bounding_box()
+        assert clipboard_box and helper_box
+        assert helper_box["y"] >= clipboard_box["y"] + clipboard_box["height"] + 8
         page.get_by_role("link", name="Back up a board").click()
         page.get_by_role("button", name="Scan Freeform").click()
         page.get_by_role("button", name="Untitled 2").click()
