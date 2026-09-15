@@ -31,6 +31,7 @@ def run(name: str, args: list[str], timeout: int = 60) -> subprocess.CompletedPr
         record = {"timeoutSeconds": timeout, "stdout": str(error.stdout or ""), "stderr": str(error.stderr or "")}
         completed = subprocess.CompletedProcess(args, 124, "", "timeout")
     results[name] = record
+    (out / "run-report.json").write_text(json.dumps(results, indent=2, sort_keys=True))
     return completed
 
 
