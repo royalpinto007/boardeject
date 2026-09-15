@@ -134,13 +134,7 @@ export default function CaptureTester() {
             sidecar fallback applies.
           </p>
         </details>
-        <a
-          href="https://github.com/royalpinto007/boardeject/blob/main/docs/clipboard.md"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          How to create a capture ↗
-        </a>
+        <a href="/mac-helper">How to create a capture →</a>
         <section
           className="capture-drop"
           onDragOver={(e) => e.preventDefault()}
@@ -186,7 +180,7 @@ export default function CaptureTester() {
             The ink sample tests editable output. The board sample tests the
             version-7 rejection report. These are upstream parser fixtures; the
             ink sample does not prove Freeform pressure fidelity.{" "}
-            <a href="/samples/NOTICE.md">Source and license</a>.
+            <a href="/samples/source">Source and license</a>.
           </small>
         </aside>
         <p role="status" aria-live="polite">

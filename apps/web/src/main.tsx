@@ -567,20 +567,7 @@ function App() {
               reconstructed into an unverified Excalidraw payload.
             </p>
             <div className="detail-links">
-              <a
-                href="https://github.com/royalpinto007/boardeject#support-matrix"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                Support matrix ↗
-              </a>
-              <a
-                href="https://github.com/royalpinto007/boardeject/blob/main/docs/fidelity.md"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                Fidelity notes ↗
-              </a>
+              <a href="/support">Support and limitations →</a>
               <a
                 href="https://github.com/royalpinto007/boardeject/issues"
                 target="_blank"
