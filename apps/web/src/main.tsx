@@ -354,7 +354,7 @@ function App() {
           aria-labelledby="preview-title"
         >
           <div className="contribute-heading">
-            <span className="preview-badge">Current status · v0.0.2</span>
+            <span className="preview-badge">Current status · v0.0.3</span>
             <h2 id="preview-title">Help build the escape route.</h2>
             <p>
               Try your board. Tell us what needs work. Help make the next one
@@ -456,28 +456,43 @@ function App() {
               Run locally ↗
             </a>
           </p>
-          <details className="support-notes archive-preview">
-            <summary>Local Freeform Archive · experimental</summary>
+          <details className="support-notes archive-preview" open>
+            <summary>Local Freeform Backup / Archive</summary>
             <p>
-              Creates a local, verifiable archive of your Freeform board and
-              original assets. Restore back into Apple Freeform is not supported
-              yet.
+              <strong>Editable Export:</strong> Freeform clipboard → editable
+              Excalidraw.
             </p>
             <p>
-              Genuine Freeform 4.5 validation now covers read-only snapshots,
-              one-board extraction, original image, PDF, video and file bytes,
-              verified board titles, and independent SHA-256 verification. The
-              experimental macOS flow can scan, create and verify an archive.
-              Database-to-Excalidraw conversion remains unavailable because
-              native records are not Freeform clipboard envelopes, so no archive
-              compatibility is advertised yet.
+              <strong>Local Backup / Archive:</strong> Freeform database → a
+              portable <code>.boardejectarchive</code> with the selected board,
+              original referenced assets, metadata, hashes and integrity data.
+            </p>
+            <p>
+              <strong>Scan Freeform</strong> → choose a board →{" "}
+              <strong>Create archive</strong> → save it →{" "}
+              <strong>Verify archive</strong> → review the board name, object
+              and asset counts, files checked, missing or corrupted files, and
+              integrity status.
+            </p>
+            <p>
+              Genuine Freeform 4.5 validation covers read-only snapshots,
+              selected-board-only extraction, original image, PDF, video and
+              file bytes, verified titles, and independent SHA-256 verification.
+              BoardEject never modifies the live Freeform database or uploads
+              archive data. Unknown schemas fail safely.
+            </p>
+            <p>
+              Restore, write-back and iCloud manipulation are not supported.
+              Database-native records are not reconstructed into an unverified
+              clipboard payload, so the current archive path does not include an
+              editable Excalidraw export.
             </p>
             <a
               href="https://github.com/royalpinto007/boardeject/blob/main/docs/local-archive.md"
               target="_blank"
               rel="noopener noreferrer"
             >
-              Read the development status ↗
+              Read the archive guide ↗
             </a>
           </details>
         </section>

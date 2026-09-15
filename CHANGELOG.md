@@ -1,5 +1,20 @@
 # Changelog
 
+## 0.0.3 - 2026-09-15
+
+- Added local Freeform 4.5 board discovery and strict verified title decoding
+  with a safe UUID fallback.
+- Added selected-board-only native extraction without modifying the live
+  Freeform database, WAL or SHM files.
+- Preserved original image, PDF, video and generic file bytes with SHA-256
+  manifests and safe deduplication.
+- Added deterministic `.boardejectarchive` creation and independent integrity
+  verification, including corruption, tampering and unsafe-path detection.
+- Added strict schema fingerprint gating and fail-closed handling for unknown
+  Freeform database versions.
+- Kept restore, write-back, iCloud manipulation and unverified database-native
+  Excalidraw reconstruction explicitly unsupported.
+
 ## 0.0.2 - 2026-09-14
 
 - Added verified native table conversion for unequal dimensions, structural

@@ -58,6 +58,6 @@ Native table behavior is covered by the supported subset. Freeform 4.5 on
 macOS emits Draw with Pen output as vector shapes and exposes no eraser in the
 tested flow. Apple Pencil pressure and erased ink require iPad-originated
 captures and remain unverified in [issue #20](https://github.com/royalpinto007/boardeject/issues/20).
-The production unsupported-version gate is unchanged. v0.0.2 is an early,
+The production unsupported-version gate is unchanged. v0.0.3 is a limited,
 limited-scope release with these boundaries, not a claim of complete native
 fidelity.

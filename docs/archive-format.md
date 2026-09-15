@@ -1,7 +1,7 @@
 # BoardEject archive format
 
-Status: experimental draft for the v0.0.3 milestone. No compatibility claim is
-made until genuine Freeform storage has passed the native validation gates.
+Status: format version 1, supported in BoardEject v0.0.3. Archive creation is
+limited to genuinely verified source schemas and fails closed otherwise.
 
 `*.boardejectarchive` is a ZIP-compatible container. Format version 1 uses a
 canonical JSON manifest and SHA-256 integrity records so verification does not
