@@ -1,5 +1,6 @@
 """Record the website connected to a running local helper and real Freeform data."""
 import argparse
+import shutil
 import subprocess
 import tempfile
 import time
@@ -13,6 +14,12 @@ parser.add_argument("--base-url", default="http://127.0.0.1:4190")
 args = parser.parse_args()
 docs = Path(args.output_dir)
 docs.mkdir(parents=True, exist_ok=True)
+ffmpeg = shutil.which("ffmpeg")
+if not ffmpeg:
+    bundled = sorted((Path.home() / "Library/Caches/ms-playwright").glob("ffmpeg-*/ffmpeg-mac"))
+    if not bundled:
+        raise SystemExit("FFmpeg is required to encode the archive demo.")
+    ffmpeg = str(bundled[-1])
 for name in ("archive-demo.mp4", "archive-demo.gif", "archive-poster.png"):
     if (docs / name).exists() and not args.replace:
         raise SystemExit("Archive demo exists. Use --replace to regenerate.")
@@ -49,12 +56,12 @@ with tempfile.TemporaryDirectory(prefix="boardeject-archive-demo-") as temporary
         context.close()
         browser.close()
     subprocess.run(
-        ["ffmpeg", "-y", "-i", str(path), "-an", "-t", f"{min(duration + 0.6, 15):.3f}", "-c:v", "libx264", "-crf", "20", "-pix_fmt", "yuv420p", "-movflags", "+faststart", str(docs / "archive-demo.mp4")],
+        [ffmpeg, "-y", "-i", str(path), "-an", "-t", f"{min(duration + 0.6, 15):.3f}", "-c:v", "libx264", "-crf", "20", "-pix_fmt", "yuv420p", "-movflags", "+faststart", str(docs / "archive-demo.mp4")],
         check=True,
         capture_output=True,
     )
     subprocess.run(
-        ["ffmpeg", "-y", "-i", str(docs / "archive-demo.mp4"), "-filter_complex", "fps=10,scale=800:-1:flags=lanczos,split[a][b];[a]palettegen=max_colors=96[p];[b][p]paletteuse=dither=bayer:bayer_scale=4", "-loop", "0", str(docs / "archive-demo.gif")],
+        [ffmpeg, "-y", "-i", str(docs / "archive-demo.mp4"), "-filter_complex", "fps=10,scale=800:-1:flags=lanczos,split[a][b];[a]palettegen=max_colors=96[p];[b][p]paletteuse=dither=bayer:bayer_scale=4", "-loop", "0", str(docs / "archive-demo.gif")],
         check=True,
         capture_output=True,
     )

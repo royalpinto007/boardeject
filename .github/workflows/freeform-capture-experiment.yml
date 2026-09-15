@@ -47,6 +47,7 @@ jobs:
           npm ci --ignore-scripts
           python3 -m pip install --break-system-packages playwright
           python3 -m playwright install ffmpeg
+          brew install ffmpeg
       - name: Probe actual Freeform session
         env:
           CAPTURE_OUTPUT: ${{ runner.temp }}/freeform-capture-experiment
