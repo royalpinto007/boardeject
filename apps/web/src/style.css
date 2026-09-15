@@ -945,10 +945,32 @@ a {
   width: 100%;
   text-align: center;
 }
+.result-label {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  min-height: 52px;
+}
 .result-state .result-icon {
   border-radius: 50%;
-  margin-bottom: 13px;
   background: #dbe9d3;
+}
+.result-state .utility-kicker {
+  max-width: 260px;
+  color: #526655;
+  font-size: 13px;
+  line-height: 1.35;
+  text-align: left;
+  overflow-wrap: anywhere;
+}
+.result-state h3 {
+  margin-top: 18px;
+  font-size: clamp(30px, 3vw, 40px);
+  letter-spacing: -0.035em;
+}
+.result-state > p {
+  font-size: 15px;
 }
 .utility-actions {
   display: flex;
@@ -1000,11 +1022,60 @@ a {
   padding: 0;
 }
 .archive-demo-mode .archive-card {
+  position: relative;
+  isolation: isolate;
   display: block;
   min-height: 100vh;
-  padding: 48px 80px;
+  padding: 54px 80px;
   border: 0;
   border-radius: 0;
+  overflow: hidden;
+  background:
+    radial-gradient(
+      circle at 18% 18%,
+      rgba(255, 211, 173, 0.94),
+      transparent 34%
+    ),
+    radial-gradient(
+      circle at 83% 24%,
+      rgba(142, 181, 235, 0.96),
+      transparent 38%
+    ),
+    radial-gradient(
+      circle at 68% 88%,
+      rgba(238, 128, 151, 0.88),
+      transparent 41%
+    ),
+    radial-gradient(
+      circle at 22% 82%,
+      rgba(108, 154, 139, 0.9),
+      transparent 38%
+    ),
+    #d7d8e4;
+}
+.archive-demo-mode .archive-card::before,
+.archive-demo-mode .archive-card::after {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  border-radius: 48% 52% 62% 38%;
+  filter: blur(2px);
+  opacity: 0.78;
+  transform: rotate(-14deg);
+}
+.archive-demo-mode .archive-card::before {
+  width: 720px;
+  height: 520px;
+  left: -180px;
+  bottom: -250px;
+  background: linear-gradient(135deg, #506d89, #91b5ad 58%, #f4c4a4);
+}
+.archive-demo-mode .archive-card::after {
+  width: 680px;
+  height: 500px;
+  right: -170px;
+  top: -250px;
+  background: linear-gradient(145deg, #735c9b, #dda3c1 55%, #f6d4a7);
 }
 .archive-demo-mode .archive-card > .product-card-copy,
 .archive-demo-mode .archive-card > .card-number {
@@ -1014,6 +1085,30 @@ a {
   max-width: 1180px;
   min-height: 760px;
   margin: 0 auto;
+  border-color: rgba(255, 255, 255, 0.68);
+  background: rgba(248, 248, 242, 0.9);
+  box-shadow:
+    0 42px 95px -34px rgba(22, 32, 42, 0.5),
+    0 2px 0 rgba(255, 255, 255, 0.75) inset;
+  backdrop-filter: blur(24px) saturate(1.1);
+}
+.archive-demo-mode .result-label {
+  gap: 18px;
+}
+.archive-demo-mode .result-state .result-icon {
+  width: 58px;
+  height: 58px;
+  font-size: 27px;
+}
+.archive-demo-mode .result-state .utility-kicker {
+  font-size: 16px;
+}
+.archive-demo-mode .result-state h3 {
+  margin-top: 22px;
+  font-size: 42px;
+}
+.archive-demo-mode .result-state > p {
+  font-size: 17px;
 }
 .archive-demo-mode .utility-disclosure::before {
   content: "Freeform → local verified archive  ·  ";

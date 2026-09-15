@@ -39,7 +39,7 @@ with tempfile.TemporaryDirectory(prefix="boardeject-archive-demo-") as temporary
         capture_output=True,
     )
     subprocess.run(
-        ["ffmpeg", "-y", "-i", str(docs / "archive-demo.mp4"), "-filter_complex", "fps=12,scale=960:-1:flags=lanczos,split[a][b];[a]palettegen[p];[b][p]paletteuse", "-loop", "0", str(docs / "archive-demo.gif")],
+        ["ffmpeg", "-y", "-i", str(docs / "archive-demo.mp4"), "-filter_complex", "fps=10,scale=800:-1:flags=lanczos,split[a][b];[a]palettegen=max_colors=96[p];[b][p]paletteuse=dither=bayer:bayer_scale=4", "-loop", "0", str(docs / "archive-demo.gif")],
         check=True,
         capture_output=True,
     )

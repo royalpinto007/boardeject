@@ -111,8 +111,10 @@ function ArchiveDemo() {
       )}
       {step === "created" && (
         <div className="utility-content result-state">
-          <span className="result-icon">✓</span>
-          <span className="utility-kicker">Untitled 2.boardejectarchive</span>
+          <div className="result-label">
+            <span className="result-icon">✓</span>
+            <span className="utility-kicker">Untitled 2.boardejectarchive</span>
+          </div>
           <h3>Backup created</h3>
           <p>10 files · 7 assets · 0 missing</p>
           <div className="utility-actions">
@@ -125,8 +127,10 @@ function ArchiveDemo() {
       )}
       {step === "verified" && (
         <div className="utility-content result-state">
-          <span className="result-icon">✓</span>
-          <span className="utility-kicker">Untitled 2.boardejectarchive</span>
+          <div className="result-label">
+            <span className="result-icon">✓</span>
+            <span className="utility-kicker">Untitled 2.boardejectarchive</span>
+          </div>
           <h3>Archive verified</h3>
           <div className="proof-grid">
             <span>
