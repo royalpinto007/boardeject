@@ -51,9 +51,7 @@ npm run archive:freeform -- verify Board.boardejectarchive
 the selected UUID, preserves its reachable assets, creates the portable archive
 and verifies it before reporting success. The temporary database copy and
 intermediate files are deleted afterward. An existing output file is never
-overwritten. A verified `.excalidraw` file can be included with
-`--excalidraw FILE`; native preservation still succeeds when no editable export
-is available.
+overwritten. Native preservation succeeds without an editable export.
 
 ## Verified experimental evidence
 
@@ -87,16 +85,29 @@ corrupted archive must fail verification. The native database copy remains a
 temporary safety boundary and is never placed in the portable archive because
 it can contain unrelated boards.
 
-Freeform board-title decoding is not verified. The catalogue therefore uses a
-clearly marked fallback name and requires the native UUID for deterministic
-selection. This is not an archive compatibility claim.
+For the exact verified schema, two genuine Freeform board cards and their
+copied database records proved that the visible title is the third text value
+inside the fixed `a`, `b`, title, `c`...`g` sequence of `boards.data` field 6.
+The decoder requires that complete structure. A malformed or unfamiliar value
+does not become a title: the catalogue marks it unverified, uses an
+`Untitled <UUID prefix>` fallback and retains UUID selection.
 
 ## Work still requiring native evidence
 
 - locate Freeform storage reliably across supported macOS versions;
-- prove board-title storage using a genuine rename differential;
 - decode enough selected-board native object content to invoke the existing
   Excalidraw converter without guessing unsupported fields.
+
+The existing editable conversion begins with a Freeform clipboard payload that
+`libfreeform` decodes into the normalized BoardEject model. Genuine schema-v16
+database rows instead contain separate CRDT `common_data` and `specific_data`
+fragments. Passing those fragments to the verified clipboard decoder produces
+no native board, and the database does not retain a proven clipboard envelope
+or selection manifest. Reassembling one would require new inferred mappings and
+could silently associate the wrong objects. The macOS archive flow therefore
+does not offer an Excalidraw export yet. The archive format keeps the export
+optional so a future evidence-backed database adapter can reuse the existing
+normalizer and converter rather than create a second converter.
 
 Freeform 4.5 schema version 16 with the exact fingerprint above is the only
 verified experimental source. It is not advertised as shipped archive

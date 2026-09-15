@@ -107,11 +107,18 @@ and generic-file attachments. The portable archive generated from that evidence
 contains only selected-board native rows and their reachable assets. The full
 database copy is deliberately excluded because it may contain unrelated boards.
 
-Board-title decoding remains unverified, so version 1 records an explicit
-`titleStatus` and may use an `Untitled <UUID prefix>` display fallback. Native
-object-to-Excalidraw conversion from database rows is also incomplete. An
-Excalidraw export is included only when a supported conversion is supplied;
-native archive creation does not depend on it.
+Board-title decoding is verified only for the exact Freeform 4.5 schema gate.
+The strict decoder requires the proven CRDT field structure. Version 1 records
+an explicit `titleStatus` and uses an `Untitled <UUID prefix>` fallback whenever
+that structure is absent or invalid.
+
+Native object-to-Excalidraw conversion from database rows is unavailable. The
+existing converter starts from a decoded Freeform clipboard envelope, while
+the database stores separate CRDT record fragments with no proven clipboard
+selection manifest. These genuine fragments do not decode as a native board
+through the existing parser. BoardEject does not reconstruct or guess that
+envelope. An Excalidraw export remains optional in the format, and native
+archive creation does not depend on it.
 
 **Creates a local, verifiable archive of your Freeform board and original
 assets. Restore back into Apple Freeform is not supported yet.**

@@ -25,7 +25,7 @@ interface Catalog {
 function usage(): never {
   console.error(`Usage:
   npm run archive:freeform -- scan
-  npm run archive:freeform -- create BOARD_UUID OUTPUT.boardejectarchive [--title DISPLAY_TITLE] [--excalidraw FILE]
+  npm run archive:freeform -- create BOARD_UUID OUTPUT.boardejectarchive [--title DISPLAY_TITLE]
   npm run archive:freeform -- verify INPUT.boardejectarchive
 
 The helper reads Freeform only long enough to create a stable private snapshot.
@@ -105,8 +105,7 @@ async function create(args: string[]) {
   if (args.length < 2) usage();
   const [boardId, outputPath] = args;
   const title = option(args.slice(2), "--title");
-  const excalidraw = option(args.slice(2), "--excalidraw");
-  const allowed = new Set(["--title", "--excalidraw"]);
+  const allowed = new Set(["--title"]);
   for (let index = 2; index < args.length; index += 2) {
     if (!allowed.has(args[index]) || !args[index + 1]) usage();
   }
@@ -135,8 +134,12 @@ async function create(args: string[]) {
       resolve(outputPath),
       title ?? board.displayName,
     ];
-    if (excalidraw) command.push(await realpath(excalidraw));
-    const { stdout } = await run(process.execPath, command);
+    const { stdout } = await run(process.execPath, command, {
+      env: {
+        ...process.env,
+        BOARDEJECT_TITLE_STATUS: board.titleStatus,
+      },
+    });
     console.log(stdout.trim());
   });
 }

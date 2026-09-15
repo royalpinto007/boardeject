@@ -54,10 +54,13 @@ async function create(args: string[]) {
   const excalidraw = excalidrawPath
     ? JSON.parse(await readFile(excalidrawPath, "utf8"))
     : undefined;
+  const titleStatus = process.env.BOARDEJECT_TITLE_STATUS ?? "unverified";
+  if (titleStatus !== "verified" && titleStatus !== "unverified")
+    throw new Error("Archive title status is invalid.");
   const bytes = await assembleNativeArchive({
     createdAt: process.env.BOARDEJECT_ARCHIVE_TIME ?? new Date().toISOString(),
     displayTitle: displayTitle || "Untitled board",
-    titleStatus: "unverified",
+    titleStatus,
     nativeRecords,
     assetManifest,
     assetFiles: await assetFiles(assetsDirectory, assetManifest),

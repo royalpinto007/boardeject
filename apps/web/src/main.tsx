@@ -466,9 +466,11 @@ function App() {
             <p>
               Genuine Freeform 4.5 validation now covers read-only snapshots,
               one-board extraction, original image, PDF, video and file bytes,
-              plus independent SHA-256 verification. The user-facing archive
-              flow and database-to-Excalidraw conversion are still in progress,
-              so no archive compatibility is advertised yet.
+              verified board titles, and independent SHA-256 verification. The
+              experimental macOS flow can scan, create and verify an archive.
+              Database-to-Excalidraw conversion remains unavailable because
+              native records are not Freeform clipboard envelopes, so no archive
+              compatibility is advertised yet.
             </p>
             <a
               href="https://github.com/royalpinto007/boardeject/blob/main/docs/local-archive.md"
