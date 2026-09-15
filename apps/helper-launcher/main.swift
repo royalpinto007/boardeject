@@ -28,9 +28,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         guard let executable = Bundle.main.executableURL else {
             throw NSError(domain: "BoardEject", code: 1, userInfo: [NSLocalizedDescriptionKey: "The app bundle is incomplete."])
         }
-        let bridgeURL = executable.deletingLastPathComponent().appendingPathComponent("boardeject-bridge")
+        let bridgeURL = executable.deletingLastPathComponent().appendingPathComponent("boardeject-mac")
         let process = Process()
         process.executableURL = bridgeURL
+        process.arguments = ["bridge"]
         process.standardOutput = FileHandle.nullDevice
         process.standardError = FileHandle.nullDevice
         try process.run()

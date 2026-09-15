@@ -5,11 +5,10 @@ const origin = "https://boardeject.dev";
 const archive = new TextEncoder().encode("verified-local-archive");
 const instances: ReturnType<typeof createBridgeServer>[] = [];
 
-async function start(overrides: Parameters<typeof createBridgeServer>[0] = {}) {
-  const bridge = createBridgeServer({
-    host: "127.0.0.1",
-    port: 0,
-    allowedOrigins: new Set([origin]),
+async function start(
+  overrides: Partial<Parameters<typeof createBridgeServer>[0]> = {},
+) {
+  const defaults: Parameters<typeof createBridgeServer>[0] = {
     scan: vi.fn(async () => ({
       format: "boardeject.freeform-catalog" as const,
       boards: [
@@ -33,6 +32,12 @@ async function start(overrides: Parameters<typeof createBridgeServer>[0] = {}) {
       errors: [],
       warnings: [],
     })),
+  };
+  const bridge = createBridgeServer({
+    ...defaults,
+    host: "127.0.0.1",
+    port: 0,
+    allowedOrigins: new Set([origin]),
     ...overrides,
   });
   await bridge.listen();

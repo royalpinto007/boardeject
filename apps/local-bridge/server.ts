@@ -4,7 +4,7 @@ import {
   type IncomingMessage,
   type ServerResponse,
 } from "node:http";
-import {
+import type {
   createFreeformArchive,
   scanFreeformBoards,
   verifyFreeformArchive,
@@ -27,9 +27,9 @@ export interface BridgeOptions {
   host?: string;
   port?: number;
   allowedOrigins?: ReadonlySet<string>;
-  scan?: typeof scanFreeformBoards;
-  create?: typeof createFreeformArchive;
-  verify?: typeof verifyFreeformArchive;
+  scan: typeof scanFreeformBoards;
+  create: typeof createFreeformArchive;
+  verify: typeof verifyFreeformArchive;
 }
 
 class HttpError extends Error {
@@ -114,13 +114,13 @@ function publicError(error: unknown) {
   return message;
 }
 
-export function createBridgeServer(options: BridgeOptions = {}) {
+export function createBridgeServer(options: BridgeOptions) {
   const host = options.host ?? BRIDGE_HOST;
   const port = options.port ?? BRIDGE_PORT;
   const origins = options.allowedOrigins ?? DEFAULT_ORIGINS;
-  const scan = options.scan ?? scanFreeformBoards;
-  const create = options.create ?? createFreeformArchive;
-  const verify = options.verify ?? verifyFreeformArchive;
+  const scan = options.scan;
+  const create = options.create;
+  const verify = options.verify;
   const token = randomBytes(32).toString("base64url");
 
   const server = createServer(async (request, response) => {
@@ -230,12 +230,4 @@ export function createBridgeServer(options: BridgeOptions = {}) {
       }),
     close: () => new Promise<void>((resolve) => server.close(() => resolve())),
   };
-}
-
-if ((import.meta as ImportMeta & { main?: boolean }).main) {
-  const bridge = createBridgeServer();
-  await bridge.listen();
-  console.log(
-    `BoardEject helper is available at http://${bridge.host}:${bridge.port}`,
-  );
 }

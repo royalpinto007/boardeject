@@ -32,7 +32,7 @@ jobs:
           executables="dist/macos-helper/BoardEject Helper.app/Contents/MacOS"
           test -x "$executables/boardeject-archive-native"
           test -x "$executables/boardeject-capture"
-          "$executables/boardeject-bridge" >/tmp/boardeject-bridge.log 2>&1 &
+          "$executables/boardeject-mac" bridge >/tmp/boardeject-bridge.log 2>&1 &
           bridge_pid=$!
           trap 'kill "$bridge_pid" 2>/dev/null || true' EXIT
           for attempt in {1..20}; do
@@ -53,9 +53,26 @@ jobs:
           done
           codesign --verify --deep --strict "dist/macos-helper/BoardEject Helper.app"
       - run: ditto -c -k --sequesterRsrc --keepParent dist/macos-helper BoardEject-macOS.zip
+      - name: Create architecture-specific web downloads
+        run: |
+          for arch in arm64 x86_64; do
+            destination="dist/macos-helper-$arch"
+            ditto dist/macos-helper "$destination"
+            executables="$destination/BoardEject Helper.app/Contents/MacOS"
+            for executable in "$executables"/*; do
+              lipo "$executable" -thin "$arch" -output "$executable.thin"
+              mv "$executable.thin" "$executable"
+              chmod 755 "$executable"
+            done
+            codesign --force --deep --sign - "$destination/BoardEject Helper.app"
+            ditto -c -k --sequesterRsrc --keepParent "$destination" "BoardEject-macOS-$arch.zip"
+          done
       - uses: actions/upload-artifact@v4
         with:
           name: BoardEject-macOS
-          path: BoardEject-macOS.zip
+          path: |
+            BoardEject-macOS.zip
+            BoardEject-macOS-arm64.zip
+            BoardEject-macOS-x86_64.zip
           if-no-files-found: error
           retention-days: 30

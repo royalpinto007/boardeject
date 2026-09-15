@@ -28,7 +28,6 @@ build_swift_universal apps/archive-helper/main.swift boardeject-archive-native -
 build_swift_universal apps/mac-helper/main.swift boardeject-capture
 build_swift_universal apps/helper-launcher/main.swift "BoardEject Helper" -framework AppKit
 build_bun_universal scripts/archive-freeform.ts boardeject-mac
-build_bun_universal apps/local-bridge/server.ts boardeject-bridge
 cp scripts/assets/mac-helper-Info.plist "$app/Contents/Info.plist"
 cp scripts/assets/helper-readme.txt "$output/README.txt"
 chmod 755 "$executables"/*

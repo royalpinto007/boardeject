@@ -36,6 +36,7 @@ function usage(): never {
   boardeject-mac scan
   boardeject-mac create BOARD_UUID OUTPUT.boardejectarchive [--title DISPLAY_TITLE]
   boardeject-mac verify INPUT.boardejectarchive
+  boardeject-mac bridge
 
 The helper reads Freeform only long enough to create a stable private snapshot.
 All database queries and archive assembly operate on that copy.`);
@@ -231,5 +232,17 @@ if ((import.meta as ImportMeta & { main?: boolean }).main) {
   if (command === "scan" && args.length === 0) await scan();
   else if (command === "create") await create(args);
   else if (command === "verify" && args.length === 1) await verify(args[0]);
-  else usage();
+  else if (command === "bridge" && args.length === 0) {
+    const { createBridgeServer } =
+      await import("../apps/local-bridge/server.ts");
+    const bridge = createBridgeServer({
+      scan: scanFreeformBoards,
+      create: createFreeformArchive,
+      verify: verifyFreeformArchive,
+    });
+    await bridge.listen();
+    console.log(
+      `BoardEject helper is available at http://${bridge.host}:${bridge.port}`,
+    );
+  } else usage();
 }
