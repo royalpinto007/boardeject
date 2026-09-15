@@ -150,7 +150,7 @@ if __name__ == "__main__":
             if path == "/mac-helper":
                 assert page.locator('header a[href="/mac-helper"]').count() == 0
                 assert page.locator(".package-icon").get_attribute("src") == "/favicon.svg"
-                download_link = page.get_by_role("link", name="Download for Apple silicon")
+                download_link = page.get_by_role("link", name="Download for Mac").first
                 assert download_link.get_attribute("href") == "/downloads/BoardEject-macOS.zip"
                 assert download_link.get_attribute("download") is not None
             else:

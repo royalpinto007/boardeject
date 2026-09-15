@@ -193,7 +193,9 @@ async function create(args: string[]) {
   }
   const output = resolve(outputPath);
   if (!output.endsWith(".boardejectarchive"))
-    throw new Error("Archive output must use the .boardejectarchive extension.");
+    throw new Error(
+      "Archive output must use the .boardejectarchive extension.",
+    );
   const outputParent = await realpath(dirname(output));
   if (resolve(outputParent, relative(outputParent, output)) !== output)
     throw new Error("Archive output path is unsafe.");

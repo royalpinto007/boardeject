@@ -31,7 +31,7 @@ BoardEject has two separate local-first workflows:
 Freeform clipboard → editable Excalidraw.
 
 1. Copy your objects in Apple Freeform.
-2. Save a capture with the [macOS helper](docs/guide.md).
+2. Save a capture with the [Mac helper](https://boardeject.dev/mac-helper).
 3. Import it into BoardEject, inspect the report and preview the result.
 4. Download your editable `.excalidraw` file.
 
@@ -39,7 +39,7 @@ Freeform clipboard → editable Excalidraw.
 
 ![Real Freeform 4.5 archive output: scan, select, create, verify, detect corruption](docs/archive-demo.gif)
 
-_12-second product walkthrough using the verified Freeform 4.5 run result. The interface is an interactive replay; creating a backup still uses the macOS helper._
+_The current archive demo shows the verified flow. The next recording will show the website connected to the local Mac helper with genuine Freeform data._
 
 [Watch archive MP4](docs/archive-demo.mp4) · [Setup and usage](docs/guide.md)
 
@@ -91,7 +91,7 @@ The matrix below specifies each tested boundary, including the native evidence a
 
 ### Mac helper status
 
-The downloadable Apple-silicon preview removes the Node, npm, Git, and Swift toolchain requirements from normal use. It remains unsigned and command-line based; Intel Macs use the source build for now. A signed universal Mac app with browser detection is the next onboarding step.
+The helper is now a Universal macOS app for Apple silicon and Intel. Open it once and boardeject.dev detects the localhost-only bridge, scans Freeform, creates the selected board archive, and verifies it without terminal commands. The existing CLI remains available as a fallback. The app is not Apple-notarized yet.
 
 ## Support matrix
 
@@ -167,7 +167,7 @@ With the preview server running, use `npm run demo`. FFmpeg and Python Playwrigh
 - Add fixture-backed native conversion for labelled shapes, connectors and nonidentity group transforms.
 - Validate Freeform clipboard captures across additional macOS versions.
 - Validate iPad-originated Apple Pencil pressure and erasure in [#20](https://github.com/royalpinto007/boardeject/issues/20).
-- Add a one-click native helper onboarding flow.
+- Sign and notarize the Universal Mac helper for a smoother first install.
 
 v0.0.3 freezes the verified scope above, not the remaining fidelity work. Contributions and non-sensitive native test captures are welcome.
 

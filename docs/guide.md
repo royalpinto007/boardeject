@@ -4,9 +4,13 @@ BoardEject has two local workflows: editable export and local backup.
 
 ## Install the Mac helper
 
-Download the Apple-silicon helper from the [v0.0.3 release](https://github.com/royalpinto007/boardeject/releases/download/v0.0.3/BoardEject-macOS.zip) and unzip it.
+Download the Universal helper from [boardeject.dev/mac-helper](https://boardeject.dev/mac-helper) and unzip it.
 
-The downloadable preview needs no Node.js, npm, Git clone, Swift, or Xcode Command Line Tools.
+The app supports Apple silicon and Intel and needs no Node.js, npm, Git clone, Swift, or Xcode Command Line Tools.
+
+Open **BoardEject Helper.app**. It starts a localhost-only bridge, opens boardeject.dev, and stays available from the macOS menu bar. The website then shows **Helper connected** and lets you scan, choose, create, save, and verify without terminal commands.
+
+The bridge listens only on `127.0.0.1`, accepts only approved BoardEject origins, and uses a new in-memory session token each time it starts. All Freeform database, asset, archive, and verification work stays on the Mac.
 
 It is currently unsigned, so macOS may ask you to approve it in Privacy & Security.
 
