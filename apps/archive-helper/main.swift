@@ -49,7 +49,7 @@ private let verifiedSchemaFingerprint = "921b22ba14261263cf75237435f6667dde9620a
 struct BoardSummary: Codable {
     let id: String
     let displayName: String
-    let titleStatus = "unverified"
+    let titleStatus: String
     let modifiedAt: Double?
     let objectCount: Int
     let assetReferenceCount: Int
@@ -227,6 +227,68 @@ func uuidData(_ value: String) throws -> Data {
     return data
 }
 
+func protobufVarint(_ bytes: Data, _ offset: inout Int) -> UInt64? {
+    var value: UInt64 = 0
+    var shift: UInt64 = 0
+    for _ in 0..<10 {
+        guard offset < bytes.count else { return nil }
+        let byte = bytes[offset]
+        offset += 1
+        if shift == 63 && byte > 1 { return nil }
+        value |= UInt64(byte & 0x7f) << shift
+        if byte & 0x80 == 0 { return value }
+        shift += 7
+    }
+    return nil
+}
+
+func protobufFields(_ bytes: Data) -> [(number: UInt64, value: Data)]? {
+    var offset = 0
+    var fields: [(UInt64, Data)] = []
+    while offset < bytes.count {
+        guard let tag = protobufVarint(bytes, &offset), tag != 0 else { return nil }
+        let number = tag >> 3
+        switch tag & 7 {
+        case 0:
+            guard protobufVarint(bytes, &offset) != nil else { return nil }
+        case 1:
+            guard offset + 8 <= bytes.count else { return nil }
+            offset += 8
+        case 2:
+            guard let rawLength = protobufVarint(bytes, &offset),
+                  rawLength <= UInt64(bytes.count - offset) else { return nil }
+            let length = Int(rawLength)
+            fields.append((number, bytes.subdata(in: offset..<(offset + length))))
+            offset += length
+        case 5:
+            guard offset + 4 <= bytes.count else { return nil }
+            offset += 4
+        default: return nil
+        }
+    }
+    return fields
+}
+
+/// Freeform 4.5 schema-v16 evidence places the board title in the sole
+/// top-level field 6 message, between fixed CRDT keys `a`,`b` and `c`...`g`.
+/// Any structural mismatch deliberately returns nil and keeps UUID fallback.
+func verifiedBoardTitle(_ data: Data?) -> String? {
+    guard let data, data.count > 8,
+          data.prefix(4) == Data("crdt".utf8),
+          let outer = protobufFields(data.subdata(in: 8..<data.count)) else { return nil }
+    let containers = outer.filter { $0.number == 6 }
+    guard containers.count == 1,
+          let nested = protobufFields(containers[0].value) else { return nil }
+    let values = nested.filter { $0.number == 2 }.compactMap { String(data: $0.value, encoding: .utf8) }
+    guard values.count == 8,
+          values[0] == "a", values[1] == "b",
+          Array(values[3...7]) == ["c", "d", "e", "f", "g"] else { return nil }
+    let title = values[2].trimmingCharacters(in: .whitespacesAndNewlines)
+    guard !title.isEmpty, title.utf8.count <= 1_000,
+          title.unicodeScalars.allSatisfy({ !CharacterSet.controlCharacters.contains($0) }) else { return nil }
+    return title
+}
+
 func openVerifiedSnapshot<T>(snapshot: URL, body: (OpaquePointer, Int32, String) throws -> T) throws -> T {
     let manager = FileManager.default
     let databaseURL = snapshot.appendingPathComponent("boards.db")
@@ -258,7 +320,7 @@ func catalog(snapshot: URL) throws -> CatalogReport {
         try queryRows(
             database,
             sql: """
-            SELECT b.board_identifier,b.last_activity_time,
+            SELECT b.board_identifier,b.data,b.last_activity_time,
               (SELECT count(*) FROM board_items i
                WHERE i.board_identifier=b.board_identifier AND i.tombstoned=0),
               (SELECT count(*) FROM asset_references a JOIN board_items i
@@ -270,13 +332,23 @@ func catalog(snapshot: URL) throws -> CatalogReport {
             """
         ) { statement in
             let id = try uuidText(statement, 0)
+            let byteCount = Int(sqlite3_column_bytes(statement, 1))
+            let data: Data?
+            if sqlite3_column_type(statement, 1) == SQLITE_BLOB,
+               byteCount > 0, let bytes = sqlite3_column_blob(statement, 1) {
+                data = Data(bytes: bytes, count: byteCount)
+            } else {
+                data = nil
+            }
+            let title = verifiedBoardTitle(data)
             boards.append(BoardSummary(
                 id: id,
-                displayName: "Untitled \(id.prefix(8))",
-                modifiedAt: sqlite3_column_type(statement, 1) == SQLITE_NULL
-                    ? nil : sqlite3_column_double(statement, 1),
-                objectCount: Int(sqlite3_column_int64(statement, 2)),
-                assetReferenceCount: Int(sqlite3_column_int64(statement, 3))
+                displayName: title ?? "Untitled \(id.prefix(8))",
+                titleStatus: title == nil ? "unverified" : "verified",
+                modifiedAt: sqlite3_column_type(statement, 2) == SQLITE_NULL
+                    ? nil : sqlite3_column_double(statement, 2),
+                objectCount: Int(sqlite3_column_int64(statement, 3)),
+                assetReferenceCount: Int(sqlite3_column_int64(statement, 4))
             ))
         }
         return CatalogReport(
@@ -284,7 +356,9 @@ func catalog(snapshot: URL) throws -> CatalogReport {
             schemaFingerprint: fingerprint,
             schemaStatus: "verified",
             boards: boards,
-            warnings: ["Freeform board-title decoding is not yet verified; select boards by native UUID."]
+            warnings: boards.contains(where: { $0.titleStatus == "unverified" })
+                ? ["One or more board titles could not be decoded safely; select boards by native UUID."]
+                : []
         )
     }
 }

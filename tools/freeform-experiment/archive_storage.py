@@ -142,6 +142,16 @@ ui(
 )
 run("return-to-board-browser", [str(pointer), "303", "57", "303", "57", "--click"])
 ui("two-board-browser", 'delay 3\nreturn entire contents of front window')
+visible_titles = ui(
+    "visible-board-titles",
+    'set boardList to list 1 of list 1 of scroll area 2 of splitter group 1 of front window\n'
+    'set boardTitles to {}\n'
+    'repeat with boardCard in buttons of boardList\n'
+    'set end of boardTitles to value of static text 1 of boardCard\n'
+    'end repeat\nreturn boardTitles',
+)
+if visible_titles.returncode != 0:
+    raise SystemExit("Visible Freeform board titles could not be captured for comparison.")
 run("screen", ["screencapture", "-x", str(out / "test-board.png")])
 
 root = Path.home() / "Library" / "Group Containers" / "group.com.apple.freeform"
@@ -178,6 +188,14 @@ catalog_data = json.loads(catalog_result.stdout)
 catalog_boards = catalog_data.get("boards", [])
 if len(catalog_boards) != 2:
     raise SystemExit(f"Expected two non-discardable test boards, found {len(catalog_boards)}.")
+visible_title_set = {
+    title.strip() for title in visible_titles.stdout.strip().split(",") if title.strip()
+}
+decoded_title_set = {str(board.get("displayName", "")) for board in catalog_boards}
+if visible_title_set != decoded_title_set or any(
+    board.get("titleStatus") != "verified" for board in catalog_boards
+):
+    raise SystemExit("Database board titles did not match the genuine visible Freeform titles.")
 # The older board is selected deliberately. The newer board contains a unique
 # sentinel that must never appear in the selected board's native record set.
 selected_board_id = str(catalog_boards[1]["id"])

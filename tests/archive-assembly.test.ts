@@ -141,6 +141,20 @@ describe("native archive assembly", () => {
     });
   });
 
+  it("preserves an evidence-backed native board title status", async () => {
+    const result = await verifyArchive(
+      await assembleNativeArchive({
+        ...base(),
+        displayTitle: "Product planning",
+        titleStatus: "verified",
+      }),
+    );
+    expect(result.manifest?.board).toMatchObject({
+      title: "Product planning",
+      titleStatus: "verified",
+    });
+  });
+
   it("rejects cross-board manifests and identities", async () => {
     await expect(
       assembleNativeArchive({ ...base(), assetManifest: assets(otherId) }),
