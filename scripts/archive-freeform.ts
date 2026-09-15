@@ -18,12 +18,12 @@ import { assembleNativeArchive } from "../packages/archive/assemble.ts";
 const run = promisify(execFile);
 const repository = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 
-interface Catalog {
+export interface Catalog {
   format: "boardeject.freeform-catalog";
   boards: Array<{
     id: string;
     displayName: string;
-    titleStatus: "unverified";
+    titleStatus: "verified" | "unverified";
     modifiedAt?: number;
     objectCount: number;
     assetReferenceCount: number;
@@ -134,21 +134,15 @@ async function withSnapshot<T>(
   }
 }
 
-async function scan() {
-  await withSnapshot(async ({ catalog }) => {
-    console.log(JSON.stringify(catalog, null, 2));
-  });
+export async function scanFreeformBoards() {
+  return withSnapshot(async ({ catalog }) => catalog);
 }
 
-async function create(args: string[]) {
-  if (args.length < 2) usage();
-  const [boardId, outputPath] = args;
-  const title = option(args.slice(2), "--title");
-  const allowed = new Set(["--title"]);
-  for (let index = 2; index < args.length; index += 2) {
-    if (!allowed.has(args[index]) || !args[index + 1]) usage();
-  }
-  await withSnapshot(async ({ executable, destination, paths, catalog }) => {
+export async function createFreeformArchive(
+  boardId: string,
+  title?: string,
+): Promise<Uint8Array> {
+  return withSnapshot(async ({ executable, destination, paths, catalog }) => {
     const board = catalog.boards.find(
       (candidate) => candidate.id.toLowerCase() === boardId.toLowerCase(),
     );
@@ -164,14 +158,6 @@ async function create(args: string[]) {
       await realpath(paths.assets),
       assets,
     ]);
-    const output = resolve(outputPath);
-    if (!output.endsWith(".boardejectarchive"))
-      throw new Error(
-        "Archive output must use the .boardejectarchive extension.",
-      );
-    const outputParent = await realpath(dirname(output));
-    if (resolve(outputParent, relative(outputParent, output)) !== output)
-      throw new Error("Archive output path is unsafe.");
     const nativeRecords = await readFile(records);
     const assetManifest = await readFile(join(assets, "assets.json"));
     const bytes = await assembleNativeArchive({
@@ -183,35 +169,65 @@ async function create(args: string[]) {
       assetManifest,
       assetFiles: await preservedAssetFiles(assets, assetManifest),
     });
-    await writeFile(output, bytes, { flag: "wx" });
     const report = await verifyArchive(bytes);
     if (!report.valid) throw new Error(report.errors.join("; "));
-    console.log(
-      JSON.stringify(
-        {
-          archive: output,
-          boardId: report.manifest?.board.id,
-          filesChecked: report.filesChecked,
-          assetsVerified: report.assetsVerified,
-          missing: report.missing,
-          excalidrawExport:
-            report.manifest?.excalidrawExport.available ?? false,
-        },
-        null,
-        2,
-      ),
-    );
+    return bytes;
   });
 }
 
+export async function verifyFreeformArchive(bytes: Uint8Array) {
+  return verifyArchive(bytes);
+}
+
+async function scan() {
+  console.log(JSON.stringify(await scanFreeformBoards(), null, 2));
+}
+
+async function create(args: string[]) {
+  if (args.length < 2) usage();
+  const [boardId, outputPath] = args;
+  const title = option(args.slice(2), "--title");
+  const allowed = new Set(["--title"]);
+  for (let index = 2; index < args.length; index += 2) {
+    if (!allowed.has(args[index]) || !args[index + 1]) usage();
+  }
+  const output = resolve(outputPath);
+  if (!output.endsWith(".boardejectarchive"))
+    throw new Error("Archive output must use the .boardejectarchive extension.");
+  const outputParent = await realpath(dirname(output));
+  if (resolve(outputParent, relative(outputParent, output)) !== output)
+    throw new Error("Archive output path is unsafe.");
+  const bytes = await createFreeformArchive(boardId, title);
+  await writeFile(output, bytes, { flag: "wx" });
+  const report = await verifyFreeformArchive(bytes);
+  console.log(
+    JSON.stringify(
+      {
+        archive: output,
+        boardId: report.manifest?.board.id,
+        filesChecked: report.filesChecked,
+        assetsVerified: report.assetsVerified,
+        missing: report.missing,
+        excalidrawExport: report.manifest?.excalidrawExport.available ?? false,
+      },
+      null,
+      2,
+    ),
+  );
+}
+
 async function verify(path: string) {
-  const report = await verifyArchive(await readFile(await realpath(path)));
+  const report = await verifyFreeformArchive(
+    await readFile(await realpath(path)),
+  );
   console.log(JSON.stringify(report, null, 2));
   if (!report.valid) process.exitCode = 1;
 }
 
-const [command, ...args] = process.argv.slice(2);
-if (command === "scan" && args.length === 0) await scan();
-else if (command === "create") await create(args);
-else if (command === "verify" && args.length === 1) await verify(args[0]);
-else usage();
+if ((import.meta as ImportMeta & { main?: boolean }).main) {
+  const [command, ...args] = process.argv.slice(2);
+  if (command === "scan" && args.length === 0) await scan();
+  else if (command === "create") await create(args);
+  else if (command === "verify" && args.length === 1) await verify(args[0]);
+  else usage();
+}
