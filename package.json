@@ -20,6 +20,7 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "demo": "python3 scripts/record_demo.py",
+    "demo:archive": "python3 scripts/record_archive_demo.py",
     "fixtures": "node --experimental-strip-types scripts/export-example.ts",
     "archive": "node --experimental-strip-types scripts/archive-cli.ts",
     "archive:freeform": "node --experimental-strip-types scripts/archive-freeform.ts"

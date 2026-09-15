@@ -12,8 +12,8 @@ def open_example(page, base=BASE):
     for link in page.locator('a[href^="https://"]').all():
         assert link.get_attribute("target") == "_blank"
         assert "noopener" in (link.get_attribute("rel") or "")
-    assert page.locator('a[href="#import"]').get_attribute("target") is None
-    page.get_by_role("button", name="Try example board").click()
+    assert page.locator('a[href="#export"]').get_attribute("target") is None
+    page.get_by_role("button", name="Try editable demo").click()
     page.get_by_role("button", name="Open in Excalidraw").click()
     page.wait_for_function("() => typeof window.boardejectSnapshot === 'function'")
     page.wait_for_timeout(600)
@@ -82,10 +82,15 @@ if __name__ == "__main__":
         page.locator("#demo video").evaluate("video => video.play()")
         page.wait_for_timeout(500)
         assert page.locator("#demo video").evaluate("video => video.currentTime > 0 && video.videoWidth > 0 && !video.error")
-        archive_video = page.locator('.archive-preview video')
-        archive_video.evaluate('video => video.play()')
-        page.wait_for_timeout(500)
-        assert archive_video.evaluate('video => video.currentTime > 0 && video.videoWidth > 0 && !video.error')
+        page.goto(BASE + "/")
+        page.get_by_role("link", name="Back up a board").click()
+        page.get_by_role("button", name="Scan Freeform").click()
+        page.get_by_role("button", name="Untitled 2").click()
+        page.get_by_role("button", name="Create local backup").click()
+        page.get_by_role("heading", name="Backup created").wait_for(timeout=3000)
+        page.get_by_role("button", name="Verify now").click()
+        page.get_by_role("heading", name="Archive verified").wait_for()
+        assert "10/10" in page.locator(".proof-grid").inner_text()
         for width in (360, 768, 1280):
             page.set_viewport_size({"width": width, "height": 900})
             assert page.evaluate("document.documentElement.scrollWidth <= innerWidth")

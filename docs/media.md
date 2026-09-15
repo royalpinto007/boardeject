@@ -9,23 +9,22 @@ Freeform clipboard compatibility.
 
 ## Local Freeform Backup / Archive
 
-`archive-demo.mp4` (14 seconds), `archive-demo.gif` and `archive-poster.png`
-present condensed output from [the Freeform 4.5 native run](https://github.com/royalpinto007/boardeject/actions/runs/34925749384).
-The on-screen disclosure identifies this as a replay, with processing time
-compressed and output excerpted. It is not a recording of a browser archive UI.
+`archive-demo.mp4` (12 seconds), `archive-demo.gif` and `archive-poster.png`
+show the product flow using result counts from [the Freeform 4.5 native run](https://github.com/royalpinto007/boardeject/actions/runs/34925749384).
+The on-screen disclosure identifies the browser interaction as a replay. Creating
+the archive still happens through the macOS helper and is not simulated as a
+production browser capability.
 
 The source catalog has two boards. The selected board is `Untitled 2`, with seven
 objects and seven referenced assets. Creation and independent verification
 checked ten files and seven assets with zero missing/corrupted entries.
-The last scene shows the real rejection of a deliberately altered archive.
-The archive and corrupted copy were independently rechecked on Ubuntu when
-preparing this media. Raw databases, archives and run reports are excluded from
-the public media set.
+The archive and a corrupted copy were independently rechecked on Ubuntu when
+preparing the original release evidence. Raw databases, archives and run reports
+are excluded from the public media set.
 
-Shell commands use the documented public interface. `$BOARD_UUID` means the UUID
-chosen from the scan result. Paths are shortened for presentation. Scan output is
-excerpted from the helper catalog used by that command; board selection is by
-UUID, not an interactive picker.
+The public walkthrough replaces the old terminal-heavy recording. It exposes only
+the board name, useful counts, progress, and verification result. UUIDs, hashes,
+and manifests remain in technical documentation and the helper output.
 
 ## Social preview
 

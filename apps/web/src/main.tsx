@@ -1,4 +1,4 @@
-import { lazy, Suspense, useRef, useState } from "react";
+import { lazy, Suspense, useEffect, useRef, useState } from "react";
 import { createRoot } from "react-dom/client";
 import { exampleBoard } from "../../../examples/board";
 import type { Board } from "../../../packages/board-model/index";
@@ -7,6 +7,148 @@ import "./style.css";
 Object.assign(window, { EXCALIDRAW_ASSET_PATH: "/vendor/excalidraw/" });
 const Editor = lazy(() => import("./editor"));
 const CaptureTester = lazy(() => import("./capture-tester"));
+
+type ArchiveStep =
+  "idle" | "boards" | "selected" | "creating" | "created" | "verified";
+
+function ArchiveDemo() {
+  const [step, setStep] = useState<ArchiveStep>("idle");
+  useEffect(() => {
+    if (!new URLSearchParams(location.search).has("archive-demo")) return;
+    document.documentElement.classList.add("archive-demo-mode");
+    const sequence: Array<[number, ArchiveStep]> = [
+      [1200, "boards"],
+      [3000, "selected"],
+      [4200, "creating"],
+      [6500, "created"],
+      [9000, "verified"],
+    ];
+    const timers = sequence.map(([delay, next]) =>
+      window.setTimeout(() => setStep(next), delay),
+    );
+    return () => {
+      document.documentElement.classList.remove("archive-demo-mode");
+      timers.forEach(window.clearTimeout);
+    };
+  }, []);
+  const choose = () => setStep("selected");
+  const create = () => {
+    setStep("creating");
+    window.setTimeout(() => setStep("created"), 1200);
+  };
+  return (
+    <div className="archive-utility" data-step={step}>
+      <div className="utility-topline">
+        <span className="utility-light" /> Local Freeform 4.5 run
+        <span className="utility-local">On this Mac</span>
+      </div>
+      {step === "idle" && (
+        <div className="utility-center">
+          <span className="utility-icon" aria-hidden="true">
+            ⌁
+          </span>
+          <h3>Find your Freeform boards</h3>
+          <p>The helper reads a stable local copy.</p>
+          <button onClick={() => setStep("boards")}>Scan Freeform</button>
+        </div>
+      )}
+      {(step === "boards" || step === "selected") && (
+        <div className="utility-content">
+          <div className="utility-heading">
+            <div>
+              <span className="success-mark">✓</span>
+              <h3>2 boards found</h3>
+            </div>
+            <button className="quiet-action" onClick={() => setStep("boards")}>
+              Scan again
+            </button>
+          </div>
+          <button
+            className={`board-row ${step === "selected" ? "selected" : ""}`}
+            onClick={choose}
+            aria-pressed={step === "selected"}
+          >
+            <span className="board-thumb">
+              <i />
+              <i />
+              <i />
+            </span>
+            <span>
+              <strong>Untitled 2</strong>
+              <small>Modified today · 7 objects · 7 assets</small>
+            </span>
+            <span className="radio-mark">{step === "selected" ? "✓" : ""}</span>
+          </button>
+          <button className="board-row muted" onClick={choose}>
+            <span className="board-thumb">
+              <i />
+              <i />
+            </span>
+            <span>
+              <strong>Untitled 3</strong>
+              <small>Modified today · 3 objects</small>
+            </span>
+            <span className="radio-mark" />
+          </button>
+          <button disabled={step !== "selected"} onClick={create}>
+            Create local backup
+          </button>
+        </div>
+      )}
+      {step === "creating" && (
+        <div className="utility-content">
+          <span className="utility-kicker">Creating Untitled 2</span>
+          <h3>Packaging your board…</h3>
+          <ul className="progress-list">
+            <li className="done">✓ Board data copied</li>
+            <li className="done">✓ Original assets preserved</li>
+            <li className="active">
+              <span /> Creating integrity hashes
+            </li>
+            <li>Archive packaged</li>
+          </ul>
+        </div>
+      )}
+      {step === "created" && (
+        <div className="utility-content result-state">
+          <span className="result-icon">✓</span>
+          <span className="utility-kicker">Untitled 2.boardejectarchive</span>
+          <h3>Backup created</h3>
+          <p>10 files · 7 assets · 0 missing</p>
+          <div className="utility-actions">
+            <button className="secondary" disabled>
+              Save archive ✓
+            </button>
+            <button onClick={() => setStep("verified")}>Verify now</button>
+          </div>
+        </div>
+      )}
+      {step === "verified" && (
+        <div className="utility-content result-state">
+          <span className="result-icon">✓</span>
+          <span className="utility-kicker">Untitled 2.boardejectarchive</span>
+          <h3>Archive verified</h3>
+          <div className="proof-grid">
+            <span>
+              <strong>10/10</strong> files intact
+            </span>
+            <span>
+              <strong>7/7</strong> assets verified
+            </span>
+          </div>
+          <p>No missing or corrupted files.</p>
+          <button className="quiet-action" onClick={() => setStep("idle")}>
+            Start again
+          </button>
+        </div>
+      )}
+      <p className="utility-disclosure">
+        Interactive replay of a verified native run. Use the macOS helper for
+        your boards.
+      </p>
+    </div>
+  );
+}
 
 function App() {
   const [board, setBoard] = useState<Board>();
@@ -106,135 +248,146 @@ function App() {
         </nav>
       </header>
       <main className="landing" id="main-content" tabIndex={-1}>
-        <section className="hero" aria-labelledby="hero-title">
+        <section className="hero product-hero" aria-labelledby="hero-title">
           <div className="hero-copy">
-            <a className="preview-badge" href="#preview-status">
-              <span /> Open source · See current support{" "}
-              <span aria-hidden="true">↗</span>
-            </a>
+            <span className="preview-badge">
+              <span /> Open source · v0.0.3
+            </span>
             <h1 id="hero-title">
-              Your board.
-              <br />
-              <span>Your format.</span>
+              Your Freeform boards, <span>actually yours.</span>
             </h1>
             <p className="intro">
-              Convert Apple Freeform boards into editable Excalidraw files,
-              locally, privately, and without flattening.
+              Keep editing in Excalidraw, or make a verified local backup with
+              the original assets.
             </p>
             <div className="actions hero-actions">
-              <button onClick={example} disabled={busy}>
-                Try example board <span aria-hidden="true">↗</span>
-              </button>
-              <a className="button secondary" href="#import">
-                Import your board <span aria-hidden="true">↓</span>
+              <a className="button" href="#export">
+                Export to Excalidraw <span>↗</span>
+              </a>
+              <a className="button secondary" href="#archive">
+                Back up a board <span>↓</span>
               </a>
             </div>
-            <p className="hero-note">
-              No account. No uploads. Your board stays yours.
-            </p>
-            <p className="hero-note">
-              An editable escape route, not another whiteboard.
-            </p>
+            <p className="hero-note">Runs locally. No account. No uploads.</p>
           </div>
-          <figure className="demo" id="demo">
-            <div className="demo-bar">
-              <span className="demo-dot" />{" "}
-              <span>An editable board, in action</span>
-              <span className="file-tag">.excalidraw</span>
+          <div className="hero-proof" aria-label="BoardEject output choices">
+            <div className="hero-file hero-file-source">
+              <span>Freeform</span>
+              <strong>Project plan</strong>
+              <small>18 objects</small>
             </div>
-            <video
-              controls
-              muted
-              playsInline
-              preload="metadata"
-              poster="/media/demo-poster.png"
-              aria-label="Demo: moving a card, following connectors, and editing text in Excalidraw"
-            >
-              <source src="/media/demo.mp4" type="video/mp4" />
-              <a href="/media/demo.mp4">Watch the board editing demo</a>
-            </video>
-            <figcaption>
-              <strong>Move a card. The arrow follows.</strong>
-              <span>Real app recording · Synthetic example board</span>
-            </figcaption>
-          </figure>
+            <span className="hero-arrow">→</span>
+            <div className="hero-outputs">
+              <div className="hero-file">
+                <span>Editable</span>
+                <strong>.excalidraw</strong>
+                <small>Keep working</small>
+              </div>
+              <div className="hero-file">
+                <span>Verified</span>
+                <strong>.boardejectarchive</strong>
+                <small>Keep the originals</small>
+              </div>
+            </div>
+          </div>
         </section>
-        <p className="flow-label">How it works</p>
-        <div className="flow" aria-label="Conversion workflow">
-          <span>Apple Freeform</span>
-          <span aria-hidden="true">→</span>
-          <span>Copy + macOS helper</span>
-          <span aria-hidden="true">→</span>
-          <strong>BoardEject</strong>
-          <span aria-hidden="true">→</span>
-          <span>Editable Excalidraw</span>
-        </div>
-        <p className="flow-note">
-          Copy your objects, save a capture with the macOS helper, then import
-          and review the result. Supported shapes, text and table cells stay
-          editable. <a href="#preview-status">Check support for your board.</a>
-        </p>
-        <section className="workspace" id="import" aria-label="Import board">
-          <div className="workspace-copy">
-            <h2>
-              A new format. <br />
-              Not a fresh start.
-            </h2>
-            <p>
-              Import your capture. Check the result. Keep creating in
-              Excalidraw.
-            </p>
-            <a
-              target="_blank"
-              rel="noopener noreferrer"
-              href="https://github.com/royalpinto007/boardeject/blob/main/docs/clipboard.md"
-            >
-              Set up the macOS helper ↗
-            </a>
-            <p className="fine">
-              Direct Freeform paste is unavailable in browsers. Copy a
-              BoardEject JSON capture here, or choose the helper’s file.
-            </p>
-          </div>
-          <div className="import">
-            <div className="import-icon" aria-hidden="true">
-              ↥
-            </div>
-            <h3>Import a Freeform capture</h3>
-            <p>Use the file or copied data from the macOS helper.</p>
-            <div className="actions">
-              <button disabled={busy} onClick={clipboard}>
-                Import copied BoardEject capture <span>↗</span>
-              </button>
+
+        <section
+          className="choice-grid"
+          aria-label="Choose a BoardEject workflow"
+        >
+          <article className="product-card" id="export">
+            <span className="card-number">01</span>
+            <div className="product-card-copy">
+              <span className="state-label">Editable Export</span>
+              <h2>Move it. Edit it. Keep going.</h2>
+              <p>Freeform capture → editable Excalidraw.</p>
+              <div className="actions">
+                <button onClick={example} disabled={busy}>
+                  Try editable demo <span>↗</span>
+                </button>
+                <button
+                  className="secondary"
+                  onClick={() => file.current?.click()}
+                  disabled={busy}
+                >
+                  Choose capture
+                </button>
+              </div>
+              <input
+                hidden
+                ref={file}
+                type="file"
+                accept=".boardeject,application/json"
+                onChange={async (event) => {
+                  const selected = event.target.files?.[0];
+                  if (!selected) return;
+                  if (selected.size > 45 * 1024 * 1024)
+                    setStatus("Capture exceeds 45 MiB.");
+                  else parse(await selected.text());
+                  event.target.value = "";
+                }}
+              />
               <button
-                className="secondary"
+                className="text-button clipboard-action"
+                onClick={clipboard}
                 disabled={busy}
-                onClick={() => file.current?.click()}
               >
-                Choose capture file
+                Use copied BoardEject capture
               </button>
+              <p role="status" className="status">
+                {status}
+              </p>
+              <a
+                className="helper-link"
+                target="_blank"
+                rel="noopener noreferrer"
+                href="https://github.com/royalpinto007/boardeject/blob/main/docs/clipboard.md"
+              >
+                Get the small macOS capture helper ↗
+              </a>
             </div>
-            <input
-              hidden
-              ref={file}
-              type="file"
-              accept=".boardeject,application/json"
-              onChange={async (event) => {
-                const selected = event.target.files?.[0];
-                if (!selected) return;
-                if (selected.size > 45 * 1024 * 1024) {
-                  setStatus("Capture exceeds 45 MiB.");
-                  return;
-                }
-                parse(await selected.text());
-                event.target.value = "";
-              }}
-            />
-            <p className="fine">Processed in your browser. Never uploaded.</p>
-            <p role="status" className="status">
-              {status}
-            </p>
-          </div>
+            <figure className="demo compact-demo" id="demo">
+              <video
+                controls
+                muted
+                playsInline
+                preload="metadata"
+                poster="/media/demo-poster.png"
+                aria-label="Demo: moving a card, following connectors, and editing text in Excalidraw"
+              >
+                <source src="/media/demo.mp4" type="video/mp4" />
+              </video>
+              <figcaption>
+                <strong>A shape moves. Its arrow follows.</strong>
+                <span>Actual BoardEject output · Example board</span>
+              </figcaption>
+            </figure>
+          </article>
+
+          <article className="product-card archive-card" id="archive">
+            <span className="card-number">02</span>
+            <div className="product-card-copy">
+              <span className="state-label">Local Backup / Archive</span>
+              <h2>One board. Original files. Verified.</h2>
+              <p>Freeform → local `.boardejectarchive`.</p>
+              <div className="actions">
+                <a
+                  className="button"
+                  href="https://github.com/royalpinto007/boardeject/blob/main/docs/local-archive.md"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  Set up backup on Mac <span>↗</span>
+                </a>
+              </div>
+              <p className="fine">
+                Supports the verified Freeform 4.5 database schema. Restore is
+                not available yet.
+              </p>
+            </div>
+            <ArchiveDemo />
+          </article>
         </section>
         {board && (
           <section
@@ -348,64 +501,45 @@ function App() {
             </details>
           </section>
         )}
+        <section className="trust-strip" aria-label="Privacy guarantees">
+          <div>
+            <span>◎</span>
+            <strong>Stays on your device</strong>
+            <small>No board or archive uploads.</small>
+          </div>
+          <div>
+            <span>◇</span>
+            <strong>Useful output</strong>
+            <small>Edit the export. Verify the backup.</small>
+          </div>
+          <div>
+            <span>↗</span>
+            <strong>Open source</strong>
+            <small>Inspect every conversion and check.</small>
+          </div>
+        </section>
+
         <section
-          className="contribute"
+          className="support-compact"
           id="preview-status"
           aria-labelledby="preview-title"
         >
-          <div className="contribute-heading">
+          <div>
             <span className="preview-badge">Current status · v0.0.3</span>
-            <h2 id="preview-title">Help build the escape route.</h2>
+            <h2 id="preview-title">Honest about the edges.</h2>
             <p>
-              Try your board. Tell us what needs work. Help make the next one
-              better.
+              Supported content stays useful. Anything uncertain appears in the
+              result instead of being silently flattened.
             </p>
           </div>
-          <div className="fidelity-grid">
-            <div>
-              <span className="state-label">Try now</span>
-              <h3>Real editable output</h3>
-              <p>
-                Move shapes. Edit text. Keep supported connectors connected.
-              </p>
-            </div>
-            <div>
-              <span className="state-label">Know the limits</span>
-              <h3>Not every detail transfers</h3>
-              <p>
-                Some formatting is simplified. Unsupported elements are
-                reported. Always keep your original board.
-              </p>
-            </div>
-            <div>
-              <span className="state-label">Join in</span>
-              <h3>Your board helps</h3>
-              <p>
-                Found something broken? Report it or help improve a conversion.
-              </p>
-            </div>
-          </div>
-          <p className="status-boundary">
-            An early release with a verified subset of conversions. Freeform 4.5
-            version-7 boards are not generally supported: only tested tables and
-            single-object image/text captures with complete sidecars are
-            recovered. Keep your original board and review the conversion
-            report.
-          </p>
-          <details className="support-notes">
-            <summary>Known limitations</summary>
+          <details className="technical-details">
+            <summary>View technical details</summary>
             <p>
-              Tested Freeform 4.5 captures include editable tables, colors,
-              borders and attached text. Other version-7 layouts remain limited.
-              Verified image masks are preserved; shadow blur is approximate.
-              Text stays editable, but mixed bold/italic runs are retained as
-              metadata rather than displayed exactly.
-            </p>
-            <p>
-              macOS Draw with Pen exports vector shapes. Decoded ink uses
-              uniform widths; detected masked ink is omitted with a warning.
-              Apple Pencil pressure and erased ink still need iPad-originated
-              validation. See{" "}
+              Editable export supports verified shapes, text, tables, assets,
+              ink and connector subsets. Some styling and geometry are
+              approximated. Freeform 4.5 version-7 boards are supported only
+              through documented fixture-backed paths. Apple Pencil pressure and
+              erased ink still need iPad-originated validation in{" "}
               <a
                 href="https://github.com/royalpinto007/boardeject/issues/20"
                 target="_blank"
@@ -416,101 +550,34 @@ function App() {
               .
             </p>
             <p>
-              Native connectors on version-7 boards and nonidentity native group
-              transforms remain unsupported. Image effects stay attached to the
-              asset, not separate editing controls. Other crop/transform
-              variants are unsupported; some table edges and attachment padding
-              are approximated.
+              Local backup supports the exact verified Freeform 4.5 schema.
+              Unknown schemas fail safely. Restore, write-back and iCloud
+              manipulation are unavailable. Database-native records are not
+              reconstructed into an unverified Excalidraw payload.
             </p>
-          </details>
-          <div className="contribute-links">
-            <a
-              className="button"
-              href="https://github.com/royalpinto007/boardeject/issues"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Find a contributor issue ↗
-            </a>
-            <a
-              target="_blank"
-              rel="noopener noreferrer"
-              href="https://github.com/royalpinto007/boardeject/blob/main/docs/fidelity.md"
-            >
-              Read the support details ↗
-            </a>
-          </div>
-          <p className="support-resources">
-            <a
-              href="https://github.com/royalpinto007/boardeject#support-matrix"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Support matrix ↗
-            </a>
-            <a
-              href="https://github.com/royalpinto007/boardeject#run-locally"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Run locally ↗
-            </a>
-          </p>
-          <details className="support-notes archive-preview" open>
-            <summary>Local Freeform Backup / Archive</summary>
-            <video
-              controls
-              muted
-              playsInline
-              preload="none"
-              poster="/media/archive-poster.png"
-              style={{ width: "100%", height: "auto", borderRadius: 12 }}
-              aria-label="Archive demo: condensed output from a real Freeform 4.5 macOS run"
-            >
-              <source src="/media/archive-demo.mp4" type="video/mp4" />
-              <a href="/media/archive-demo.mp4">Watch the archive demo</a>
-            </video>
-            <p>
-              14-second replay of real native command output. Processing time
-              compressed; output excerpts. Archive creation uses the macOS
-              command-line helper.
-            </p>
-            <p>
-              <strong>Editable Export:</strong> Freeform clipboard → editable
-              Excalidraw.
-            </p>
-            <p>
-              <strong>Local Backup / Archive:</strong> Freeform database → a
-              portable <code>.boardejectarchive</code> with the selected board,
-              original referenced assets, metadata, hashes and integrity data.
-            </p>
-            <p>
-              <strong>Scan Freeform</strong> → choose a board →{" "}
-              <strong>Create archive</strong> → save it →{" "}
-              <strong>Verify archive</strong> → review the board name, object
-              and asset counts, files checked, missing or corrupted files, and
-              integrity status.
-            </p>
-            <p>
-              Genuine Freeform 4.5 validation covers read-only snapshots,
-              selected-board-only extraction, original image, PDF, video and
-              file bytes, verified titles, and independent SHA-256 verification.
-              BoardEject never modifies the live Freeform database or uploads
-              archive data. Unknown schemas fail safely.
-            </p>
-            <p>
-              Restore, write-back and iCloud manipulation are not supported.
-              Database-native records are not reconstructed into an unverified
-              clipboard payload, so the current archive path does not include an
-              editable Excalidraw export.
-            </p>
-            <a
-              href="https://github.com/royalpinto007/boardeject/blob/main/docs/local-archive.md"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Read the archive guide ↗
-            </a>
+            <div className="detail-links">
+              <a
+                href="https://github.com/royalpinto007/boardeject#support-matrix"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Support matrix ↗
+              </a>
+              <a
+                href="https://github.com/royalpinto007/boardeject/blob/main/docs/fidelity.md"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Fidelity notes ↗
+              </a>
+              <a
+                href="https://github.com/royalpinto007/boardeject/issues"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Open issues ↗
+              </a>
+            </div>
           </details>
         </section>
         <footer className="site-footer">
