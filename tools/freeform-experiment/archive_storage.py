@@ -8,6 +8,9 @@ import shutil
 import sqlite3
 import struct
 import subprocess
+import time
+import urllib.error
+import urllib.request
 import zlib
 
 out = Path(os.environ["CAPTURE_OUTPUT"])
@@ -375,6 +378,123 @@ if (
     or flow_report.get("manifest", {}).get("board", {}).get("id") != selected_board_id
 ):
     raise SystemExit("The user-facing archive summary did not match the selected board.")
+
+# Exercise the localhost API used by boardeject.dev against the same genuine
+# Freeform database and selected board. No request leaves this Mac runner.
+bridge_environment = os.environ.copy()
+bridge_environment["BOARDEJECT_FREEFORM_DATABASE"] = str(database)
+bridge_environment["BOARDEJECT_FREEFORM_ASSETS"] = str(assets_root)
+bridge_process = subprocess.Popen(
+    ["node", "--experimental-strip-types", "scripts/archive-freeform.ts", "bridge"],
+    stdout=subprocess.PIPE,
+    stderr=subprocess.PIPE,
+    text=True,
+    env=bridge_environment,
+)
+bridge_origin = "https://boardeject.dev"
+
+
+def bridge_request(path: str, method: str = "GET", data: bytes | None = None, content_type: str | None = None, token: str | None = None) -> tuple[bytes, dict[str, str]]:
+    headers = {"Origin": bridge_origin}
+    if content_type:
+        headers["Content-Type"] = content_type
+    if token:
+        headers["X-BoardEject-Token"] = token
+    request = urllib.request.Request(
+        "http://127.0.0.1:48117/v1" + path,
+        data=data,
+        headers=headers,
+        method=method,
+    )
+    with urllib.request.urlopen(request, timeout=180) as response:
+        return response.read(), {key.lower(): value for key, value in response.headers.items()}
+
+
+try:
+    status_bytes = b""
+    for _ in range(40):
+        try:
+            status_bytes, _ = bridge_request("/status")
+            break
+        except (urllib.error.URLError, ConnectionError):
+            time.sleep(0.25)
+    if not status_bytes:
+        raise SystemExit("The localhost archive bridge did not start.")
+    bridge_status = json.loads(status_bytes)
+    bridge_token = str(bridge_status.get("token") or "")
+    if bridge_status.get("localOnly") is not True or not bridge_token:
+        raise SystemExit("The localhost bridge did not provide a local authenticated session.")
+    scan_bytes, _ = bridge_request("/boards/scan", "POST", b"", token=bridge_token)
+    bridge_catalog = json.loads(scan_bytes)
+    if {board["id"] for board in bridge_catalog.get("boards", [])} != {board["id"] for board in catalog_boards}:
+        raise SystemExit("The localhost bridge scan did not match the genuine Freeform catalog.")
+    create_body = json.dumps({"boardId": selected_board_id, "title": catalog_boards[1]["displayName"]}).encode()
+    bridge_archive, create_headers = bridge_request(
+        "/archives/create", "POST", create_body, "application/json", bridge_token
+    )
+    if "boardejectarchive" not in create_headers.get("content-disposition", ""):
+        raise SystemExit("The localhost bridge did not return a named archive download.")
+    verify_bytes, _ = bridge_request(
+        "/archives/verify",
+        "POST",
+        bridge_archive,
+        "application/vnd.boardeject.archive",
+        bridge_token,
+    )
+    bridge_verify = json.loads(verify_bytes)
+    if not bridge_verify.get("valid") or bridge_verify.get("assetsVerified") != len(preservation.get("assets", [])):
+        raise SystemExit("The localhost bridge archive did not verify with genuine assets.")
+    results["localhost-bridge-flow"] = {
+        "localOnly": True,
+        "boards": len(bridge_catalog.get("boards", [])),
+        "selectedBoardId": selected_board_id,
+        "archiveBytes": len(bridge_archive),
+        "filesChecked": bridge_verify.get("filesChecked"),
+        "assetsVerified": bridge_verify.get("assetsVerified"),
+    }
+    build_result = run("build-website-for-helper-demo", ["npm", "run", "build"], 180)
+    if build_result.returncode != 0:
+        raise SystemExit("The website could not be built for the genuine helper demo.")
+    preview_process = subprocess.Popen(
+        ["npm", "run", "preview", "--", "--strictPort"],
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        text=True,
+    )
+    try:
+        for _ in range(40):
+            try:
+                with urllib.request.urlopen("http://127.0.0.1:4190", timeout=2):
+                    break
+            except urllib.error.URLError:
+                time.sleep(0.25)
+        demo_result = run(
+            "record-genuine-helper-demo",
+            [
+                "python3",
+                "scripts/record_archive_demo.py",
+                "--replace",
+                "--output-dir",
+                str(out / "demo"),
+                "--board-name",
+                str(catalog_boards[1]["displayName"]),
+            ],
+            180,
+        )
+        if demo_result.returncode != 0:
+            raise SystemExit("The genuine website and helper demo could not be recorded.")
+    finally:
+        preview_process.terminate()
+        try:
+            preview_process.wait(timeout=10)
+        except subprocess.TimeoutExpired:
+            preview_process.kill()
+finally:
+    bridge_process.terminate()
+    try:
+        bridge_process.wait(timeout=10)
+    except subprocess.TimeoutExpired:
+        bridge_process.kill()
 
 copied_db = snapshot / "boards.db"
 # `immutable=1` is deliberately not used: it can ignore committed schema and

@@ -129,7 +129,8 @@ with sync_playwright() as p:
     assert not external_responses, external_responses
     # Production CSP can block host-injected analytics and editor font fallbacks.
     # A blocked request event is not a successful external network response.
-    external_attempts = [url for method, url in requests if not url.startswith(base + "/")]
+    expected_local = (base + "/", "http://127.0.0.1:48117/v1/status")
+    external_attempts = [url for method, url in requests if not url.startswith(expected_local)]
     if base.startswith("http://127.0.0.1"):
         assert not external_attempts, external_attempts
     if external_attempts:

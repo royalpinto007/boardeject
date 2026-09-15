@@ -24,22 +24,129 @@ jobs:
       - name: Smoke-check package without repository toolchain
         run: |
           set +e
-          output=$(dist/macos-helper/boardeject-mac 2>&1)
+          output=$("dist/macos-helper/BoardEject Helper.app/Contents/MacOS/boardeject-mac" 2>&1)
           status=$?
           set -e
           test "$status" -eq 2
           grep -F "boardeject-mac scan" <<< "$output"
-          test -x dist/macos-helper/boardeject-archive-native
-          test -x dist/macos-helper/boardeject-capture
+          executables="dist/macos-helper/BoardEject Helper.app/Contents/MacOS"
+          test -x "$executables/boardeject-archive-native"
+          test -x "$executables/boardeject-capture"
+          "$executables/boardeject-mac" bridge >/tmp/boardeject-bridge.log 2>&1 &
+          bridge_pid=$!
+          trap 'kill "$bridge_pid" 2>/dev/null || true' EXIT
+          for attempt in {1..20}; do
+            curl --fail --silent --header 'Origin: https://boardeject.dev' http://127.0.0.1:48117/v1/status > /tmp/status.json && break
+            sleep 0.25
+          done
+          grep -F 'boardeject-local-helper' /tmp/status.json
+          kill "$bridge_pid"
+          wait "$bridge_pid" || true
+          trap - EXIT
       - name: Record packaged architecture
         run: |
           uname -m
-          file dist/macos-helper/boardeject-mac
-          file dist/macos-helper/boardeject-capture
+          executables="dist/macos-helper/BoardEject Helper.app/Contents/MacOS"
+          for executable in "$executables"/*; do
+            file "$executable"
+            lipo "$executable" -verify_arch arm64 x86_64
+          done
+          codesign --verify --deep --strict "dist/macos-helper/BoardEject Helper.app"
       - run: ditto -c -k --sequesterRsrc --keepParent dist/macos-helper BoardEject-macOS.zip
+      - name: Create architecture-specific web downloads
+        run: |
+          for arch in arm64 x86_64; do
+            destination="dist/macos-helper-$arch"
+            ditto dist/macos-helper "$destination"
+            executables="$destination/BoardEject Helper.app/Contents/MacOS"
+            for executable in "$executables"/*; do
+              lipo "$executable" -thin "$arch" -output "$executable.thin"
+              mv "$executable.thin" "$executable"
+              chmod 755 "$executable"
+            done
+            codesign --force --deep --sign - "$destination/BoardEject Helper.app"
+            ditto -c -k --sequesterRsrc --keepParent "$destination" "BoardEject-macOS-$arch.zip"
+          done
       - uses: actions/upload-artifact@v4
         with:
-          name: BoardEject-macOS
+          name: BoardEject-macOS-universal
           path: BoardEject-macOS.zip
           if-no-files-found: error
           retention-days: 30
+      - uses: actions/upload-artifact@v4
+        with:
+          name: BoardEject-macOS-arm64
+          path: BoardEject-macOS-arm64.zip
+          if-no-files-found: error
+          retention-days: 30
+      - uses: actions/upload-artifact@v4
+        with:
+          name: BoardEject-macOS-x86_64
+          path: BoardEject-macOS-x86_64.zip
+          if-no-files-found: error
+          retention-days: 30
+
+  gatekeeper:
+    needs: package
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - runner: macos-14
+            artifact: BoardEject-macOS-arm64
+            archive: BoardEject-macOS-arm64.zip
+            architecture: arm64
+          - runner: macos-15-intel
+            artifact: BoardEject-macOS-x86_64
+            archive: BoardEject-macOS-x86_64.zip
+            architecture: x86_64
+          - runner: macos-14
+            artifact: BoardEject-macOS-universal
+            archive: BoardEject-macOS.zip
+            architecture: universal
+    runs-on: ${{ matrix.runner }}
+    steps:
+      - uses: actions/download-artifact@v5
+        with:
+          name: ${{ matrix.artifact }}
+      - name: Validate downloaded unsigned helper and Gatekeeper boundary
+        env:
+          ARCHIVE: ${{ matrix.archive }}
+          EXPECTED_ARCHITECTURE: ${{ matrix.architecture }}
+        run: |
+          set -euo pipefail
+          destination="$RUNNER_TEMP/clean-download"
+          mkdir -p "$destination"
+          ditto -x -k "$ARCHIVE" "$destination"
+          app=$(find "$destination" -type d -name 'BoardEject Helper.app' -print -quit)
+          test -n "$app"
+          executable="$app/Contents/MacOS/BoardEject Helper"
+          test -x "$executable"
+          codesign --verify --deep --strict "$app"
+          if [ "$EXPECTED_ARCHITECTURE" = universal ]; then
+            lipo "$executable" -verify_arch arm64 x86_64
+          else
+            test "$(lipo -archs "$executable")" = "$EXPECTED_ARCHITECTURE"
+            test "$(uname -m)" = "$EXPECTED_ARCHITECTURE"
+          fi
+
+          xattr -w com.apple.quarantine "0083;$(printf '%x' "$(date +%s)");BoardEject;https://boardeject.dev/" "$app"
+          if spctl --assess --type execute --verbose=4 "$app" 2>gatekeeper.txt; then
+            echo "Expected the ad-hoc signed, unnotarized helper to require approval." >&2
+            exit 1
+          fi
+          grep -Eiq 'rejected|not accepted|unnotarized|no usable signature' gatekeeper.txt
+
+          # Hosted runners cannot approve the authenticated System Settings
+          # prompt. Removing this test quarantine marker models the state after
+          # the user completes Apple's documented Open Anyway flow.
+          xattr -dr com.apple.quarantine "$app"
+          open "$app"
+          for attempt in {1..40}; do
+            if curl --fail --silent --header 'Origin: https://boardeject.dev' http://127.0.0.1:48117/v1/status >status.json; then
+              break
+            fi
+            sleep 0.25
+          done
+          grep -F 'boardeject-local-helper' status.json
+          pkill -f 'BoardEject Helper.app/Contents/MacOS' || true

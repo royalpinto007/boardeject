@@ -4,13 +4,15 @@ BoardEject has two local workflows: editable export and local backup.
 
 ## Install the Mac helper
 
-Download the Apple-silicon helper from the [v0.0.3 release](https://github.com/royalpinto007/boardeject/releases/download/v0.0.3/BoardEject-macOS.zip) and unzip it.
+Download the helper for your Mac from [boardeject.dev/mac-helper](https://boardeject.dev/mac-helper) and unzip it.
 
-The downloadable preview needs no Node.js, npm, Git clone, Swift, or Xcode Command Line Tools.
+The app supports Apple silicon and Intel and needs no Node.js, npm, Git clone, Swift, or Xcode Command Line Tools.
 
-It is currently unsigned, so macOS may ask you to approve it in Privacy & Security.
+Open **BoardEject Helper.app**. It starts a localhost-only bridge, opens boardeject.dev, and stays available from the macOS menu bar. The website then shows **Helper connected** and lets you scan, choose, create, save, and verify without terminal commands.
 
-Intel Macs currently require the source build documented below.
+The bridge listens only on `127.0.0.1`, accepts only approved BoardEject origins, and uses a new in-memory session token each time it starts. All Freeform database, asset, archive, and verification work stays on the Mac.
+
+The helper is ad-hoc signed but not Apple-notarized. On the first launch, double-click it once and dismiss the warning. Open **System Settings → Privacy & Security**, scroll to **Security**, click **Open Anyway**, authenticate, then confirm **Open**. macOS saves that exception for later launches. Follow [Apple's current Gatekeeper guidance](https://support.apple.com/guide/mac-help/open-a-mac-app-from-an-unidentified-developer-mh40616/mac) and approve only the helper downloaded from boardeject.dev.
 
 ## Export to editable Excalidraw
 

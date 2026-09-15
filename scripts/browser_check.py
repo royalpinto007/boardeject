@@ -4,6 +4,26 @@ import os
 from playwright.sync_api import sync_playwright
 
 BASE = os.environ.get("BOARDEJECT_TEST_URL", "http://127.0.0.1:4190").rstrip("/")
+HELPER = "http://127.0.0.1:48117/v1"
+
+
+def mock_helper(route):
+    path = route.request.url.removeprefix(HELPER)
+    headers = {
+        "access-control-allow-origin": BASE,
+        "access-control-expose-headers": "Content-Disposition",
+        "cache-control": "no-store",
+    }
+    if path == "/status":
+        route.fulfill(json={"service": "boardeject-local-helper", "apiVersion": 1, "token": "browser-check-token", "localOnly": True}, headers=headers)
+    elif path == "/boards/scan":
+        route.fulfill(json={"format": "boardeject.freeform-catalog", "boards": [{"id": "11111111-1111-1111-1111-111111111111", "displayName": "Product planning", "titleStatus": "verified", "objectCount": 37, "assetReferenceCount": 8}], "warnings": []}, headers=headers)
+    elif path == "/archives/create":
+        route.fulfill(body=b"local archive", content_type="application/vnd.boardeject.archive", headers={**headers, "content-disposition": 'attachment; filename="Product-planning.boardejectarchive"'})
+    elif path == "/archives/verify":
+        route.fulfill(json={"valid": True, "filesChecked": 10, "assetsVerified": 8, "missing": 0, "corrupted": 0, "errors": [], "warnings": []}, headers=headers)
+    else:
+        route.fulfill(status=404, json={"error": "Not found"}, headers=headers)
 
 
 def open_example(page, base=BASE):
@@ -66,12 +86,13 @@ if __name__ == "__main__":
     with sync_playwright() as playwright:
         browser = playwright.chromium.launch(channel="chrome", headless=True)
         page = browser.new_page(viewport={"width": 1440, "height": 900})
+        page.route(HELPER + "/**", mock_helper)
         errors = []
         remote = []
         remote_responses = []
         page.on("pageerror", lambda error: errors.append(str(error)))
-        page.on("request", lambda request: remote.append(request.url) if not request.url.startswith((BASE, "data:", "blob:")) else None)
-        page.on("response", lambda response: remote_responses.append(response.url) if not response.url.startswith(BASE + "/") else None)
+        page.on("request", lambda request: remote.append(request.url) if not request.url.startswith((BASE, HELPER, "data:", "blob:")) else None)
+        page.on("response", lambda response: remote_responses.append(response.url) if not response.url.startswith((BASE + "/", HELPER)) else None)
         open_example(page)
         prove_editability(page)
         assert not errors, errors
@@ -83,6 +104,7 @@ if __name__ == "__main__":
         page.wait_for_timeout(500)
         assert page.locator("#demo video").evaluate("video => video.currentTime > 0 && video.videoWidth > 0 && !video.error")
         page.goto(BASE + "/")
+        page.get_by_role("heading", name="Helper connected").wait_for()
         assert page.locator('header a[href="/mac-helper"]').is_visible()
         assert page.locator("header .brand img").get_attribute("src") == "/favicon.svg"
         clipboard_box = page.get_by_role("button", name="Use copied BoardEject capture").bounding_box()
@@ -91,12 +113,13 @@ if __name__ == "__main__":
         assert helper_box["y"] >= clipboard_box["y"] + clipboard_box["height"] + 8
         page.get_by_role("link", name="Back up a board").click()
         page.get_by_role("button", name="Scan Freeform").click()
-        page.get_by_role("button", name="Untitled 2").click()
+        page.get_by_role("button", name="Product planning").click()
         page.get_by_role("button", name="Create local backup").click()
         page.get_by_role("heading", name="Backup created").wait_for(timeout=3000)
         page.get_by_role("button", name="Verify now").click()
         page.get_by_role("heading", name="Archive verified").wait_for()
-        assert "10/10" in page.locator(".proof-grid").inner_text()
+        assert "10" in page.locator(".proof-grid").inner_text()
+        assert "8" in page.locator(".proof-grid").inner_text()
         for width in (360, 768, 1280):
             page.set_viewport_size({"width": width, "height": 900})
             assert page.evaluate("document.documentElement.scrollWidth <= innerWidth")
@@ -127,9 +150,13 @@ if __name__ == "__main__":
             if path == "/mac-helper":
                 assert page.locator('header a[href="/mac-helper"]').count() == 0
                 assert page.locator(".package-icon").get_attribute("src") == "/favicon.svg"
-                download_link = page.get_by_role("link", name="Download for Apple silicon")
-                assert download_link.get_attribute("href") == "/downloads/BoardEject-macOS.zip"
+                download_link = page.get_by_role("link", name="Download for Apple silicon").first
+                assert download_link.get_attribute("href") == "/downloads/BoardEject-macOS-arm64.zip"
                 assert download_link.get_attribute("download") is not None
+                intel_link = page.get_by_role("link", name="Intel Mac download")
+                assert intel_link.get_attribute("href") == "/downloads/BoardEject-macOS-x86_64.zip"
+                page.get_by_role("heading", name="Approve the unsigned helper once.").wait_for()
+                assert page.get_by_role("link", name="Apple's Gatekeeper guidance ↗").get_attribute("href").startswith("https://support.apple.com/")
             else:
                 assert page.locator('header a[href="/mac-helper"]').is_visible()
             for width in (360, 1280):
