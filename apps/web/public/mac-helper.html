@@ -36,6 +36,24 @@
         BoardEject needs. Nothing is uploaded.
       </p>
 
+      <section class="setup-install helper-download">
+        <p class="setup-kicker">Recommended · developer preview</p>
+        <h2>Download the ready-built helper</h2>
+        <p>
+          No Node.js, npm, Git clone, or local Swift compilation. Download,
+          unzip, then use the included <code>boardeject-mac</code> command.
+        </p>
+        <a
+          class="setup-button"
+          href="https://github.com/royalpinto007/boardeject/releases/download/v0.0.3/BoardEject-macOS-arm64.zip"
+          >Download for Apple silicon ↓</a
+        >
+        <p class="date">
+          Unsigned preview. macOS may ask you to approve it. A signed app with
+          browser detection is the next onboarding step.
+        </p>
+      </section>
+
       <div class="setup-choice">
         <section>
           <span>Editable export</span>
@@ -45,8 +63,7 @@
             <li>Select everything in Freeform and copy it.</li>
             <li>Save the capture, then choose it on BoardEject.</li>
           </ol>
-          <pre><code>xcrun swiftc apps/mac-helper/main.swift -o /tmp/boardeject-helper
-/tmp/boardeject-helper Board.boardeject</code></pre>
+          <pre><code>./boardeject-capture Board.boardeject</code></pre>
           <a class="setup-button" href="/test-capture">Open capture tester →</a>
         </section>
 
@@ -58,17 +75,17 @@
             <li>Choose a board UUID from the result.</li>
             <li>Create and independently verify the archive.</li>
           </ol>
-          <pre><code>npm run archive:freeform -- scan
-npm run archive:freeform -- create BOARD_UUID Board.boardejectarchive
-npm run archive:freeform -- verify Board.boardejectarchive</code></pre>
+          <pre><code>./boardeject-mac scan
+./boardeject-mac create BOARD_UUID Board.boardejectarchive
+./boardeject-mac verify Board.boardejectarchive</code></pre>
         </section>
       </div>
 
       <section class="setup-install">
-        <h2>Install once</h2>
+        <h2>Build from source</h2>
         <p>
-          BoardEject currently ships as source, so Node 22+, Swift, and Xcode
-          Command Line Tools are required.
+          Developers can still audit and build the helper themselves. This path
+          requires Node 22+, Swift, and Xcode Command Line Tools.
         </p>
         <pre><code>git clone https://github.com/royalpinto007/boardeject.git
 cd boardeject

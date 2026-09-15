@@ -1,0 +1,40 @@
+name: Package macOS helper
+on:
+  workflow_dispatch:
+
+concurrency:
+  group: macos-helper-package-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  package:
+    runs-on: macos-14
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.2.23
+      - run: npm ci --ignore-scripts
+      - run: bash scripts/package-macos-helper.sh
+      - name: Smoke-check package without repository toolchain
+        run: |
+          set +e
+          output=$(dist/macos-helper/boardeject-mac 2>&1)
+          status=$?
+          set -e
+          test "$status" -eq 2
+          grep -F "boardeject-mac scan" <<< "$output"
+          test -x dist/macos-helper/boardeject-archive-native
+          test -x dist/macos-helper/boardeject-capture
+      - run: ditto -c -k --sequesterRsrc --keepParent dist/macos-helper BoardEject-macOS-arm64.zip
+      - uses: actions/upload-artifact@v4
+        with:
+          name: BoardEject-macOS-arm64
+          path: BoardEject-macOS-arm64.zip
+          if-no-files-found: error
+          retention-days: 30

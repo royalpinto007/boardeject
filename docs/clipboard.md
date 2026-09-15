@@ -5,14 +5,16 @@ Freeform's private clipboard types. The helper has been compiled on clean
 GitHub-hosted macOS runners, and the same native pasteboard path has produced
 the genuine Freeform 4.5 fixtures used by the regression suite.
 
-With Xcode Command Line Tools installed:
+Download and unzip the ready-built Apple-silicon package from the
+[Mac helper page](https://boardeject.dev/mac-helper). It needs no Node.js, npm,
+Git clone, Swift, or Xcode Command Line Tools. Then run:
 
 ```sh
-xcrun swiftc apps/mac-helper/main.swift -o /tmp/boardeject-helper
+./boardeject-capture ~/Desktop/selection.boardeject
 ```
 
 1. Select your objects in Apple Freeform, then press Cmd+C.
-2. Run `/tmp/boardeject-helper /tmp/selection.boardeject`.
+2. Run the command above from the unzipped helper directory.
 3. Open [boardeject.dev/test-capture](https://boardeject.dev/test-capture) and
    choose that capture file.
 4. Review unsupported findings before downloading any output.
@@ -28,7 +30,10 @@ it does not bypass this operating-system restriction. File import is the
 recommended helper workflow. Freeform PDF exports are not supported as editable
 input.
 
-## Clean setup
+## Build from source
+
+The downloadable package is the recommended preview. Developers who want to
+audit and compile the helper themselves can:
 
 1. Install Apple's Xcode Command Line Tools with `xcode-select --install` if
    `xcrun swiftc --version` is unavailable.

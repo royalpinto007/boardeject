@@ -1,10 +1,19 @@
 import { execFile } from "node:child_process";
-import { mkdtemp, readFile, realpath, rm } from "node:fs/promises";
+import {
+  lstat,
+  mkdtemp,
+  readFile,
+  realpath,
+  rm,
+  writeFile,
+} from "node:fs/promises";
 import { homedir, tmpdir } from "node:os";
-import { dirname, join, resolve } from "node:path";
+import { dirname, join, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { promisify } from "node:util";
 import { verifyArchive } from "../packages/archive/index.ts";
+import { isSafeArchivePath } from "../packages/archive/index.ts";
+import { assembleNativeArchive } from "../packages/archive/assemble.ts";
 
 const run = promisify(execFile);
 const repository = resolve(dirname(fileURLToPath(import.meta.url)), "..");
@@ -24,9 +33,9 @@ interface Catalog {
 
 function usage(): never {
   console.error(`Usage:
-  npm run archive:freeform -- scan
-  npm run archive:freeform -- create BOARD_UUID OUTPUT.boardejectarchive [--title DISPLAY_TITLE]
-  npm run archive:freeform -- verify INPUT.boardejectarchive
+  boardeject-mac scan
+  boardeject-mac create BOARD_UUID OUTPUT.boardejectarchive [--title DISPLAY_TITLE]
+  boardeject-mac verify INPUT.boardejectarchive
 
 The helper reads Freeform only long enough to create a stable private snapshot.
 All database queries and archive assembly operate on that copy.`);
@@ -58,7 +67,15 @@ function nativePaths() {
 async function helper(work: string) {
   if (process.platform !== "darwin")
     throw new Error("Scanning Freeform requires macOS and Freeform.app.");
-  const output = join(work, "boardeject-archive-helper");
+  const packaged = process.env.BOARDEJECT_ARCHIVE_HELPER;
+  if (packaged) return realpath(packaged);
+  const adjacent = join(dirname(process.execPath), "boardeject-archive-native");
+  try {
+    return await realpath(adjacent);
+  } catch {
+    // Source checkouts compile the helper below. Packaged downloads ship it.
+  }
+  const output = join(work, "boardeject-archive-native");
   await run("swiftc", [
     join(repository, "apps/archive-helper/main.swift"),
     "-lsqlite3",
@@ -66,6 +83,28 @@ async function helper(work: string) {
     output,
   ]);
   return output;
+}
+
+async function preservedAssetFiles(root: string, manifestBytes: Uint8Array) {
+  const parsed = JSON.parse(new TextDecoder().decode(manifestBytes)) as {
+    assets?: { file?: string }[];
+  };
+  const rootReal = await realpath(root);
+  const files: Record<string, Uint8Array> = {};
+  for (const asset of parsed.assets ?? []) {
+    if (!asset.file) continue;
+    if (!isSafeArchivePath(asset.file))
+      throw new Error(`Unsafe preserved asset path: ${asset.file}`);
+    const source = resolve(root, asset.file);
+    const sourceReal = await realpath(source);
+    const within = relative(rootReal, sourceReal);
+    if (within.startsWith("..") || resolve(rootReal, within) !== sourceReal)
+      throw new Error(`Preserved asset escaped its root: ${asset.file}`);
+    if ((await lstat(source)).isSymbolicLink())
+      throw new Error(`Preserved asset cannot be a symlink: ${asset.file}`);
+    files[asset.file] = await readFile(source);
+  }
+  return files;
 }
 
 async function snapshot(work: string) {
@@ -125,22 +164,43 @@ async function create(args: string[]) {
       await realpath(paths.assets),
       assets,
     ]);
-    const command = [
-      "--experimental-strip-types",
-      join(repository, "scripts/archive-cli.ts"),
-      "create",
-      records,
-      assets,
-      resolve(outputPath),
-      title ?? board.displayName,
-    ];
-    const { stdout } = await run(process.execPath, command, {
-      env: {
-        ...process.env,
-        BOARDEJECT_TITLE_STATUS: board.titleStatus,
-      },
+    const output = resolve(outputPath);
+    if (!output.endsWith(".boardejectarchive"))
+      throw new Error(
+        "Archive output must use the .boardejectarchive extension.",
+      );
+    const outputParent = await realpath(dirname(output));
+    if (resolve(outputParent, relative(outputParent, output)) !== output)
+      throw new Error("Archive output path is unsafe.");
+    const nativeRecords = await readFile(records);
+    const assetManifest = await readFile(join(assets, "assets.json"));
+    const bytes = await assembleNativeArchive({
+      createdAt:
+        process.env.BOARDEJECT_ARCHIVE_TIME ?? new Date().toISOString(),
+      displayTitle: title ?? board.displayName,
+      titleStatus: board.titleStatus,
+      nativeRecords,
+      assetManifest,
+      assetFiles: await preservedAssetFiles(assets, assetManifest),
     });
-    console.log(stdout.trim());
+    await writeFile(output, bytes, { flag: "wx" });
+    const report = await verifyArchive(bytes);
+    if (!report.valid) throw new Error(report.errors.join("; "));
+    console.log(
+      JSON.stringify(
+        {
+          archive: output,
+          boardId: report.manifest?.board.id,
+          filesChecked: report.filesChecked,
+          assetsVerified: report.assetsVerified,
+          missing: report.missing,
+          excalidrawExport:
+            report.manifest?.excalidrawExport.available ?? false,
+        },
+        null,
+        2,
+      ),
+    );
   });
 }
 

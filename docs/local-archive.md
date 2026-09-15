@@ -36,15 +36,16 @@ swiftc apps/archive-helper/main.swift -lsqlite3 -o /tmp/boardeject-archive-helpe
 /tmp/boardeject-archive-helper snapshot /path/to/boards.db /path/to/new-snapshot
 ```
 
-The macOS orchestration keeps the flow narrow:
+The downloadable macOS helper keeps the flow narrow without requiring Node,
+npm, Git, or local compilation:
 
 ```sh
 # Scan Freeform through a temporary verified snapshot.
-npm run archive:freeform -- scan
+./boardeject-mac scan
 
 # Choose a UUID from the scan result, then create and verify an archive.
-npm run archive:freeform -- create BOARD_UUID Board.boardejectarchive
-npm run archive:freeform -- verify Board.boardejectarchive
+./boardeject-mac create BOARD_UUID Board.boardejectarchive
+./boardeject-mac verify Board.boardejectarchive
 ```
 
 `create` repeats the stable snapshot, verifies the exact schema, extracts only
