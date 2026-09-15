@@ -452,6 +452,41 @@ try:
         "filesChecked": bridge_verify.get("filesChecked"),
         "assetsVerified": bridge_verify.get("assetsVerified"),
     }
+    build_result = run("build-website-for-helper-demo", ["npm", "run", "build"], 180)
+    if build_result.returncode != 0:
+        raise SystemExit("The website could not be built for the genuine helper demo.")
+    preview_process = subprocess.Popen(
+        ["npm", "run", "preview", "--", "--strictPort"],
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        text=True,
+    )
+    try:
+        for _ in range(40):
+            try:
+                with urllib.request.urlopen("http://127.0.0.1:4190", timeout=2):
+                    break
+            except urllib.error.URLError:
+                time.sleep(0.25)
+        demo_result = run(
+            "record-genuine-helper-demo",
+            [
+                "python3",
+                "scripts/record_archive_demo.py",
+                "--replace",
+                "--output-dir",
+                str(out / "demo"),
+            ],
+            180,
+        )
+        if demo_result.returncode != 0:
+            raise SystemExit("The genuine website and helper demo could not be recorded.")
+    finally:
+        preview_process.terminate()
+        try:
+            preview_process.wait(timeout=10)
+        except subprocess.TimeoutExpired:
+            preview_process.kill()
 finally:
     bridge_process.terminate()
     try:

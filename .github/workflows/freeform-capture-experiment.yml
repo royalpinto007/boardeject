@@ -43,7 +43,9 @@ jobs:
           persist-credentials: false
       - name: Install archive dependencies
         if: inputs.scenario == 'archive-storage'
-        run: npm ci --ignore-scripts
+        run: |
+          npm ci --ignore-scripts
+          python3 -m pip install --break-system-packages playwright
       - name: Probe actual Freeform session
         env:
           CAPTURE_OUTPUT: ${{ runner.temp }}/freeform-capture-experiment
