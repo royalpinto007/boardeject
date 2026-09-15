@@ -43,4 +43,9 @@ describe("public website essentials", () => {
     expect(source).toMatch(/iPad-originated\s+validation/);
     expect(source).not.toContain("issues/13");
   });
+  it("allows the production page to reach only the fixed localhost helper", () => {
+    const headers = readFileSync(asset("_headers"), "utf8");
+    expect(headers).toContain("connect-src 'self' http://127.0.0.1:48117");
+    expect(headers).not.toContain("connect-src *");
+  });
 });
