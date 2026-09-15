@@ -8,6 +8,8 @@ Download the helper for your Mac from [boardeject.dev/mac-helper](https://boarde
 
 The app supports Apple silicon and Intel and needs no Node.js, npm, Git clone, Swift, or Xcode Command Line Tools.
 
+Use the smaller native download for your Mac when possible. A [Universal build](https://downloads.boardeject.dev/BoardEject-macOS-universal.zip) containing both architectures is also available.
+
 Open **BoardEject Helper.app**. It starts a localhost-only bridge, opens boardeject.dev, and stays available from the macOS menu bar. The website then shows **Helper connected** and lets you scan, choose, create, save, and verify without terminal commands.
 
 The bridge listens only on `127.0.0.1`, accepts only approved BoardEject origins, and uses a new in-memory session token each time it starts. All Freeform database, asset, archive, and verification work stays on the Mac.
