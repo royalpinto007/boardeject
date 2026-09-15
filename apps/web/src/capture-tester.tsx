@@ -106,7 +106,8 @@ export default function CaptureTester() {
           <span aria-hidden="true">↗</span> BoardEject
         </a>
         <nav aria-label="Main navigation">
-          <a href="/">Back to BoardEject</a>
+          <a href="/mac-helper">Mac helper</a>
+          <a href="/">Home</a>
           <a
             className="nav-source"
             href="https://github.com/royalpinto007/boardeject"
@@ -121,8 +122,7 @@ export default function CaptureTester() {
         <span className="preview-badge">Experimental / Capture Tester</span>
         <h1>Test your actual capture.</h1>
         <p className="capture-intro">
-          Drop a capture. Check the result. Download your editable board. Your
-          file stays on your device.
+          Turn a capture into editable Excalidraw, right on your device.
         </p>
         <details className="capture-help">
           <summary>Supported files and conversion limits</summary>

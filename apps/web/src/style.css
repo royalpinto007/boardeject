@@ -531,7 +531,7 @@ a {
     font-size: 12px;
   }
   .site-header nav .nav-source {
-    padding: 9px 10px;
+    display: none;
   }
   .landing {
     padding: 0 22px;

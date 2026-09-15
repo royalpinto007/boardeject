@@ -83,6 +83,7 @@ if __name__ == "__main__":
         page.wait_for_timeout(500)
         assert page.locator("#demo video").evaluate("video => video.currentTime > 0 && video.videoWidth > 0 && !video.error")
         page.goto(BASE + "/")
+        assert page.locator('header a[href="/mac-helper"]').is_visible()
         clipboard_box = page.get_by_role("button", name="Use copied BoardEject capture").bounding_box()
         helper_box = page.get_by_role("link", name="Set up the macOS helper").bounding_box()
         assert clipboard_box and helper_box
@@ -100,6 +101,7 @@ if __name__ == "__main__":
             assert page.evaluate("document.documentElement.scrollWidth <= innerWidth")
         page.goto(BASE + "/test-capture")
         page.get_by_role("heading", name="Test your actual capture.").wait_for()
+        assert page.locator('header a[href="/mac-helper"]').is_visible()
         page.set_viewport_size({"width": 360, "height": 900})
         picker = page.locator(".capture-file-button").bounding_box()
         drop = page.locator(".capture-drop").bounding_box()
@@ -119,6 +121,10 @@ if __name__ == "__main__":
             assert response.status == 200
             page.get_by_role("heading", name=heading).wait_for()
             assert page.locator("header .brand").is_visible()
+            if path == "/mac-helper":
+                assert page.locator('header a[href="/mac-helper"]').count() == 0
+            else:
+                assert page.locator('header a[href="/mac-helper"]').is_visible()
             for width in (360, 1280):
                 page.set_viewport_size({"width": width, "height": 900})
                 assert page.evaluate("document.documentElement.scrollWidth <= innerWidth")

@@ -7,36 +7,25 @@
 body {
   margin: 0;
 }
-header,
-main,
-footer {
+main {
   max-width: 740px;
   margin: auto;
   padding: 24px;
 }
-header,
-footer {
-  display: flex;
-  gap: 24px;
-  flex-wrap: wrap;
-}
 header {
-  border-bottom: 1px solid #d7dccc;
+  max-width: 1328px;
+  margin: auto;
+  padding: 24px 40px;
+  display: flex;
   justify-content: space-between;
   align-items: center;
-}
-* {
-  box-sizing: border-box;
-}
-header,
-footer {
-  max-width: 1120px;
+  gap: 24px;
 }
 header nav {
   display: flex;
-  gap: 24px;
+  gap: 32px;
   align-items: center;
-  flex-wrap: wrap;
+  font-size: 13px;
 }
 .brand {
   display: inline-flex;
@@ -46,6 +35,18 @@ header nav {
   font-weight: 750;
   letter-spacing: -1px;
   text-decoration: none;
+}
+header nav a {
+  color: #354d3f;
+  text-decoration: none;
+}
+header nav .nav-source {
+  padding: 11px 16px;
+  border: 1px solid #c6ccbf;
+  border-radius: 6px;
+}
+* {
+  box-sizing: border-box;
 }
 .brand > span {
   display: inline-grid;
@@ -62,11 +63,15 @@ main {
 }
 @media (max-width: 480px) {
   header {
-    gap: 12px;
+    gap: 16px;
+    padding: 20px 22px;
   }
   header nav {
-    font-size: 13px;
-    gap: 16px;
+    gap: 14px;
+    font-size: 12px;
+  }
+  header nav .nav-source {
+    display: none;
   }
   main {
     padding-top: 24px;
@@ -93,10 +98,6 @@ a {
   color: #294d36;
   text-underline-offset: 4px;
 }
-header a,
-footer a {
-  padding: 10px 0;
-}
 a:focus-visible {
   outline: 3px solid #638450;
   outline-offset: 5px;
@@ -105,8 +106,55 @@ a:focus-visible {
   font-size: 13px;
   color: #59675b;
 }
-footer {
-  border-top: 1px solid #d7dccc;
+.site-footer {
+  max-width: 1328px;
+  margin: auto;
+  padding: 48px 40px 24px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 18px;
+  color: #637059;
+  font-size: 12px;
+}
+.site-footer .brand {
+  font-size: 21px;
+}
+.site-footer .brand .footer-arrow {
+  width: auto;
+  height: auto;
+  background: transparent;
+  color: #6f805c;
+  font-size: inherit;
+}
+.site-footer p {
+  margin: 4px 0;
+}
+.footer-links {
+  display: flex;
+  align-items: center;
+  flex-wrap: nowrap;
+  gap: 24px;
+  padding-top: 12px;
+}
+.footer-links a {
+  white-space: nowrap;
+}
+.footer-disclaimer {
+  flex-basis: 100%;
+  padding-top: 25px;
+  font-size: 10px;
+}
+@media (max-width: 699px) {
+  .site-footer {
+    padding: 32px 22px 24px;
+  }
+  .footer-links {
+    display: grid;
+    grid-template-columns: repeat(2, auto);
+    gap: 12px 24px;
+  }
 }
 .setup-kicker {
   margin-bottom: 8px;
