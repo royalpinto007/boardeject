@@ -37,7 +37,7 @@
     "@excalidraw/excalidraw": "0.18.1",
     "fflate": "^0.8.3",
     "libfreeform": "1.0.0",
-    "react": "18.3.1",
+    "react": "19.3.0",
     "react-dom": "18.3.1"
   },
   "devDependencies": {
