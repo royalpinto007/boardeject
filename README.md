@@ -38,6 +38,13 @@ Freeform clipboard → editable Excalidraw.
 
 ### Local Freeform Backup / Archive
 
+![Real Freeform 4.5 archive output: scan, select, create, verify, detect corruption](docs/archive-demo.gif)
+
+_14-second replay of output from the real macOS validation run. Processing time
+is compressed and output excerpted. This is the command-line archive flow._
+
+[Watch archive MP4](docs/archive-demo.mp4) · [Demo evidence](docs/media.md)
+
 Freeform database → portable `.boardejectarchive` containing only the selected
 board's native records, original referenced assets, verified metadata, hashes
 and integrity information.

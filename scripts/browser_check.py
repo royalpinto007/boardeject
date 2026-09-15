@@ -79,9 +79,13 @@ if __name__ == "__main__":
         if BASE.startswith("http://127.0.0.1"):
             assert not remote, remote
         page.get_by_role("button", name="← BoardEject", exact=True).click()
-        page.locator("video").evaluate("video => video.play()")
+        page.locator("#demo video").evaluate("video => video.play()")
         page.wait_for_timeout(500)
-        assert page.locator("video").evaluate("video => video.currentTime > 0 && video.videoWidth > 0 && !video.error")
+        assert page.locator("#demo video").evaluate("video => video.currentTime > 0 && video.videoWidth > 0 && !video.error")
+        archive_video = page.locator('.archive-preview video')
+        archive_video.evaluate('video => video.play()')
+        page.wait_for_timeout(500)
+        assert archive_video.evaluate('video => video.currentTime > 0 && video.videoWidth > 0 && !video.error')
         for width in (360, 768, 1280):
             page.set_viewport_size({"width": width, "height": 900})
             assert page.evaluate("document.documentElement.scrollWidth <= innerWidth")
