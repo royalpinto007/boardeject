@@ -1,6 +1,6 @@
 # Fidelity and evidence
 
-BoardEject v0.0.2 is an early limited-scope release. The README support matrix
+BoardEject v0.0.3 is a limited-scope release. The README support matrix
 distinguishes native evidence from tested converter behavior.
 
 ## What has actually been tested

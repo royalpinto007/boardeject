@@ -1,7 +1,7 @@
 # Local Freeform Archive
 
-Status: experimental development toward the v0.0.3 milestone. This is not a
-shipped compatibility claim.
+Status: supported in v0.0.3 for the exact verified Freeform 4.5 schema described
+below. Unknown schemas and versions fail closed.
 
 BoardEject is adding a second, separate workflow:
 
@@ -36,7 +36,7 @@ swiftc apps/archive-helper/main.swift -lsqlite3 -o /tmp/boardeject-archive-helpe
 /tmp/boardeject-archive-helper snapshot /path/to/boards.db /path/to/new-snapshot
 ```
 
-The experimental macOS orchestration keeps the intended flow narrow:
+The macOS orchestration keeps the flow narrow:
 
 ```sh
 # Scan Freeform through a temporary verified snapshot.
@@ -53,7 +53,7 @@ and verifies it before reporting success. The temporary database copy and
 intermediate files are deleted afterward. An existing output file is never
 overwritten. Native preservation succeeds without an editable export.
 
-## Verified experimental evidence
+## Verified native evidence
 
 A genuine Freeform 4.5 run on macOS produced schema `user_version` 16 with the
 exact fingerprint
@@ -92,7 +92,7 @@ The decoder requires that complete structure. A malformed or unfamiliar value
 does not become a title: the catalogue marks it unverified, uses an
 `Untitled <UUID prefix>` fallback and retains UUID selection.
 
-## Work still requiring native evidence
+## Compatibility boundaries
 
 - locate Freeform storage reliably across supported macOS versions;
 - decode enough selected-board native object content to invoke the existing
@@ -110,8 +110,8 @@ optional so a future evidence-backed database adapter can reuse the existing
 normalizer and converter rather than create a second converter.
 
 Freeform 4.5 schema version 16 with the exact fingerprint above is the only
-verified experimental source. It is not advertised as shipped archive
-compatibility while the end-to-end user flow remains incomplete.
+verified archive source. Other versions and fingerprints fail closed. Malformed
+or unknown board titles safely fall back to `Untitled <UUID prefix>`.
 
 ## Reference research
 
@@ -125,4 +125,4 @@ BoardEject's implementation and archive contract were written independently;
 no source code was copied. If later work reuses licensed code, the required
 Apache notices and change attribution must land with that change.
 
-See [archive format](archive-format.md) for the draft portable contract.
+See [archive format](archive-format.md) for the portable contract.
