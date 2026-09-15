@@ -98,3 +98,70 @@ a:focus-visible {
 footer {
   border-top: 1px solid #d7dccc;
 }
+.setup-kicker {
+  margin-bottom: 8px;
+  color: #638052;
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+.setup-intro {
+  max-width: 680px;
+  color: #526158;
+  font-size: 19px;
+  line-height: 1.6;
+}
+.setup-choice {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+  margin: 42px 0;
+}
+.setup-choice section,
+.setup-install {
+  min-width: 0;
+  padding: 25px;
+  border: 1px solid #d7dccc;
+  border-radius: 18px;
+  background: #fbfaf6;
+}
+.setup-choice section > span {
+  color: #638052;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.setup-choice h2 {
+  margin: 10px 0 18px;
+  font-size: 25px;
+}
+pre {
+  max-width: 100%;
+  padding: 15px;
+  overflow-x: auto;
+  border-radius: 10px;
+  background: #26392f;
+  color: #eef2e8;
+  font-size: 12px;
+  line-height: 1.65;
+}
+.setup-button {
+  display: inline-block;
+  margin-top: 8px;
+  padding: 11px 15px;
+  border-radius: 8px;
+  background: #294d36;
+  color: white;
+  text-decoration: none;
+}
+@media (max-width: 700px) {
+  .setup-choice {
+    grid-template-columns: 1fr;
+  }
+  .setup-choice section,
+  .setup-install {
+    padding: 20px;
+  }
+}
