@@ -96,14 +96,22 @@ structural fingerprint. Unknown schemas fail closed.
 
 ## Current validation boundary
 
-The writer and independent verifier have synthetic regression coverage for
-determinism, hashes, duplicate and missing assets, corruption, tampering, unsafe
-paths, optional exports and large byte payloads. The macOS helper has a CI gate
-for byte-stable DB/WAL/SHM copying without source changes.
+The writer and independent verifier have regression coverage for determinism,
+hashes, duplicate and missing assets, corruption, tampering, unsafe paths,
+optional exports and large byte payloads. The macOS helper has a CI gate for
+byte-stable DB/WAL/SHM copying without source changes.
 
-Board discovery, genuine Freeform schema selection, board-scoped native data
-extraction and original asset resolution still require genuine Freeform storage
-evidence. They are not claimed as supported yet.
+Genuine Freeform 4.5 evidence now covers schema selection, two-board catalogue
+and UUID-scoped extraction, plus original-byte resolution for image, PDF, video
+and generic-file attachments. The portable archive generated from that evidence
+contains only selected-board native rows and their reachable assets. The full
+database copy is deliberately excluded because it may contain unrelated boards.
+
+Board-title decoding remains unverified, so version 1 records an explicit
+`titleStatus` and may use an `Untitled <UUID prefix>` display fallback. Native
+object-to-Excalidraw conversion from database rows is also incomplete. An
+Excalidraw export is included only when a supported conversion is supplied;
+native archive creation does not depend on it.
 
 **Creates a local, verifiable archive of your Freeform board and original
 assets. Restore back into Apple Freeform is not supported yet.**
