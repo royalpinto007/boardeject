@@ -740,6 +740,19 @@ a {
   margin-top: 8px;
   font-size: 12px;
 }
+.workflow-note {
+  max-width: 470px;
+  margin-top: 18px;
+  padding: 13px 15px;
+  border-left: 3px solid #6f8c62;
+  background: rgba(255, 255, 255, 0.52);
+  color: #526154 !important;
+  font-size: 13px !important;
+  line-height: 1.55;
+}
+.workflow-note strong {
+  color: #294535;
+}
 .compact-demo {
   transform: rotate(-0.7deg);
 }

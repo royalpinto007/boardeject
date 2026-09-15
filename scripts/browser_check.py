@@ -13,7 +13,7 @@ def open_example(page, base=BASE):
         assert link.get_attribute("target") == "_blank"
         assert "noopener" in (link.get_attribute("rel") or "")
     assert page.locator('a[href="#export"]').get_attribute("target") is None
-    page.get_by_role("button", name="Try editable demo").click()
+    page.get_by_role("button", name="Try browser demo").click()
     page.get_by_role("button", name="Open in Excalidraw").click()
     page.wait_for_function("() => typeof window.boardejectSnapshot === 'function'")
     page.wait_for_timeout(600)
@@ -94,7 +94,11 @@ if __name__ == "__main__":
         for width in (360, 768, 1280):
             page.set_viewport_size({"width": width, "height": 900})
             assert page.evaluate("document.documentElement.scrollWidth <= innerWidth")
-        for path, heading in (("/privacy", "Privacy"), ("/terms", "Terms of use")):
+        for path, heading in (
+            ("/privacy", "Privacy"),
+            ("/terms", "Terms of use"),
+            ("/mac-helper", "Use BoardEject with your own Freeform boards"),
+        ):
             response = page.goto(BASE + path)
             assert response.status == 200
             page.get_by_role("heading", name=heading).wait_for()

@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Set up the Mac helper | BoardEject</title>
+    <meta
+      name="description"
+      content="Use BoardEject with your own Apple Freeform boards through its local macOS helper."
+    />
+    <link rel="canonical" href="https://boardeject.dev/mac-helper" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="/legal.css" />
+  </head>
+  <body>
+    <header>
+      <a class="brand" href="/"
+        ><img src="/favicon.svg" width="34" height="34" alt="" />BoardEject</a
+      >
+      <nav>
+        <a href="/test-capture">Capture tester</a>
+        <a
+          href="https://github.com/royalpinto007/boardeject"
+          target="_blank"
+          rel="noopener noreferrer"
+          >Source ↗</a
+        >
+      </nav>
+    </header>
+    <main>
+      <p class="setup-kicker">macOS setup</p>
+      <h1>Use BoardEject with your own Freeform boards</h1>
+      <p class="setup-intro">
+        The website cannot directly read Freeform's private clipboard formats or
+        local database. The open-source Mac helper creates the local file that
+        BoardEject needs. Nothing is uploaded.
+      </p>
+
+      <div class="setup-choice">
+        <section>
+          <span>Editable export</span>
+          <h2>Copy a board into Excalidraw</h2>
+          <ol>
+            <li>Run the capture helper on your Mac.</li>
+            <li>Select everything in Freeform and copy it.</li>
+            <li>Save the capture, then choose it on BoardEject.</li>
+          </ol>
+          <pre><code>xcrun swiftc apps/mac-helper/main.swift -o /tmp/boardeject-helper
+/tmp/boardeject-helper Board.boardeject</code></pre>
+          <a class="setup-button" href="/test-capture">Open capture tester →</a>
+        </section>
+
+        <section>
+          <span>Local backup</span>
+          <h2>Back up one Freeform board</h2>
+          <ol>
+            <li>Scan the verified local Freeform database.</li>
+            <li>Choose a board UUID from the result.</li>
+            <li>Create and independently verify the archive.</li>
+          </ol>
+          <pre><code>npm run archive:freeform -- scan
+npm run archive:freeform -- create BOARD_UUID Board.boardejectarchive
+npm run archive:freeform -- verify Board.boardejectarchive</code></pre>
+        </section>
+      </div>
+
+      <section class="setup-install">
+        <h2>Install once</h2>
+        <p>
+          BoardEject currently ships as source, so Node 22+, Swift, and Xcode
+          Command Line Tools are required.
+        </p>
+        <pre><code>git clone https://github.com/royalpinto007/boardeject.git
+cd boardeject
+npm ci</code></pre>
+        <p>
+          Archive compatibility is currently verified only for the documented
+          Freeform 4.5 schema. Unknown versions stop safely. Restore into
+          Freeform is not supported.
+        </p>
+        <a
+          href="https://github.com/royalpinto007/boardeject/blob/main/docs/local-archive.md"
+          target="_blank"
+          rel="noopener noreferrer"
+          >Read the technical archive guide ↗</a
+        >
+      </section>
+    </main>
+    <footer>
+      <a href="/">Back to BoardEject</a><a href="/privacy">Privacy</a
+      ><a href="/terms">Terms</a>
+    </footer>
+  </body>
+</html>

@@ -39,8 +39,8 @@ function ArchiveDemo() {
   return (
     <div className="archive-utility" data-step={step}>
       <div className="utility-topline">
-        <span className="utility-light" /> Local Freeform 4.5 run
-        <span className="utility-local">On this Mac</span>
+        <span className="utility-light" /> Demo · verified Freeform 4.5 result
+        <span className="utility-local">Replay</span>
       </div>
       {step === "idle" && (
         <div className="utility-center">
@@ -147,8 +147,7 @@ function ArchiveDemo() {
         </div>
       )}
       <p className="utility-disclosure">
-        Interactive replay of a verified native run. Use the macOS helper for
-        your boards.
+        Demo only. Install the macOS helper to back up your own boards.
       </p>
     </div>
   );
@@ -162,9 +161,7 @@ function App() {
   const file = useRef<HTMLInputElement>(null);
   function example() {
     setBoard(exampleBoard);
-    setStatus(
-      "Synthetic example loaded. This demonstrates editable output, not a captured Freeform board.",
-    );
+    setStatus("Demo loaded. Move a shape or edit text to see the result.");
     window.setTimeout(
       () =>
         document.getElementById("result")?.scrollIntoView({ block: "center" }),
@@ -306,9 +303,13 @@ function App() {
               <span className="state-label">Editable Export</span>
               <h2>Move it. Edit it. Keep going.</h2>
               <p>Freeform capture → editable Excalidraw.</p>
+              <p className="workflow-note">
+                <strong>Using your board?</strong> Install the Mac helper, copy
+                your Freeform selection, then choose the saved capture here.
+              </p>
               <div className="actions">
                 <button onClick={example} disabled={busy}>
-                  Try editable demo <span>↗</span>
+                  Try browser demo <span>↗</span>
                 </button>
                 <button
                   className="secondary"
@@ -342,13 +343,8 @@ function App() {
               <p role="status" className="status">
                 {status}
               </p>
-              <a
-                className="helper-link"
-                target="_blank"
-                rel="noopener noreferrer"
-                href="https://github.com/royalpinto007/boardeject/blob/main/docs/clipboard.md"
-              >
-                Get the small macOS capture helper ↗
+              <a className="helper-link" href="/mac-helper">
+                Set up the macOS helper →
               </a>
             </div>
             <figure className="demo compact-demo" id="demo">
@@ -372,22 +368,31 @@ function App() {
           <article className="product-card archive-card" id="archive">
             <span className="card-number">02</span>
             <div className="product-card-copy">
-              <span className="state-label">Local Backup / Archive</span>
+              <span className="state-label">Local Backup / Archive · Demo</span>
               <h2>One board. Original files. Verified.</h2>
               <p>Freeform → local `.boardejectarchive`.</p>
+              <p className="workflow-note">
+                <strong>This panel is a demo.</strong> Real backups use the
+                macOS helper because a website cannot read Freeform's local
+                database.
+              </p>
               <div className="actions">
-                <a
-                  className="button"
-                  href="https://github.com/royalpinto007/boardeject/blob/main/docs/local-archive.md"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  Set up backup on Mac <span>↗</span>
+                <a className="button" href="/mac-helper">
+                  Set up the Mac helper <span>→</span>
                 </a>
+                <button
+                  className="secondary"
+                  onClick={() =>
+                    document
+                      .querySelector<HTMLElement>("#archive .archive-utility")
+                      ?.scrollIntoView({ block: "center", behavior: "smooth" })
+                  }
+                >
+                  Try the demo
+                </button>
               </div>
               <p className="fine">
-                Supports the verified Freeform 4.5 database schema. Restore is
-                not available yet.
+                Freeform 4.5 verified. Restore is not supported.
               </p>
             </div>
             <ArchiveDemo />
@@ -493,16 +498,18 @@ function App() {
                 </p>
               </>
             )}
-            <details open={!board.nodes.length}>
-              <summary>Conversion details ({board.issues.length})</summary>
-              <ul>
-                {board.issues.map((issue, i) => (
-                  <li key={i}>
-                    <strong>{issue.severity}</strong>: {issue.message}
-                  </li>
-                ))}
-              </ul>
-            </details>
+            {board.source !== "synthetic-example" && (
+              <details open={!board.nodes.length}>
+                <summary>Conversion details ({board.issues.length})</summary>
+                <ul>
+                  {board.issues.map((issue, i) => (
+                    <li key={i}>
+                      <strong>{issue.severity}</strong>: {issue.message}
+                    </li>
+                  ))}
+                </ul>
+              </details>
+            )}
           </section>
         )}
         <section className="trust-strip" aria-label="Privacy guarantees">
@@ -595,6 +602,7 @@ function App() {
             <p>Your board. Your format.</p>
           </div>
           <div className="footer-links">
+            <a href="/mac-helper">Mac helper</a>
             <a href="/privacy">Privacy</a>
             <a href="/terms">Terms</a>
             <a
