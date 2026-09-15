@@ -21,15 +21,11 @@
   letter-spacing: -1.2px;
   font-weight: 750;
 }
-.helper-page .brand > span {
-  display: inline-grid;
-  place-items: center;
+.helper-page .brand > img {
+  display: block;
   width: 30px;
-  height: 34px;
+  height: 30px;
   border-radius: 6px;
-  background: #264b36;
-  color: #f5f5e8;
-  font-size: 25px;
 }
 .helper-page .site-header nav {
   display: flex;
@@ -147,15 +143,11 @@
   background: #78926d;
 }
 .package-icon {
-  display: grid;
-  place-items: center;
+  display: block;
   width: 74px;
-  height: 82px;
+  height: 74px;
   margin-bottom: 19px;
   border-radius: 15px;
-  background: #294d36;
-  color: #fff;
-  font-size: 44px;
   box-shadow: 0 14px 30px -18px #294d36;
 }
 .mac-window > strong {

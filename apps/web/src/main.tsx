@@ -234,7 +234,7 @@ function App() {
       )}
       <header className="site-header">
         <a href="/" className="brand">
-          <span aria-hidden="true">↗</span> BoardEject
+          <img src="/favicon.svg" width="30" height="30" alt="" /> BoardEject
         </a>
         <nav aria-label="Main navigation">
           <a href="/mac-helper">Mac helper</a>
@@ -582,10 +582,8 @@ function App() {
         <footer className="site-footer">
           <div>
             <a href="/" className="brand">
+              <img src="/favicon.svg" width="30" height="30" alt="" />
               BoardEject
-              <span className="footer-arrow" aria-hidden="true">
-                ↗
-              </span>
             </a>
             <p>Your board. Your format.</p>
           </div>

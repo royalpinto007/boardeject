@@ -16,6 +16,17 @@
   font-weight: 700;
   text-decoration: none;
 }
+.static-nav .static-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+.static-brand img {
+  display: block;
+  width: 30px;
+  height: 30px;
+  border-radius: 6px;
+}
 .static-page {
   padding-top: 72px;
 }

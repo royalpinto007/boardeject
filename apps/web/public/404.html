@@ -35,11 +35,25 @@
         outline: 3px solid #638450;
         outline-offset: 5px;
       }
+      .brand {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        font-weight: 700;
+        text-decoration: none;
+      }
+      .brand img {
+        width: 30px;
+        height: 30px;
+        border-radius: 6px;
+      }
     </style>
   </head>
   <body>
     <main>
-      <a href="/">BoardEject ↗</a>
+      <a class="brand" href="/"
+        ><img src="/favicon.svg" width="30" height="30" alt="" /> BoardEject</a
+      >
       <p>404</p>
       <h1>This page isn’t on the board.</h1>
       <p>The address may be incorrect or the page may have moved.</p>

@@ -103,7 +103,7 @@ export default function CaptureTester() {
     <>
       <header className="site-header">
         <a className="brand" href="/">
-          <span aria-hidden="true">↗</span> BoardEject
+          <img src="/favicon.svg" width="30" height="30" alt="" /> BoardEject
         </a>
         <nav aria-label="Main navigation">
           <a href="/mac-helper">Mac helper</a>
@@ -274,7 +274,7 @@ export default function CaptureTester() {
         )}
         <footer className="site-footer">
           <a className="brand" href="/">
-            BoardEject ↗
+            <img src="/favicon.svg" width="30" height="30" alt="" /> BoardEject
           </a>
           <div className="footer-links">
             <a href="/privacy">Privacy</a>

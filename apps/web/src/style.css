@@ -50,15 +50,11 @@ a {
   letter-spacing: -1.2px;
   font-weight: 750;
 }
-.brand span {
-  display: inline-grid;
-  place-items: center;
+.brand img {
+  display: block;
   width: 30px;
-  height: 34px;
-  background: #264b36;
-  color: #f5f5e8;
+  height: 30px;
   border-radius: 6px;
-  font-size: 25px;
 }
 .site-header nav {
   display: flex;
@@ -455,11 +451,6 @@ a {
 }
 .site-footer .brand {
   font-size: 21px;
-}
-.site-footer .brand .footer-arrow {
-  background: transparent;
-  color: #6f805c;
-  width: auto;
 }
 .site-footer p {
   margin: 4px 0;

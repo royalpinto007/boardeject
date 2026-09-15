@@ -48,15 +48,11 @@ header nav .nav-source {
 * {
   box-sizing: border-box;
 }
-.brand > span {
-  display: inline-grid;
-  place-items: center;
+.brand > img {
+  display: block;
   width: 30px;
-  height: 34px;
+  height: 30px;
   border-radius: 6px;
-  background: #264b36;
-  color: #f5f5e8;
-  font-size: 25px;
 }
 main {
   max-width: 800px;
@@ -120,13 +116,6 @@ a:focus-visible {
 }
 .site-footer .brand {
   font-size: 21px;
-}
-.site-footer .brand .footer-arrow {
-  width: auto;
-  height: auto;
-  background: transparent;
-  color: #6f805c;
-  font-size: inherit;
 }
 .site-footer p {
   margin: 4px 0;

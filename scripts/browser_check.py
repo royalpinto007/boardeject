@@ -84,6 +84,7 @@ if __name__ == "__main__":
         assert page.locator("#demo video").evaluate("video => video.currentTime > 0 && video.videoWidth > 0 && !video.error")
         page.goto(BASE + "/")
         assert page.locator('header a[href="/mac-helper"]').is_visible()
+        assert page.locator("header .brand img").get_attribute("src") == "/favicon.svg"
         clipboard_box = page.get_by_role("button", name="Use copied BoardEject capture").bounding_box()
         helper_box = page.get_by_role("link", name="Set up the macOS helper").bounding_box()
         assert clipboard_box and helper_box
@@ -102,6 +103,7 @@ if __name__ == "__main__":
         page.goto(BASE + "/test-capture")
         page.get_by_role("heading", name="Test your actual capture.").wait_for()
         assert page.locator('header a[href="/mac-helper"]').is_visible()
+        assert page.locator("header .brand img").get_attribute("src") == "/favicon.svg"
         page.set_viewport_size({"width": 360, "height": 900})
         picker = page.locator(".capture-file-button").bounding_box()
         drop = page.locator(".capture-drop").bounding_box()
@@ -121,8 +123,10 @@ if __name__ == "__main__":
             assert response.status == 200
             page.get_by_role("heading", name=heading).wait_for()
             assert page.locator("header .brand").is_visible()
+            assert page.locator("header .brand img").get_attribute("src") == "/favicon.svg"
             if path == "/mac-helper":
                 assert page.locator('header a[href="/mac-helper"]').count() == 0
+                assert page.locator(".package-icon").get_attribute("src") == "/favicon.svg"
                 download_link = page.get_by_role("link", name="Download for Apple silicon")
                 assert download_link.get_attribute("href") == "/downloads/BoardEject-macOS.zip"
                 assert download_link.get_attribute("download") is not None
