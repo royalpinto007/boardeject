@@ -1,7 +1,7 @@
 import { lstat, readFile, realpath, writeFile } from "node:fs/promises";
 import { dirname, join, relative, resolve } from "node:path";
-import { assembleNativeArchive } from "../packages/archive/assemble";
-import { isSafeArchivePath, verifyArchive } from "../packages/archive/index";
+import { assembleNativeArchive } from "../packages/archive/assemble.ts";
+import { isSafeArchivePath, verifyArchive } from "../packages/archive/index.ts";
 
 function usage(): never {
   console.error(`Usage:

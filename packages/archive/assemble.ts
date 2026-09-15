@@ -3,7 +3,7 @@ import {
   createArchive,
   type ArchiveAssetInput,
   type ArchiveInput,
-} from "./index";
+} from "./index.ts";
 
 interface NativeValue {
   type: "null" | "integer" | "real" | "text" | "blob";
