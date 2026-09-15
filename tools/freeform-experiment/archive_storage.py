@@ -328,6 +328,36 @@ corrupt_result = run(
 if corrupt_result.returncode == 0:
     raise SystemExit("Independent verification accepted a corrupted archive.")
 
+# Exercise the same scan/create/verify orchestration exposed to a macOS user.
+flow_archive = out / "selected-board-user-flow.boardejectarchive"
+flow_result = run(
+    "create-through-user-flow",
+    [
+        "node", "--experimental-strip-types", "scripts/archive-freeform.ts",
+        "create", selected_board_id, str(flow_archive),
+    ],
+    180,
+)
+if flow_result.returncode != 0 or not flow_archive.is_file():
+    raise SystemExit("The user-facing selected-board archive flow failed.")
+flow_verify = run(
+    "verify-user-flow-archive",
+    [
+        "node", "--experimental-strip-types", "scripts/archive-freeform.ts",
+        "verify", str(flow_archive),
+    ],
+    120,
+)
+if flow_verify.returncode != 0:
+    raise SystemExit("The user-facing archive did not verify independently.")
+flow_report = json.loads(flow_verify.stdout)
+if (
+    not flow_report.get("valid")
+    or flow_report.get("assetsVerified") != len(preservation.get("assets", []))
+    or flow_report.get("manifest", {}).get("board", {}).get("id") != selected_board_id
+):
+    raise SystemExit("The user-facing archive summary did not match the selected board.")
+
 copied_db = snapshot / "boards.db"
 # `immutable=1` is deliberately not used: it can ignore committed schema and
 # rows that still live in the copied WAL. `mode=ro` plus query_only reads the
