@@ -11,6 +11,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument("--replace", action="store_true")
 parser.add_argument("--output-dir", default="docs")
 parser.add_argument("--base-url", default="http://127.0.0.1:4190")
+parser.add_argument("--board-name")
 args = parser.parse_args()
 docs = Path(args.output_dir)
 docs.mkdir(parents=True, exist_ok=True)
@@ -42,7 +43,12 @@ with tempfile.TemporaryDirectory(prefix="boardeject-archive-demo-") as temporary
         page.get_by_role("button", name="Scan Freeform").click()
         page.locator(".board-row").first.wait_for()
         page.wait_for_timeout(900)
-        page.locator(".board-row").first.click()
+        board_row = (
+            page.get_by_role("button", name=args.board_name)
+            if args.board_name
+            else page.locator(".board-row").first
+        )
+        board_row.click()
         page.wait_for_timeout(600)
         page.get_by_role("button", name="Create local backup").click()
         page.get_by_role("heading", name="Backup created").wait_for(timeout=120000)

@@ -476,6 +476,8 @@ try:
                 "--replace",
                 "--output-dir",
                 str(out / "demo"),
+                "--board-name",
+                str(catalog_boards[1]["displayName"]),
             ],
             180,
         )
