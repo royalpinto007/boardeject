@@ -8,7 +8,9 @@ board in a verified local archive. Both workflows stay on your device.
 An editable escape route, not another whiteboard. No account, no board uploads,
 no cloud storage.
 
-[Try BoardEject](https://boardeject.dev) · [Test your capture](https://boardeject.dev/test-capture) · [Try the sample file](examples/example.excalidraw)
+[Export to Excalidraw](https://boardeject.dev/#export) · **[Back up a Freeform board](https://boardeject.dev/#archive)**
+
+[Download the Mac helper](https://boardeject.dev/mac-helper) · [Test your capture](https://boardeject.dev/test-capture) · [Try the sample file](examples/example.excalidraw)
 
 ![Move a shape, watch its connected arrow follow, then edit text](docs/demo.gif)
 
@@ -93,7 +95,15 @@ exercise file selection, drop, failed input, preview and download. Set
 
 ## Current status
 
-**v0.0.3 adds Local Freeform Backup / Archive for the exact verified Freeform
+### Editable Export status
+
+Supported fixture-backed shapes, text, tables, assets, ink, and connectors are
+converted to editable Excalidraw elements. Freeform 4.5 version-7 boards are
+supported only through the specific native paths listed in the matrix below.
+
+### Archive status
+
+**v0.0.3 includes Local Freeform Backup / Archive for the exact verified Freeform
 4.5 schema alongside the existing editable export.** The demo uses a synthetic
 example to demonstrate editable output, not a complete Freeform import.
 Freeform 4.5 version-7 data is not generally supported. Only the fixture-backed
@@ -117,6 +127,12 @@ before importing real work.
 
 The matrix below specifies each tested boundary, including the native evidence
 and links to remaining work.
+
+### Mac helper status
+
+The downloadable Apple-silicon preview removes the Node, npm, Git, and Swift
+toolchain requirements from normal use. It remains unsigned and command-line
+based. A signed Mac app with browser detection is the next onboarding step.
 
 ## Support matrix
 

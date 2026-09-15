@@ -14,6 +14,7 @@
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" sizes="180x180" />
     <link rel="manifest" href="/site.webmanifest" />
+    <link rel="stylesheet" href="/static-shell.css" />
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="BoardEject" />
     <meta property="og:title" content="BoardEject | Your board. Your format." />
@@ -53,23 +54,52 @@
   </head>
   <body>
     <noscript
-      ><h1>BoardEject</h1>
-      <p>Your board. Your format.</p>
-      <p>
-        Export Apple Freeform captures to editable Excalidraw files or create a
-        verified local backup with the macOS helper. Your board stays on your
-        device.
-      </p>
-      <p>
-        <a
-          target="_blank"
-          rel="noopener noreferrer"
-          href="https://github.com/royalpinto007/boardeject"
-          >Read the documentation and current limitations</a
-        >
+      ><p>
+        BoardEject needs JavaScript for local file conversion. The product
+        overview and setup links remain available below.
       </p></noscript
     >
-    <div id="root"></div>
+    <div id="root">
+      <!-- static-fallback:start -->
+      <header class="static-nav">
+        <a href="/">↗ BoardEject</a><a href="/mac-helper">Get the Mac helper</a>
+      </header>
+      <main class="static-page">
+        <p class="static-kicker">Open source · local-first</p>
+        <h1>Your Freeform boards, actually yours.</h1>
+        <p class="static-intro">
+          Convert Apple Freeform boards into editable Excalidraw files, or
+          create a verified local backup with the original assets. No account
+          and no uploads.
+        </p>
+        <div class="static-actions">
+          <a href="#export">Export to Excalidraw</a
+          ><a href="#archive">Back up a board</a>
+        </div>
+        <section id="export">
+          <h2>Editable Export</h2>
+          <p>
+            Copy a Freeform selection, save it with the Mac helper, inspect the
+            conversion, then download an editable <code>.excalidraw</code> file.
+          </p>
+          <a href="/test-capture">Test a capture</a>
+        </section>
+        <section id="archive">
+          <h2>Local Backup / Archive</h2>
+          <p>
+            Scan Freeform, choose one board, create a local
+            <code>.boardejectarchive</code>, then verify its files and integrity
+            hashes.
+          </p>
+          <a href="/mac-helper">Download and set up the helper</a>
+        </section>
+        <p class="static-privacy">
+          <strong>Your data stays on your Mac.</strong> BoardEject does not
+          upload boards or archives. Restore into Freeform is not supported.
+        </p>
+      </main>
+      <!-- static-fallback:end -->
+    </div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

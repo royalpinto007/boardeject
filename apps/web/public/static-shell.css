@@ -1,0 +1,94 @@
+.static-nav,
+.static-page {
+  max-width: 1120px;
+  margin: auto;
+  padding: 24px;
+}
+.static-nav {
+  display: flex;
+  justify-content: space-between;
+}
+.static-nav a {
+  color: #294d36;
+  font-weight: 700;
+  text-decoration: none;
+}
+.static-page {
+  padding-top: 72px;
+}
+.static-page h1 {
+  max-width: 800px;
+  margin: 14px 0 22px;
+  font: 500 clamp(52px, 8vw, 92px)/0.98 system-ui;
+  letter-spacing: -0.06em;
+}
+.static-kicker {
+  color: #638052;
+  font: 700 12px system-ui;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+.static-intro {
+  max-width: 600px;
+  font: 18px/1.7 system-ui;
+  color: #526158;
+}
+.static-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 28px 0 64px;
+}
+.static-actions a {
+  padding: 14px 18px;
+  border-radius: 7px;
+  background: #294d36;
+  color: #fff;
+  text-decoration: none;
+  font: 600 14px system-ui;
+}
+.static-actions a + a {
+  background: transparent;
+  color: #294d36;
+  border: 1px solid #bfc8ba;
+}
+.static-page section {
+  display: inline-block;
+  vertical-align: top;
+  width: calc(50% - 12px);
+  min-height: 210px;
+  margin: 0 18px 18px 0;
+  padding: 28px;
+  border: 1px solid #d7dccc;
+  border-radius: 18px;
+  background: #fbfaf6;
+  font: 16px/1.65 system-ui;
+}
+.static-page section:nth-of-type(2) {
+  margin-right: 0;
+}
+.static-page h2 {
+  margin-top: 0;
+  font: 600 28px system-ui;
+}
+.static-page section a {
+  color: #294d36;
+  font-weight: 700;
+}
+.static-privacy {
+  margin: 42px 0;
+  font: 16px/1.7 system-ui;
+}
+@media (max-width: 700px) {
+  .static-page {
+    padding-top: 40px;
+  }
+  .static-page section {
+    display: block;
+    width: 100%;
+    margin-right: 0;
+  }
+  .static-page h1 {
+    font-size: 52px;
+  }
+}
