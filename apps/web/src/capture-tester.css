@@ -116,6 +116,29 @@
 .capture-tester h1 {
   margin: 24px 0;
 }
+.capture-samples {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 14px 0 28px;
+  overflow-x: auto;
+  font-size: 13px;
+}
+.capture-samples span {
+  color: #64705f;
+  white-space: nowrap;
+}
+.capture-samples a {
+  flex: 0 0 auto;
+  padding: 9px 12px;
+  border: 1px solid #d4dbd0;
+  border-radius: 8px;
+  background: #fbfaf6;
+  text-decoration: none;
+}
+.capture-samples a:hover {
+  background: #edf0e5;
+}
 .capture-report dl > div {
   background: #f5f6ef;
   padding: 16px;

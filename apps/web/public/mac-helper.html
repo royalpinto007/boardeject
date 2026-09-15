@@ -11,8 +11,9 @@
     <link rel="canonical" href="https://boardeject.dev/mac-helper" />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="stylesheet" href="/legal.css" />
+    <link rel="stylesheet" href="/mac-helper.css" />
   </head>
-  <body>
+  <body class="helper-page">
     <header>
       <a class="brand" href="/"
         ><img src="/favicon.svg" width="34" height="34" alt="" />BoardEject</a
@@ -27,77 +28,132 @@
         >
       </nav>
     </header>
-    <main>
-      <p class="setup-kicker">macOS setup</p>
-      <h1>Use BoardEject with your own Freeform boards</h1>
-      <p class="setup-intro">
-        The website cannot directly read Freeform's private clipboard formats or
-        local database. The open-source Mac helper creates the local file that
-        BoardEject needs. Nothing is uploaded.
-      </p>
-
-      <section class="setup-install helper-download">
-        <p class="setup-kicker">Recommended · developer preview</p>
-        <h2>Download the ready-built helper</h2>
-        <p>
-          No Node.js, npm, Git clone, or local Swift compilation. Download,
-          unzip, then use the included <code>boardeject-mac</code> command.
-        </p>
-        <a
-          class="setup-button"
-          href="https://github.com/royalpinto007/boardeject/releases/download/v0.0.3/BoardEject-macOS.zip"
-          >Download for Apple silicon ↓</a
-        >
-        <p class="date">
-          Unsigned Apple-silicon preview. macOS may ask you to approve it. Intel
-          Macs still need the source build below. A signed universal app with
-          browser detection is the next onboarding step.
-        </p>
+    <main class="helper-main">
+      <section class="helper-hero">
+        <div class="helper-copy">
+          <p class="setup-kicker">BoardEject for macOS</p>
+          <h1>Use BoardEject with your own Freeform boards</h1>
+          <p class="setup-intro">
+            One small local helper gives BoardEject access to the private
+            Freeform data a browser cannot read.
+          </p>
+          <div class="helper-actions">
+            <a
+              class="setup-button primary-download"
+              href="https://github.com/royalpinto007/boardeject/releases/download/v0.0.3/BoardEject-macOS.zip"
+              >Download for Apple silicon ↓</a
+            >
+            <a class="text-link" href="#use-helper">See how it works</a>
+          </div>
+          <div class="helper-trust">
+            <span>Local only</span><span>No account</span
+            ><span>No uploads</span>
+          </div>
+        </div>
+        <div class="mac-stage" aria-label="BoardEject helper package preview">
+          <div class="mac-window">
+            <div class="mac-bar">
+              <i></i><i></i><i></i><span>BoardEject</span>
+            </div>
+            <div class="package-icon"><span>↗</span></div>
+            <strong>BoardEject-macOS</strong>
+            <small>Capture · Scan · Back up · Verify</small>
+            <div class="package-status">
+              <b>✓</b
+              ><span
+                ><strong>Ready on your Mac</strong
+                ><small>No developer toolchain needed</small></span
+              >
+            </div>
+          </div>
+        </div>
       </section>
 
-      <div class="setup-choice">
-        <section>
-          <span>Editable export</span>
-          <h2>Copy a board into Excalidraw</h2>
-          <ol>
-            <li>Run the capture helper on your Mac.</li>
-            <li>Select everything in Freeform and copy it.</li>
-            <li>Save the capture, then choose it on BoardEject.</li>
-          </ol>
-          <pre><code>./boardeject-capture Board.boardeject</code></pre>
-          <a class="setup-button" href="/test-capture">Open capture tester →</a>
-        </section>
+      <section class="helper-install" id="use-helper">
+        <div>
+          <span class="step-number">01</span>
+          <h2>Download and unzip</h2>
+          <p>
+            The package includes both commands. No Node.js, npm, Git, Swift, or
+            Xcode tools.
+          </p>
+        </div>
+        <div>
+          <span class="step-number">02</span>
+          <h2>Choose a workflow</h2>
+          <p>
+            Capture a copied selection for Excalidraw, or scan Freeform to back
+            up one board.
+          </p>
+        </div>
+        <div>
+          <span class="step-number">03</span>
+          <h2>Keep the result</h2>
+          <p>
+            Download editable output in the browser or verify your local archive
+            independently.
+          </p>
+        </div>
+      </section>
 
-        <section>
-          <span>Local backup</span>
-          <h2>Back up one Freeform board</h2>
-          <ol>
-            <li>Scan the verified local Freeform database.</li>
-            <li>Choose a board UUID from the result.</li>
-            <li>Create and independently verify the archive.</li>
-          </ol>
-          <pre><code>./boardeject-mac scan
+      <section class="workflow-shell">
+        <div class="workflow-heading">
+          <p class="setup-kicker">Two local workflows</p>
+          <h2>One helper. Two ways out.</h2>
+        </div>
+        <div class="setup-choice">
+          <section>
+            <span>Editable export</span>
+            <h2>Freeform → Excalidraw</h2>
+            <ol>
+              <li>Copy your selection in Freeform.</li>
+              <li>Save it with the capture command.</li>
+              <li>Open it in Capture Tester.</li>
+            </ol>
+            <pre><code>./boardeject-capture Board.boardeject</code></pre>
+            <a class="setup-button" href="/test-capture"
+              >Open Capture Tester →</a
+            >
+          </section>
+          <section>
+            <span>Local backup</span>
+            <h2>Freeform → verified archive</h2>
+            <ol>
+              <li>Scan your local Freeform boards.</li>
+              <li>Choose one board.</li>
+              <li>Create and verify its archive.</li>
+            </ol>
+            <pre><code>./boardeject-mac scan
 ./boardeject-mac create BOARD_UUID Board.boardejectarchive
 ./boardeject-mac verify Board.boardejectarchive</code></pre>
-        </section>
-      </div>
+          </section>
+        </div>
+      </section>
 
-      <section class="setup-install">
-        <h2>Build from source</h2>
-        <p>
-          Developers can still audit and build the helper themselves. This path
-          requires Node 22+, Swift, and Xcode Command Line Tools.
-        </p>
-        <pre><code>git clone https://github.com/royalpinto007/boardeject.git
+      <section class="helper-boundary">
+        <div>
+          <strong>Verified Freeform 4.5 schema</strong
+          ><span>Unknown versions stop safely.</span>
+        </div>
+        <div>
+          <strong>Your live database stays untouched</strong
+          ><span>Restore into Freeform is not supported.</span>
+        </div>
+        <a href="/support">Support details →</a>
+      </section>
+
+      <details class="source-build">
+        <summary>Build from source</summary>
+        <div>
+          <p>
+            Developers can audit and compile BoardEject with Node 22+, Swift,
+            and Xcode Command Line Tools.
+          </p>
+          <pre><code>git clone https://github.com/royalpinto007/boardeject.git
 cd boardeject
 npm ci</code></pre>
-        <p>
-          Archive compatibility is currently verified only for the documented
-          Freeform 4.5 schema. Unknown versions stop safely. Restore into
-          Freeform is not supported.
-        </p>
-        <a href="/support">Read compatibility details →</a>
-      </section>
+        </div>
+      </details>
     </main>
     <footer>
       <a href="/">Back to BoardEject</a><a href="/privacy">Privacy</a

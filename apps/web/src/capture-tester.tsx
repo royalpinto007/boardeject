@@ -165,6 +165,16 @@ export default function CaptureTester() {
             previous result.
           </small>
         </section>
+        <div className="capture-samples" aria-label="Sample captures">
+          <span>Try a sample</span>
+          <a href="/samples/ink-pen.drawing" download>
+            Editable ink sample ↓
+          </a>
+          <a href="/samples/real-board.crlnative" download>
+            Unsupported-board sample ↓
+          </a>
+          <a href="/samples/source">Source and license →</a>
+        </div>
         <p role="status" aria-live="polite">
           {busy ? status : board ? "Ready to review." : ""}
         </p>
