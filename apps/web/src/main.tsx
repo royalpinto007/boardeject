@@ -458,6 +458,23 @@ function App() {
           </p>
           <details className="support-notes archive-preview" open>
             <summary>Local Freeform Backup / Archive</summary>
+            <video
+              controls
+              muted
+              playsInline
+              preload="none"
+              poster="/media/archive-poster.png"
+              style={{ width: "100%", height: "auto", borderRadius: 12 }}
+              aria-label="Archive demo: condensed output from a real Freeform 4.5 macOS run"
+            >
+              <source src="/media/archive-demo.mp4" type="video/mp4" />
+              <a href="/media/archive-demo.mp4">Watch the archive demo</a>
+            </video>
+            <p>
+              14-second replay of real native command output. Processing time
+              compressed; output excerpts. Archive creation uses the macOS
+              command-line helper.
+            </p>
             <p>
               <strong>Editable Export:</strong> Freeform clipboard → editable
               Excalidraw.
