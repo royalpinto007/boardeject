@@ -123,6 +123,9 @@ if __name__ == "__main__":
             assert page.locator("header .brand").is_visible()
             if path == "/mac-helper":
                 assert page.locator('header a[href="/mac-helper"]').count() == 0
+                download_link = page.get_by_role("link", name="Download for Apple silicon")
+                assert download_link.get_attribute("href") == "/downloads/BoardEject-macOS.zip"
+                assert download_link.get_attribute("download") is not None
             else:
                 assert page.locator('header a[href="/mac-helper"]').is_visible()
             for width in (360, 1280):
