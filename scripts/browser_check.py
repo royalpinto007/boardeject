@@ -155,6 +155,8 @@ if __name__ == "__main__":
                 assert download_link.get_attribute("download") is not None
                 intel_link = page.get_by_role("link", name="Intel Mac download")
                 assert intel_link.get_attribute("href") == "/downloads/BoardEject-macOS-x86_64.zip"
+                universal_link = page.get_by_role("link", name="Universal download")
+                assert universal_link.get_attribute("href") == "https://downloads.boardeject.dev/BoardEject-macOS-universal.zip"
                 page.get_by_role("heading", name="Approve the unsigned helper once.").wait_for()
                 assert page.get_by_role("link", name="Apple's Gatekeeper guidance ↗").get_attribute("href").startswith("https://support.apple.com/")
             else:
