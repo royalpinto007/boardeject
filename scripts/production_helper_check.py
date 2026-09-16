@@ -18,6 +18,7 @@ bridge_executable = os.environ.get("BOARDEJECT_BRIDGE_EXECUTABLE")
 board_name = os.environ["BOARDEJECT_TEST_BOARD_NAME"]
 capture_file = os.environ.get("BOARDEJECT_TEST_CAPTURE")
 restore_helper = os.environ.get("BOARDEJECT_RESTORE_CLIPBOARD")
+copy_freeform_selection = os.environ.get("BOARDEJECT_COPY_FREEFORM_SELECTION") == "1"
 if not bridge_executable:
     raise SystemExit("BOARDEJECT_BRIDGE_EXECUTABLE is required.")
 
@@ -74,6 +75,28 @@ with sync_playwright() as playwright:
                 )
             subprocess.run(
                 [restore_helper, capture_file],
+                check=True,
+                capture_output=True,
+                text=True,
+            )
+        if copy_freeform_selection:
+            subprocess.run(
+                [
+                    "osascript",
+                    "-e",
+                    'tell application "Freeform" to activate\n'
+                    'delay 1\n'
+                    'tell application "System Events"\n'
+                    'tell process "Freeform"\n'
+                    'key code 53\n'
+                    'click at {300, 100}\n'
+                    'keystroke "a" using command down\n'
+                    'delay 0.5\n'
+                    'keystroke "c" using command down\n'
+                    'delay 1\n'
+                    'end tell\n'
+                    'end tell',
+                ],
                 check=True,
                 capture_output=True,
                 text=True,

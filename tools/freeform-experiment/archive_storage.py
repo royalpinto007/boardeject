@@ -478,6 +478,7 @@ if site_url:
     production_environment["BOARDEJECT_SITE_URL"] = site_url
     production_environment["BOARDEJECT_TEST_CAPTURE"] = str(genuine_export_capture)
     production_environment["BOARDEJECT_RESTORE_CLIPBOARD"] = str(restore_helper)
+    production_environment["BOARDEJECT_COPY_FREEFORM_SELECTION"] = "1"
     production_environment["BOARDEJECT_TEST_BOARD_NAME"] = str(
         catalog_boards[1]["displayName"]
     )
@@ -610,6 +611,7 @@ try:
                 str(genuine_export_capture),
                 "--restore-helper",
                 str(restore_helper),
+                "--copy-freeform-selection",
             ],
             180,
         )

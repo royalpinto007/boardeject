@@ -15,6 +15,7 @@ parser.add_argument("--output-dir", default="docs")
 parser.add_argument("--base-url", default="http://127.0.0.1:4190")
 parser.add_argument("--capture-file")
 parser.add_argument("--restore-helper")
+parser.add_argument("--copy-freeform-selection", action="store_true")
 args = parser.parse_args()
 output = Path(args.output_dir)
 output.mkdir(parents=True, exist_ok=True)
@@ -50,6 +51,28 @@ with tempfile.TemporaryDirectory(prefix="boardeject-export-demo-") as temporary:
                 )
             subprocess.run(
                 [args.restore_helper, args.capture_file],
+                check=True,
+                capture_output=True,
+                text=True,
+            )
+        if args.copy_freeform_selection:
+            subprocess.run(
+                [
+                    "osascript",
+                    "-e",
+                    'tell application "Freeform" to activate\n'
+                    'delay 1\n'
+                    'tell application "System Events"\n'
+                    'tell process "Freeform"\n'
+                    'key code 53\n'
+                    'click at {300, 100}\n'
+                    'keystroke "a" using command down\n'
+                    'delay 0.5\n'
+                    'keystroke "c" using command down\n'
+                    'delay 1\n'
+                    'end tell\n'
+                    'end tell',
+                ],
                 check=True,
                 capture_output=True,
                 text=True,
