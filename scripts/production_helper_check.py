@@ -10,7 +10,7 @@ import urllib.error
 import urllib.request
 import zipfile
 
-from playwright.sync_api import sync_playwright
+from playwright.sync_api import TimeoutError as PlaywrightTimeoutError, sync_playwright
 
 
 base = os.environ.get("BOARDEJECT_SITE_URL", "https://boardeject.dev").rstrip("/")
@@ -102,7 +102,18 @@ with sync_playwright() as playwright:
                 text=True,
             )
         page.get_by_role("button", name="Import copied selection").click()
-        page.get_by_role("heading", name=re.compile(r"[1-9][0-9]* editable elements")).wait_for(timeout=120_000)
+        try:
+            page.get_by_role(
+                "heading", name=re.compile(r"[1-9][0-9]* editable elements")
+            ).wait_for(timeout=30_000)
+        except PlaywrightTimeoutError:
+            evidence = Path(os.environ.get("CAPTURE_OUTPUT", "."))
+            page.screenshot(
+                path=str(evidence / "production-export-failure.png"),
+                full_page=True,
+            )
+            status = page.get_by_role("status").first.text_content() or "No status message."
+            raise SystemExit(f"Production clipboard import did not finish: {status}")
         with page.expect_download() as export_event:
             page.get_by_role("button", name="Download .excalidraw").click()
         exported = Path(export_event.value.path())
