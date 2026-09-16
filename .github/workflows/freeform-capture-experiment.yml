@@ -31,12 +31,16 @@ on:
             archive-storage,
           ]
         default: tables
+      site_url:
+        description: Optional deployed site for archive production validation
+        required: false
+        default: ""
 permissions:
   contents: read
 jobs:
   probe:
     runs-on: macos-latest
-    timeout-minutes: 8
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
         with:
@@ -48,11 +52,20 @@ jobs:
           python3 -m pip install --break-system-packages playwright
           python3 -m playwright install ffmpeg
           brew install ffmpeg
+      - uses: oven-sh/setup-bun@v2
+        if: inputs.scenario == 'archive-storage'
+        with:
+          bun-version: 1.2.23
+      - name: Package the standalone helper
+        if: inputs.scenario == 'archive-storage'
+        run: bash scripts/package-macos-helper.sh
       - name: Probe actual Freeform session
         env:
           CAPTURE_OUTPUT: ${{ runner.temp }}/freeform-capture-experiment
           TABLE_GEOMETRY_ONLY: "1"
           CAPTURE_SCENARIO: ${{ inputs.scenario }}
+          BOARDEJECT_SITE_URL: ${{ inputs.site_url }}
+          BOARDEJECT_BRIDGE_EXECUTABLE: ${{ github.workspace }}/dist/macos-helper/BoardEject Helper.app/Contents/MacOS/boardeject-mac
         run: |
           if [ "$CAPTURE_SCENARIO" = "ink-issue-13" ]; then
             TABLE_GEOMETRY_ONLY=0 python3 tools/freeform-experiment/differential.py

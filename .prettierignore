@@ -1,4 +1,5 @@
 node_modules
+.kilo
 dist
 apps/web/public/vendor
 apps/web/public/media

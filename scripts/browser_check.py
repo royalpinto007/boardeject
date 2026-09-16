@@ -85,7 +85,10 @@ def prove_editability(page, demo=False):
 if __name__ == "__main__":
     with sync_playwright() as playwright:
         browser = playwright.chromium.launch(channel="chrome", headless=True)
-        page = browser.new_page(viewport={"width": 1440, "height": 900})
+        context = browser.new_context(viewport={"width": 1440, "height": 900})
+        if BASE.startswith("https://"):
+            context.grant_permissions(["local-network-access"], origin=BASE)
+        page = context.new_page()
         page.route(HELPER + "/**", mock_helper)
         errors = []
         remote = []
