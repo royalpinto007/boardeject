@@ -13,6 +13,8 @@ parser = argparse.ArgumentParser()
 parser.add_argument("--replace", action="store_true")
 parser.add_argument("--output-dir", default="docs")
 parser.add_argument("--base-url", default="http://127.0.0.1:4190")
+parser.add_argument("--capture-file")
+parser.add_argument("--restore-helper")
 args = parser.parse_args()
 output = Path(args.output_dir)
 output.mkdir(parents=True, exist_ok=True)
@@ -41,6 +43,17 @@ with tempfile.TemporaryDirectory(prefix="boardeject-export-demo-") as temporary:
         page = context.new_page()
         page.goto(f"{args.base_url.rstrip('/')}#export", wait_until="networkidle")
         page.get_by_role("button", name="Import copied selection").wait_for()
+        if args.capture_file or args.restore_helper:
+            if not args.capture_file or not args.restore_helper:
+                raise SystemExit(
+                    "--capture-file and --restore-helper must be provided together."
+                )
+            subprocess.run(
+                [args.restore_helper, args.capture_file],
+                check=True,
+                capture_output=True,
+                text=True,
+            )
         started = time.monotonic()
         page.get_by_role("button", name="Import copied selection").click()
         page.get_by_role("heading", name="1 editable elements").wait_for(timeout=120_000)

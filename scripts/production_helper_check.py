@@ -16,6 +16,8 @@ from playwright.sync_api import sync_playwright
 base = os.environ.get("BOARDEJECT_SITE_URL", "https://boardeject.dev").rstrip("/")
 bridge_executable = os.environ.get("BOARDEJECT_BRIDGE_EXECUTABLE")
 board_name = os.environ["BOARDEJECT_TEST_BOARD_NAME"]
+capture_file = os.environ.get("BOARDEJECT_TEST_CAPTURE")
+restore_helper = os.environ.get("BOARDEJECT_RESTORE_CLIPBOARD")
 if not bridge_executable:
     raise SystemExit("BOARDEJECT_BRIDGE_EXECUTABLE is required.")
 
@@ -65,6 +67,17 @@ with sync_playwright() as playwright:
     try:
         page.get_by_role("button", name=re.compile(r"I opened it.*connect")).click()
         page.get_by_role("heading", name="Helper connected").wait_for()
+        if capture_file or restore_helper:
+            if not capture_file or not restore_helper:
+                raise SystemExit(
+                    "BOARDEJECT_TEST_CAPTURE and BOARDEJECT_RESTORE_CLIPBOARD must be set together."
+                )
+            subprocess.run(
+                [restore_helper, capture_file],
+                check=True,
+                capture_output=True,
+                text=True,
+            )
         page.get_by_role("button", name="Import copied selection").click()
         page.get_by_role("heading", name=re.compile(r"[1-9][0-9]* editable elements")).wait_for(timeout=120_000)
         with page.expect_download() as export_event:
