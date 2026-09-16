@@ -114,7 +114,7 @@ with tempfile.TemporaryDirectory(prefix="boardeject-export-demo-") as temporary:
         page.keyboard.press("Escape")
         page.wait_for_timeout(1400)
         duration = time.monotonic() - started
-        offset = max(started - recording_started - 0.15, 0)
+        offset = max(started - recording_started - 1.5, 0)
         path = page.video.path()
         context.close()
         browser.close()
