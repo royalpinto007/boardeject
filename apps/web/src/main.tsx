@@ -29,7 +29,7 @@ type ArchiveStep =
   | "error";
 
 function LocalArchive() {
-  const [step, setStep] = useState<ArchiveStep>("connecting");
+  const [step, setStep] = useState<ArchiveStep>("offline");
   const [helper, setHelper] = useState<LocalHelper>();
   const [boards, setBoards] = useState<LocalBoard[]>([]);
   const [selected, setSelected] = useState<LocalBoard>();
@@ -37,19 +37,35 @@ function LocalArchive() {
   const [verification, setVerification] = useState<LocalVerification>();
   const [message, setMessage] = useState("");
 
-  async function connect() {
+  async function connect(retry = true) {
     setStep("connecting");
-    try {
-      const connected = await connectLocalHelper();
-      setHelper(connected);
-      setStep("ready");
-    } catch {
-      setStep("offline");
+    setMessage("");
+    const attempts = retry ? 12 : 1;
+    for (let attempt = 0; attempt < attempts; attempt += 1) {
+      try {
+        const connected = await connectLocalHelper();
+        setHelper(connected);
+        setStep("ready");
+        return;
+      } catch {
+        if (attempt + 1 < attempts)
+          await new Promise((resolve) => window.setTimeout(resolve, 750));
+      }
     }
+    setHelper(undefined);
+    setStep("offline");
   }
 
   useEffect(() => {
-    void connect();
+    const activate = () => {
+      if (window.location.hash === "#archive") void connect();
+    };
+    window.addEventListener("hashchange", activate);
+    const timer = window.setTimeout(activate, 350);
+    return () => {
+      window.removeEventListener("hashchange", activate);
+      window.clearTimeout(timer);
+    };
   }, []);
 
   async function scan() {
@@ -109,11 +125,21 @@ function LocalArchive() {
   }
 
   const selectedName = selected?.displayName ?? "Freeform board";
+  const helperState =
+    step === "connecting"
+      ? "Starting"
+      : step === "error"
+        ? "Error"
+        : helper
+          ? "Connected"
+          : "Not installed / not running";
   return (
     <div className="archive-utility" data-step={step}>
       <div className="utility-topline">
-        <span className={`utility-light ${helper ? "connected" : ""}`} />
-        {helper ? "Mac helper connected" : "Local Mac helper"}
+        <span
+          className={`utility-light ${helper ? "connected" : ""} ${step === "error" ? "error" : ""}`}
+        />
+        {helperState}
         <span className="utility-local">On this Mac</span>
       </div>
       {step === "connecting" && (
@@ -121,8 +147,8 @@ function LocalArchive() {
           <span className="utility-icon" aria-hidden="true">
             ⌁
           </span>
-          <h3>Finding the helper…</h3>
-          <p>Checking this Mac only.</p>
+          <h3>Starting the helper…</h3>
+          <p>Retrying the private connection on this Mac.</p>
         </div>
       )}
       {step === "offline" && (
@@ -130,17 +156,18 @@ function LocalArchive() {
           <span className="utility-icon offline" aria-hidden="true">
             ↓
           </span>
-          <h3>Helper not detected</h3>
+          <h3>Install or open the helper</h3>
           <p>
-            Install it, or open it if it is already installed. Allow local
-            network access if your browser asks.
+            Your browser may ask for Local Network Access. This only lets
+            boardeject.dev reach BoardEject Helper on this Mac. No board data
+            leaves your device.
           </p>
           <div className="utility-actions">
             <a className="button" href="/mac-helper">
-              Get the helper
+              Download helper
             </a>
-            <button className="secondary" onClick={connect}>
-              Check again
+            <button className="secondary" onClick={() => void connect()}>
+              I opened it · connect
             </button>
           </div>
         </div>
@@ -286,7 +313,7 @@ function LocalArchive() {
           </span>
           <h3>That did not work</h3>
           <p>{message}</p>
-          <button onClick={connect}>Reconnect helper</button>
+          <button onClick={() => void connect()}>Reconnect helper</button>
         </div>
       )}
       <p className="utility-disclosure">

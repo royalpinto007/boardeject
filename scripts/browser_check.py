@@ -107,6 +107,8 @@ if __name__ == "__main__":
         page.wait_for_timeout(500)
         assert page.locator("#demo video").evaluate("video => video.currentTime > 0 && video.videoWidth > 0 && !video.error")
         page.goto(BASE + "/")
+        page.get_by_role("heading", name="Install or open the helper").wait_for()
+        page.get_by_role("link", name="Back up a board").click()
         page.get_by_role("heading", name="Helper connected").wait_for()
         assert page.locator('header a[href="/mac-helper"]').is_visible()
         assert page.locator("header .brand img").get_attribute("src") == "/favicon.svg"
@@ -114,7 +116,6 @@ if __name__ == "__main__":
         helper_box = page.get_by_role("link", name="Set up the macOS helper").bounding_box()
         assert clipboard_box and helper_box
         assert helper_box["y"] >= clipboard_box["y"] + clipboard_box["height"] + 8
-        page.get_by_role("link", name="Back up a board").click()
         page.get_by_role("button", name="Scan Freeform").click()
         page.get_by_role("button", name="Product planning").click()
         page.get_by_role("button", name="Create local backup").click()
@@ -153,14 +154,13 @@ if __name__ == "__main__":
             if path == "/mac-helper":
                 assert page.locator('header a[href="/mac-helper"]').count() == 0
                 assert page.locator(".package-icon").get_attribute("src") == "/favicon.svg"
-                download_link = page.get_by_role("link", name="Download for Apple silicon").first
-                assert download_link.get_attribute("href") == "/downloads/BoardEject-macOS-arm64.zip"
-                assert download_link.get_attribute("download") is not None
-                intel_link = page.get_by_role("link", name="Intel Mac download")
-                assert intel_link.get_attribute("href") == "/downloads/BoardEject-macOS-x86_64.zip"
-                universal_link = page.get_by_role("link", name="Universal download")
-                assert universal_link.get_attribute("href") == "https://downloads.boardeject.dev/BoardEject-macOS-universal.zip"
+                download_link = page.get_by_role("link", name="Download Mac helper").first
+                assert download_link.get_attribute("href") == "https://downloads.boardeject.dev/BoardEject-macOS-universal.dmg"
+                zip_link = page.get_by_role("link", name="Prefer a ZIP?")
+                assert zip_link.get_attribute("href") == "https://downloads.boardeject.dev/BoardEject-macOS-universal.zip"
                 page.get_by_role("heading", name="Approve the unsigned helper once.").wait_for()
+                page.get_by_role("heading", name="Open Anyway once").wait_for()
+                page.get_by_text("Launch at Login is optional", exact=False).wait_for()
                 assert page.get_by_role("link", name="Apple's Gatekeeper guidance ↗").get_attribute("href").startswith("https://support.apple.com/")
             else:
                 assert page.locator('header a[href="/mac-helper"]').is_visible()

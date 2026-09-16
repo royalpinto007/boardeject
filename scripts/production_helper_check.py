@@ -59,13 +59,11 @@ with sync_playwright() as playwright:
     page = context.new_page()
 
     page.goto(base, wait_until="domcontentloaded")
-    page.get_by_role(
-        "heading", name=re.compile(r"^(Helper not detected|Connect the Mac helper)$")
-    ).wait_for()
+    page.get_by_role("heading", name="Install or open the helper").wait_for()
 
     bridge = start_bridge()
     try:
-        page.get_by_role("button", name="Check again").click()
+        page.get_by_role("button", name=re.compile(r"I opened it.*connect")).click()
         page.get_by_role("heading", name="Helper connected").wait_for()
         page.get_by_role("link", name="Back up a board").click()
         page.get_by_role("button", name="Scan Freeform").click()

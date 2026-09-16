@@ -782,6 +782,10 @@ a {
   background: #5f8b59;
   box-shadow: 0 0 0 3px rgba(95, 139, 89, 0.12);
 }
+.utility-light.error {
+  background: #a14d43;
+  box-shadow: 0 0 0 3px rgba(161, 77, 67, 0.12);
+}
 .utility-local {
   margin-left: auto;
   padding: 5px 8px;
