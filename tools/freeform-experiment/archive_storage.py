@@ -143,7 +143,10 @@ ui(
     'return {properties of titleElement, name of every action of titleElement}',
 )
 ui("insert-marker", 'click menu item "Text Box" of menu "Insert" of menu bar item "Insert" of menu bar 1\ndelay 1\nkeystroke "BoardEject archive storage fixture"\ndelay 2\nkey code 53')
-ui("copy-genuine-export-selection", 'keystroke "c" using command down\ndelay 2')
+ui(
+    "copy-genuine-export-selection",
+    'key code 53\nclick at {300, 100}\nkeystroke "a" using command down\ndelay 0.5\nkeystroke "c" using command down\ndelay 2',
+)
 genuine_export_capture = out / "genuine-export-selection.boardeject"
 genuine_capture_result = run(
     "capture-genuine-export-selection",
