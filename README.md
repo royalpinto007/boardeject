@@ -6,7 +6,7 @@ Export Apple Freeform boards to editable Excalidraw files or preserve a selected
 
 An editable escape route, not another whiteboard. No account, no board uploads, no cloud storage.
 
-[Export to Excalidraw](https://boardeject.dev/#export) · **[Back up a Freeform board](https://boardeject.dev/#archive)**
+[Export to Excalidraw](https://boardeject.dev/#export) · **[Archive a Freeform board](https://boardeject.dev/#archive)**
 
 [Download the Mac helper](https://boardeject.dev/mac-helper) · [Test your capture](https://boardeject.dev/test-capture) · [Try the sample file](examples/example.excalidraw)
 
@@ -31,11 +31,11 @@ BoardEject has two separate local-first workflows:
 Freeform clipboard → editable Excalidraw.
 
 1. Copy your objects in Apple Freeform.
-2. Save a capture with the [Mac helper](https://boardeject.dev/mac-helper).
-3. Import it into BoardEject, inspect the report and preview the result.
+2. Click **Import copied selection** on BoardEject. The [Mac helper](https://boardeject.dev/mac-helper) reads the current Freeform clipboard only after this action.
+3. Inspect the conversion report and preview the result.
 4. Download your editable `.excalidraw` file.
 
-### Local Freeform Backup / Archive
+### Local Freeform Archive
 
 ![Real Freeform 4.5 archive output: scan, select, create, verify, detect corruption](docs/archive-demo.gif)
 
@@ -56,9 +56,11 @@ No Mac handy? Choose **Try example board** on the website to explore editable ou
 
 ## Import from Freeform
 
-Apple Freeform → select objects → Cmd+C → capture → BoardEject → Excalidraw.
+Apple Freeform → select objects → Cmd+C → BoardEject → editable Excalidraw.
 
-Browsers cannot reliably read Apple's private clipboard types. The tiny [macOS helper](docs/guide.md) saves a `.boardeject` capture for the file picker. The **Import copied BoardEject capture** button accepts that same envelope copied as text. It does not claim direct access to private pasteboard formats. PDF is not supported input.
+Browsers cannot reliably read Apple's private clipboard types. After an explicit click on **Import copied selection**, the authenticated localhost [macOS helper](docs/guide.md) reads one stable pasteboard snapshot and returns the existing versioned capture envelope to BoardEject in the same browser. Conversion still runs locally through the verified parser and converter. PDF is not supported input.
+
+The normal flow does not save an intermediate capture file. Existing `.boardeject` files remain supported through **Capture-file fallback** and the [Capture Tester](https://boardeject.dev/test-capture) for development, diagnostics, and recovery.
 
 The helper compiles and passes its command-line smoke check in clean macOS CI. Real Freeform 4.5 GUI captures on hosted macOS validate the listed conversion subsets, not every Freeform object or version. Unsupported structures are withheld instead of producing misleading exports.
 
@@ -76,7 +78,7 @@ Supported fixture-backed shapes, text, tables, assets, ink, and connectors are c
 
 ### Archive status
 
-**v0.0.3 includes Local Freeform Backup / Archive for the exact verified Freeform 4.5 schema alongside the existing editable export.** The demo uses a synthetic example to demonstrate editable output, not a complete Freeform import. Freeform 4.5 version-7 data is not generally supported. Only the fixture-backed table and single-object sidecar fallbacks described below are recovered. See the [support matrix](#support-matrix) and [fidelity report](docs/fidelity.md) before importing real work.
+**v0.0.3 includes Local Freeform Archive for the exact verified Freeform 4.5 schema alongside the existing editable export.** The demo uses a synthetic example to demonstrate editable output, not a complete Freeform import. Freeform 4.5 version-7 data is not generally supported. Only the fixture-backed table and single-object sidecar fallbacks described below are recovered. See the [support matrix](#support-matrix) and [fidelity report](docs/fidelity.md) before importing real work.
 
 ## Known limitations
 
@@ -121,7 +123,7 @@ These paths require the complete capture sidecars, not standalone CRL. They do n
 | Tables | **Verified subset:** editable cell IDs/text, unequal dimensions, insert/delete/reorder, multiline/empty content, font metadata/alignment, solid text/background colors, border visibility/width/color/solid-or-dotted style, multiple tables, and attached text boxes. Outer-only edges and attachment padding are approximated. Freeform 4.5 exposes no table merge or rotation operation; other attachment classes fail safely. [#15](https://github.com/royalpinto007/boardeject/issues/15). |
 | Reporting and privacy | Unsupported elements/versions reported; no fabricated replacement output. Browser processing, no accounts, board uploads or cloud storage. |
 | Freeform version compatibility | Compatible native versions reported by libfreeform use the normal adapter. Genuine Freeform 4.5 captures declare minimum version 7, which is not generally supported. Only verified table and single-object image/text sidecar fallbacks are recovered; other version-7 structures are withheld. Cross-version validation remains [#6](https://github.com/royalpinto007/boardeject/issues/6). |
-| Local Backup / Archive | Freeform 4.5 schema version 16 with fingerprint `921b22ba…f433` supports verified board discovery, strict title decoding with UUID fallback, selected-board-only extraction, original image/PDF/video/file preservation, deterministic archives and independent integrity verification. Unknown schemas fail closed. No restore or database-native Excalidraw conversion. |
+| Local Archive | Freeform 4.5 schema version 16 with fingerprint `921b22ba…f433` supports verified board discovery, strict title decoding with UUID fallback, selected-board-only extraction, original image/PDF/video/file preservation, deterministic archives and independent integrity verification. Unknown schemas fail closed. No restore or database-native Excalidraw conversion. |
 
 See [fidelity and native evidence](docs/fidelity.md), [privacy](https://boardeject.dev/privacy) and [terms](https://boardeject.dev/terms).
 
@@ -163,7 +165,7 @@ With the preview server running, use `npm run demo`. FFmpeg and Python Playwrigh
 
 ## Roadmap
 
-- Extend **Local Freeform Backup / Archive** only when additional Freeform database schemas have genuine native validation. See the [safety boundary](docs/guide.md) and stable [archive format](docs/archive-format.md).
+- Extend **Local Freeform Archive** only when additional Freeform database schemas have genuine native validation. See the [safety boundary](docs/guide.md) and stable [archive format](docs/archive-format.md).
 - Add fixture-backed native conversion for labelled shapes, connectors and nonidentity group transforms.
 - Validate Freeform clipboard captures across additional macOS versions.
 - Validate iPad-originated Apple Pencil pressure and erasure in [#20](https://github.com/royalpinto007/boardeject/issues/20).

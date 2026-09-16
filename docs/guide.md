@@ -1,6 +1,6 @@
 # BoardEject guide
 
-BoardEject has two local workflows: editable export and local backup.
+BoardEject has two local workflows: editable export and local archive.
 
 ## Install the Mac helper
 
@@ -23,18 +23,17 @@ After approval, the helper waits for its private localhost bridge, opens boardej
 ## Export to editable Excalidraw
 
 1. Select objects in Apple Freeform and press Cmd+C.
-2. From the unzipped helper directory, run `./boardeject-capture ~/Desktop/Selection.boardeject`.
-3. Open [Capture Tester](https://boardeject.dev/test-capture) and choose the saved file.
-4. Review converted, partial, and unsupported findings.
-5. Preview or download the editable `.excalidraw` result.
+2. Click **Import copied selection** on [boardeject.dev](https://boardeject.dev/#export).
+3. Review converted, partial, and unsupported findings.
+4. Preview or download the editable `.excalidraw` result.
 
 Browsers cannot read Apple's private Freeform pasteboard types directly.
 
-The capture helper reads one pasteboard snapshot, verifies its change count, refuses to overwrite an existing file, and sends nothing over the network.
+The localhost helper reads one pasteboard snapshot only after the explicit Import action, verifies its change count, and sends nothing to a BoardEject server.
 
-A `.boardeject` capture can contain content or metadata not visible on the board, so keep it private unless you deliberately sanitize it.
+Use **Capture-file fallback** or [Capture Tester](https://boardeject.dev/test-capture) only when you already have a `.boardeject` file or need the developer workflow. A capture can contain content or metadata not visible on the board, so keep it private unless you deliberately sanitize it.
 
-## Back up a Freeform board
+## Archive a Freeform board
 
 From the unzipped helper directory, run:
 

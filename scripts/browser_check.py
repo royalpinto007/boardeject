@@ -122,7 +122,7 @@ if __name__ == "__main__":
         assert page.locator("#demo video").evaluate("video => video.currentTime > 0 && video.videoWidth > 0 && !video.error")
         page.goto(BASE + "/")
         page.get_by_role("heading", name="Install or open the helper").wait_for()
-        page.get_by_role("link", name="Back up a board").click()
+        page.get_by_role("link", name="Archive a board").click()
         page.get_by_role("heading", name="Helper connected").wait_for()
         assert page.locator('header a[href="/mac-helper"]').is_visible()
         assert page.locator("header .brand img").get_attribute("src") == "/favicon.svg"
@@ -138,8 +138,8 @@ if __name__ == "__main__":
         assert clipboard_box["y"] >= helper_box["y"] + helper_box["height"] + 8
         page.get_by_role("button", name="Scan Freeform").click()
         page.get_by_role("button", name="Product planning").click()
-        page.get_by_role("button", name="Create local backup").click()
-        page.get_by_role("heading", name="Backup created").wait_for(timeout=3000)
+        page.get_by_role("button", name="Create local archive").click()
+        page.get_by_role("heading", name="Archive created").wait_for(timeout=3000)
         page.get_by_role("button", name="Verify now").click()
         try:
             page.get_by_role("heading", name="Archive verified").wait_for()
