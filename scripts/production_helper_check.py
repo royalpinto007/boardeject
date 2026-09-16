@@ -3,6 +3,7 @@
 import json
 import os
 from pathlib import Path
+import re
 import subprocess
 import time
 import urllib.error
@@ -58,7 +59,9 @@ with sync_playwright() as playwright:
     page = context.new_page()
 
     page.goto(base, wait_until="domcontentloaded")
-    page.get_by_role("heading", name="Helper not detected").wait_for()
+    page.get_by_role(
+        "heading", name=re.compile(r"^(Helper not detected|Connect the Mac helper)$")
+    ).wait_for()
 
     bridge = start_bridge()
     try:
