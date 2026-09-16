@@ -116,6 +116,20 @@ clipboard_compile = run(
 )
 if clipboard_compile.returncode != 0:
     raise SystemExit("File clipboard helper did not compile.")
+capture_helper = out / "boardeject-capture"
+capture_compile = run(
+    "compile-clipboard-capture",
+    ["xcrun", "swiftc", "apps/mac-helper/main.swift", "-o", str(capture_helper)],
+    120,
+)
+restore_helper = out / "restore-clipboard"
+restore_compile = run(
+    "compile-clipboard-restore",
+    ["xcrun", "swiftc", "tools/freeform-experiment/restore_clipboard.swift", "-o", str(restore_helper)],
+    120,
+)
+if capture_compile.returncode != 0 or restore_compile.returncode != 0:
+    raise SystemExit("Clipboard round-trip helpers did not compile.")
 probe = ui("ui-permission", 'return name of every menu bar item of menu bar 1')
 if probe.returncode != 0:
     raise SystemExit("Freeform UI automation unavailable; inspect ui-permission.json in the workflow log.")
@@ -129,6 +143,15 @@ ui(
     'return {properties of titleElement, name of every action of titleElement}',
 )
 ui("insert-marker", 'click menu item "Text Box" of menu "Insert" of menu bar item "Insert" of menu bar 1\ndelay 1\nkeystroke "BoardEject archive storage fixture"\ndelay 2\nkey code 53')
+ui("copy-genuine-export-selection", 'keystroke "c" using command down\ndelay 2')
+genuine_export_capture = out / "genuine-export-selection.boardeject"
+genuine_capture_result = run(
+    "capture-genuine-export-selection",
+    [str(capture_helper), str(genuine_export_capture)],
+    120,
+)
+if genuine_capture_result.returncode != 0 or not genuine_export_capture.is_file():
+    raise SystemExit("A genuine Freeform clipboard selection could not be captured.")
 run(
     "image-clipboard",
     [
@@ -429,6 +452,13 @@ if bridge_executable:
         raise SystemExit("The packaged CLI fallback could not verify its archive.")
 site_url = os.environ.get("BOARDEJECT_SITE_URL", "").strip()
 if site_url:
+    restored = run(
+        "restore-genuine-export-selection",
+        [str(restore_helper), str(genuine_export_capture)],
+        120,
+    )
+    if restored.returncode != 0:
+        raise SystemExit("The genuine Freeform selection could not be restored for production validation.")
     production_environment = bridge_environment.copy()
     production_environment["BOARDEJECT_SITE_URL"] = site_url
     production_environment["BOARDEJECT_TEST_BOARD_NAME"] = str(
@@ -529,6 +559,21 @@ try:
                         break
                 except urllib.error.URLError:
                     time.sleep(0.25)
+        export_demo_result = run(
+            "record-genuine-export-demo",
+            [
+                "python3",
+                "scripts/record_export_demo.py",
+                "--replace",
+                "--output-dir",
+                str(out / "demo-export"),
+                "--base-url",
+                demo_url,
+            ],
+            180,
+        )
+        if export_demo_result.returncode != 0:
+            raise SystemExit("The genuine clipboard export demo could not be recorded.")
         demo_result = run(
             "record-genuine-helper-demo",
             [

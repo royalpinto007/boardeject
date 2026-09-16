@@ -65,7 +65,15 @@ with sync_playwright() as playwright:
     try:
         page.get_by_role("button", name=re.compile(r"I opened it.*connect")).click()
         page.get_by_role("heading", name="Helper connected").wait_for()
-        page.get_by_role("link", name="Back up a board").click()
+        page.get_by_role("button", name="Import copied selection").click()
+        page.get_by_role("heading", name=re.compile(r"[1-9][0-9]* editable elements")).wait_for(timeout=120_000)
+        with page.expect_download() as export_event:
+            page.get_by_role("button", name="Download .excalidraw").click()
+        exported = Path(export_event.value.path())
+        export_data = json.loads(exported.read_text())
+        if export_data.get("type") != "excalidraw" or not export_data.get("elements"):
+            raise SystemExit("Production did not return an editable Excalidraw document.")
+        page.get_by_role("link", name="Archive a board").click()
         page.get_by_role("button", name="Scan Freeform").click()
         page.get_by_role("button", name=board_name).wait_for(timeout=120_000)
 
@@ -79,8 +87,8 @@ with sync_playwright() as playwright:
         page.get_by_role("heading", name="Helper connected").wait_for()
         page.get_by_role("button", name="Scan Freeform").click()
         page.get_by_role("button", name=board_name).click()
-        page.get_by_role("button", name="Create local backup").click()
-        page.get_by_role("heading", name="Backup created").wait_for(
+        page.get_by_role("button", name="Create local archive").click()
+        page.get_by_role("heading", name="Archive created").wait_for(
             timeout=120_000,
         )
         with page.expect_download() as event:
@@ -101,4 +109,4 @@ with sync_playwright() as playwright:
         context.close()
         browser.close()
 
-print("PASS: production offline, restart, error, scan, download, and verify flow")
+print("PASS: production clipboard export, offline, restart, error, scan, archive download, and verify flow")
