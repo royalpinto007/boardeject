@@ -22,6 +22,13 @@ async function start(
       ],
       warnings: [],
     })),
+    capture: vi.fn(async () =>
+      JSON.stringify({
+        format: "boardeject.clipboard",
+        version: 1,
+        flavors: [{ uti: "com.apple.freeform.CRLNativeData", base64: "AQ==" }],
+      }),
+    ),
     create: vi.fn(async () => archive),
     verify: vi.fn(async () => ({
       valid: true,
@@ -107,6 +114,42 @@ describe("localhost bridge", () => {
       valid: true,
       filesChecked: 10,
     });
+  });
+
+  it("captures the current Freeform clipboard only through an authenticated explicit request", async () => {
+    const capture = vi.fn(async () =>
+      JSON.stringify({
+        format: "boardeject.clipboard",
+        version: 1,
+        flavors: [{ uti: "com.apple.freeform.CRLNativeData", base64: "AQ==" }],
+      }),
+    );
+    const { url } = await start({ capture });
+
+    expect(
+      (
+        await fetch(`${url}/v1/clipboard/capture`, {
+          method: "POST",
+          headers: { Origin: origin },
+        })
+      ).status,
+    ).toBe(401);
+    expect(capture).not.toHaveBeenCalled();
+
+    const { token } = await connect(url);
+    const response = await fetch(`${url}/v1/clipboard/capture`, {
+      method: "POST",
+      headers: { Origin: origin, "X-BoardEject-Token": token },
+    });
+    expect(response.status).toBe(200);
+    expect(response.headers.get("content-type")).toContain(
+      "application/vnd.boardeject.clipboard+json",
+    );
+    expect(await response.json()).toMatchObject({
+      format: "boardeject.clipboard",
+      version: 1,
+    });
+    expect(capture).toHaveBeenCalledOnce();
   });
 
   it("rejects foreign origins, DNS rebinding hosts, and unauthenticated writes", async () => {

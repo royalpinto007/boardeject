@@ -28,6 +28,7 @@ export interface BridgeOptions {
   port?: number;
   allowedOrigins?: ReadonlySet<string>;
   scan: typeof scanFreeformBoards;
+  capture: () => Promise<string>;
   create: typeof createFreeformArchive;
   verify: typeof verifyFreeformArchive;
 }
@@ -119,6 +120,7 @@ export function createBridgeServer(options: BridgeOptions) {
   const port = options.port ?? BRIDGE_PORT;
   const origins = options.allowedOrigins ?? DEFAULT_ORIGINS;
   const scan = options.scan;
+  const capture = options.capture;
   const create = options.create;
   const verify = options.verify;
   const token = randomBytes(32).toString("base64url");
@@ -162,6 +164,21 @@ export function createBridgeServer(options: BridgeOptions) {
       }
       if (request.method === "POST" && url.pathname === "/v1/boards/scan") {
         json(response, 200, await scan());
+        return;
+      }
+      if (
+        request.method === "POST" &&
+        url.pathname === "/v1/clipboard/capture"
+      ) {
+        const body = await capture();
+        response.writeHead(200, {
+          "Cache-Control": "no-store",
+          "Content-Type":
+            "application/vnd.boardeject.clipboard+json; charset=utf-8",
+          "Content-Length": Buffer.byteLength(body),
+          "X-Content-Type-Options": "nosniff",
+        });
+        response.end(body);
         return;
       }
       if (request.method === "POST" && url.pathname === "/v1/archives/create") {
