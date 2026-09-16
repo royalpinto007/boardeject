@@ -138,7 +138,7 @@ jobs:
           executable="$app/Contents/MacOS/BoardEject Helper"
           test -x "$executable"
           codesign --verify --deep --strict "$app"
-          strings "$executable" | grep -F 'Launch at Login'
+          strings "$executable" | grep -qF 'Launch at Login'
           if [ "$EXPECTED_ARCHITECTURE" = universal ]; then
             lipo "$executable" -verify_arch arm64 x86_64
           else
@@ -169,7 +169,7 @@ jobs:
             fi
             sleep 0.25
           done
-          grep -F 'boardeject-local-helper' status.json
+          grep -qF 'boardeject-local-helper' status.json
           pkill -f 'BoardEject Helper.app/Contents/MacOS' || true
           rm -rf "$installed_app"
           trap - EXIT
