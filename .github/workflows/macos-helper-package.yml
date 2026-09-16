@@ -53,6 +53,7 @@ jobs:
           done
           codesign --verify --deep --strict "dist/macos-helper/BoardEject Helper.app"
       - run: ditto -c -k --sequesterRsrc --keepParent dist/macos-helper BoardEject-macOS.zip
+      - run: bash scripts/package-macos-dmg.sh dist/macos-helper BoardEject-macOS.dmg
       - name: Create architecture-specific web downloads
         run: |
           for arch in arm64 x86_64; do
@@ -66,23 +67,30 @@ jobs:
             done
             codesign --force --deep --sign - "$destination/BoardEject Helper.app"
             ditto -c -k --sequesterRsrc --keepParent "$destination" "BoardEject-macOS-$arch.zip"
+            bash scripts/package-macos-dmg.sh "$destination" "BoardEject-macOS-$arch.dmg"
           done
       - uses: actions/upload-artifact@v4
         with:
           name: BoardEject-macOS-universal
-          path: BoardEject-macOS.zip
+          path: |
+            BoardEject-macOS.zip
+            BoardEject-macOS.dmg
           if-no-files-found: error
           retention-days: 30
       - uses: actions/upload-artifact@v4
         with:
           name: BoardEject-macOS-arm64
-          path: BoardEject-macOS-arm64.zip
+          path: |
+            BoardEject-macOS-arm64.zip
+            BoardEject-macOS-arm64.dmg
           if-no-files-found: error
           retention-days: 30
       - uses: actions/upload-artifact@v4
         with:
           name: BoardEject-macOS-x86_64
-          path: BoardEject-macOS-x86_64.zip
+          path: |
+            BoardEject-macOS-x86_64.zip
+            BoardEject-macOS-x86_64.dmg
           if-no-files-found: error
           retention-days: 30
 
@@ -94,15 +102,15 @@ jobs:
         include:
           - runner: macos-14
             artifact: BoardEject-macOS-arm64
-            archive: BoardEject-macOS-arm64.zip
+            archive: BoardEject-macOS-arm64.dmg
             architecture: arm64
           - runner: macos-15-intel
             artifact: BoardEject-macOS-x86_64
-            archive: BoardEject-macOS-x86_64.zip
+            archive: BoardEject-macOS-x86_64.dmg
             architecture: x86_64
           - runner: macos-14
             artifact: BoardEject-macOS-universal
-            archive: BoardEject-macOS.zip
+            archive: BoardEject-macOS.dmg
             architecture: universal
     runs-on: ${{ matrix.runner }}
     steps:
@@ -117,12 +125,20 @@ jobs:
           set -euo pipefail
           destination="$RUNNER_TEMP/clean-download"
           mkdir -p "$destination"
-          ditto -x -k "$ARCHIVE" "$destination"
-          app=$(find "$destination" -type d -name 'BoardEject Helper.app' -print -quit)
+          mountpoint="$RUNNER_TEMP/boardeject-dmg"
+          mkdir -p "$mountpoint"
+          hdiutil attach -quiet -nobrowse -mountpoint "$mountpoint" "$ARCHIVE"
+          trap 'hdiutil detach -quiet "$mountpoint" 2>/dev/null || true' EXIT
+          test -L "$mountpoint/Applications"
+          ditto "$mountpoint/BoardEject Helper.app" "$destination/BoardEject Helper.app"
+          hdiutil detach -quiet "$mountpoint"
+          trap - EXIT
+          app="$destination/BoardEject Helper.app"
           test -n "$app"
           executable="$app/Contents/MacOS/BoardEject Helper"
           test -x "$executable"
           codesign --verify --deep --strict "$app"
+          strings "$executable" | grep -F 'Launch at Login'
           if [ "$EXPECTED_ARCHITECTURE" = universal ]; then
             lipo "$executable" -verify_arch arm64 x86_64
           else
@@ -141,6 +157,11 @@ jobs:
           # prompt. Removing this test quarantine marker models the state after
           # the user completes Apple's documented Open Anyway flow.
           xattr -dr com.apple.quarantine "$app"
+          installed_app="/Applications/BoardEject Helper CI.app"
+          rm -rf "$installed_app"
+          ditto "$app" "$installed_app"
+          trap 'rm -rf "$installed_app"; pkill -f "BoardEject Helper.app/Contents/MacOS" 2>/dev/null || true' EXIT
+          "$installed_app/Contents/MacOS/BoardEject Helper" --validate-launch-at-login
           open "$app"
           for attempt in {1..40}; do
             if curl --fail --silent --header 'Origin: https://boardeject.dev' http://127.0.0.1:48117/v1/status >status.json; then
@@ -150,3 +171,5 @@ jobs:
           done
           grep -F 'boardeject-local-helper' status.json
           pkill -f 'BoardEject Helper.app/Contents/MacOS' || true
+          rm -rf "$installed_app"
+          trap - EXIT

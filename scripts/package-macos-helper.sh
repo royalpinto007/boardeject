@@ -26,7 +26,7 @@ build_bun_universal() {
 
 build_swift_universal apps/archive-helper/main.swift boardeject-archive-native -lsqlite3
 build_swift_universal apps/mac-helper/main.swift boardeject-capture
-build_swift_universal apps/helper-launcher/main.swift "BoardEject Helper" -framework AppKit
+build_swift_universal apps/helper-launcher/main.swift "BoardEject Helper" -framework AppKit -framework ServiceManagement
 build_bun_universal scripts/archive-freeform.ts boardeject-mac
 cp scripts/assets/mac-helper-Info.plist "$app/Contents/Info.plist"
 cp scripts/assets/helper-readme.txt "$output/README.txt"
