@@ -1,6 +1,7 @@
 """Record a genuine Freeform clipboard import through the localhost helper."""
 
 import argparse
+import re
 import shutil
 import subprocess
 import tempfile
@@ -80,9 +81,9 @@ with tempfile.TemporaryDirectory(prefix="boardeject-export-demo-") as temporary:
         started = time.monotonic()
         page.get_by_role("button", name="Import copied selection").click()
         try:
-            page.get_by_role("heading", name="1 editable elements").wait_for(
-                timeout=30_000
-            )
+            page.get_by_role(
+                "heading", name=re.compile(r"[1-9][0-9]* editable elements")
+            ).wait_for(timeout=30_000)
         except PlaywrightTimeoutError:
             page.screenshot(path=str(output / "failure.png"), full_page=True)
             (output / "failure.html").write_text(page.content())
