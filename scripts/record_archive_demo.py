@@ -33,6 +33,10 @@ with tempfile.TemporaryDirectory(prefix="boardeject-archive-demo-") as temporary
             record_video_dir=temporary,
             record_video_size={"width": 1440, "height": 900},
         )
+        if args.base_url.startswith("https://"):
+            context.grant_permissions(
+                ["local-network-access"], origin=args.base_url.rstrip("/")
+            )
         page = context.new_page()
         page.goto(args.base_url, wait_until="networkidle")
         page.locator(".archive-utility").wait_for()
@@ -53,6 +57,10 @@ with tempfile.TemporaryDirectory(prefix="boardeject-archive-demo-") as temporary
         page.get_by_role("button", name="Create local backup").click()
         page.get_by_role("heading", name="Backup created").wait_for(timeout=120000)
         page.wait_for_timeout(900)
+        with page.expect_download() as event:
+            page.get_by_role("button", name="Save archive").click()
+        if not event.value.suggested_filename.endswith(".boardejectarchive"):
+            raise SystemExit("Website did not download a BoardEject archive.")
         page.get_by_role("button", name="Verify now").click()
         page.get_by_role("heading", name="Archive verified").wait_for(timeout=120000)
         page.wait_for_timeout(1400)

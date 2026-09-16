@@ -22,9 +22,20 @@ def png_chunk(kind: bytes, data: bytes) -> bytes:
     return struct.pack(">I", len(data)) + kind + data + struct.pack(">I", zlib.crc32(kind + data))
 
 
-def run(name: str, args: list[str], timeout: int = 60) -> subprocess.CompletedProcess[str]:
+def run(
+    name: str,
+    args: list[str],
+    timeout: int = 60,
+    environment: dict[str, str] | None = None,
+) -> subprocess.CompletedProcess[str]:
     try:
-        completed = subprocess.run(args, capture_output=True, text=True, timeout=timeout)
+        completed = subprocess.run(
+            args,
+            capture_output=True,
+            text=True,
+            timeout=timeout,
+            env=environment,
+        )
         record: dict[str, object] = {
             "exitCode": completed.returncode,
             "stdout": completed.stdout,
@@ -384,8 +395,55 @@ if (
 bridge_environment = os.environ.copy()
 bridge_environment["BOARDEJECT_FREEFORM_DATABASE"] = str(database)
 bridge_environment["BOARDEJECT_FREEFORM_ASSETS"] = str(assets_root)
+bridge_executable = os.environ.get("BOARDEJECT_BRIDGE_EXECUTABLE")
+bridge_command = (
+    [bridge_executable, "bridge"]
+    if bridge_executable
+    else ["node", "--experimental-strip-types", "scripts/archive-freeform.ts", "bridge"]
+)
+if bridge_executable:
+    packaged_scan = run(
+        "packaged-cli-scan",
+        [bridge_executable, "scan"],
+        120,
+        bridge_environment,
+    )
+    if packaged_scan.returncode != 0:
+        raise SystemExit("The packaged CLI fallback could not scan Freeform.")
+    packaged_archive = out / "packaged-cli.boardejectarchive"
+    packaged_create = run(
+        "packaged-cli-create",
+        [bridge_executable, "create", selected_board_id, str(packaged_archive)],
+        180,
+        bridge_environment,
+    )
+    if packaged_create.returncode != 0 or not packaged_archive.is_file():
+        raise SystemExit("The packaged CLI fallback could not create an archive.")
+    packaged_verify = run(
+        "packaged-cli-verify",
+        [bridge_executable, "verify", str(packaged_archive)],
+        120,
+        bridge_environment,
+    )
+    if packaged_verify.returncode != 0:
+        raise SystemExit("The packaged CLI fallback could not verify its archive.")
+site_url = os.environ.get("BOARDEJECT_SITE_URL", "").strip()
+if site_url:
+    production_environment = bridge_environment.copy()
+    production_environment["BOARDEJECT_SITE_URL"] = site_url
+    production_environment["BOARDEJECT_TEST_BOARD_NAME"] = str(
+        catalog_boards[1]["displayName"]
+    )
+    production_result = run(
+        "production-helper-states",
+        ["python3", "scripts/production_helper_check.py"],
+        300,
+        production_environment,
+    )
+    if production_result.returncode != 0:
+        raise SystemExit("The deployed website helper flow failed.")
 bridge_process = subprocess.Popen(
-    ["node", "--experimental-strip-types", "scripts/archive-freeform.ts", "bridge"],
+    bridge_command,
     stdout=subprocess.PIPE,
     stderr=subprocess.PIPE,
     text=True,
@@ -452,22 +510,25 @@ try:
         "filesChecked": bridge_verify.get("filesChecked"),
         "assetsVerified": bridge_verify.get("assetsVerified"),
     }
-    build_result = run("build-website-for-helper-demo", ["npm", "run", "build"], 180)
-    if build_result.returncode != 0:
-        raise SystemExit("The website could not be built for the genuine helper demo.")
-    preview_process = subprocess.Popen(
-        ["npm", "run", "preview", "--", "--strictPort"],
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
-        text=True,
-    )
+    preview_process = None
     try:
-        for _ in range(40):
-            try:
-                with urllib.request.urlopen("http://127.0.0.1:4190", timeout=2):
-                    break
-            except urllib.error.URLError:
-                time.sleep(0.25)
+        demo_url = site_url or "http://127.0.0.1:4190"
+        if not site_url:
+            build_result = run("build-website-for-helper-demo", ["npm", "run", "build"], 180)
+            if build_result.returncode != 0:
+                raise SystemExit("The website could not be built for the genuine helper demo.")
+            preview_process = subprocess.Popen(
+                ["npm", "run", "preview", "--", "--strictPort"],
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                text=True,
+            )
+            for _ in range(40):
+                try:
+                    with urllib.request.urlopen(demo_url, timeout=2):
+                        break
+                except urllib.error.URLError:
+                    time.sleep(0.25)
         demo_result = run(
             "record-genuine-helper-demo",
             [
@@ -478,17 +539,20 @@ try:
                 str(out / "demo"),
                 "--board-name",
                 str(catalog_boards[1]["displayName"]),
+                "--base-url",
+                demo_url,
             ],
             180,
         )
         if demo_result.returncode != 0:
             raise SystemExit("The genuine website and helper demo could not be recorded.")
     finally:
-        preview_process.terminate()
-        try:
-            preview_process.wait(timeout=10)
-        except subprocess.TimeoutExpired:
-            preview_process.kill()
+        if preview_process:
+            preview_process.terminate()
+            try:
+                preview_process.wait(timeout=10)
+            except subprocess.TimeoutExpired:
+                preview_process.kill()
 finally:
     bridge_process.terminate()
     try:

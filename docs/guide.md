@@ -12,6 +12,8 @@ Use the smaller native download for your Mac when possible. A [Universal build](
 
 Open **BoardEject Helper.app**. It starts a localhost-only bridge, opens boardeject.dev, and stays available from the macOS menu bar. The website then shows **Helper connected** and lets you scan, choose, create, save, and verify without terminal commands.
 
+Allow local network access if your browser asks. This permission lets boardeject.dev reach the helper on `127.0.0.1`; it does not expose the helper to your network.
+
 The bridge listens only on `127.0.0.1`, accepts only approved BoardEject origins, and uses a new in-memory session token each time it starts. All Freeform database, asset, archive, and verification work stays on the Mac.
 
 The helper is ad-hoc signed but not Apple-notarized. On the first launch, double-click it once and dismiss the warning. Open **System Settings → Privacy & Security**, scroll to **Security**, click **Open Anyway**, authenticate, then confirm **Open**. macOS saves that exception for later launches. Follow [Apple's current Gatekeeper guidance](https://support.apple.com/guide/mac-help/open-a-mac-app-from-an-unidentified-developer-mh40616/mac) and approve only the helper downloaded from boardeject.dev.

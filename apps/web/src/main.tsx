@@ -130,8 +130,11 @@ function LocalArchive() {
           <span className="utility-icon offline" aria-hidden="true">
             ↓
           </span>
-          <h3>Connect the Mac helper</h3>
-          <p>Install it once, then open it to use your own boards here.</p>
+          <h3>Helper not detected</h3>
+          <p>
+            Install it, or open it if it is already installed. Allow local
+            network access if your browser asks.
+          </p>
           <div className="utility-actions">
             <a className="button" href="/mac-helper">
               Get the helper
