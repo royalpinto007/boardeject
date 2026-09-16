@@ -16,6 +16,9 @@ from playwright.sync_api import sync_playwright
 base = os.environ.get("BOARDEJECT_SITE_URL", "https://boardeject.dev").rstrip("/")
 bridge_executable = os.environ.get("BOARDEJECT_BRIDGE_EXECUTABLE")
 board_name = os.environ["BOARDEJECT_TEST_BOARD_NAME"]
+capture_file = os.environ.get("BOARDEJECT_TEST_CAPTURE")
+restore_helper = os.environ.get("BOARDEJECT_RESTORE_CLIPBOARD")
+copy_freeform_selection = os.environ.get("BOARDEJECT_COPY_FREEFORM_SELECTION") == "1"
 if not bridge_executable:
     raise SystemExit("BOARDEJECT_BRIDGE_EXECUTABLE is required.")
 
@@ -65,7 +68,48 @@ with sync_playwright() as playwright:
     try:
         page.get_by_role("button", name=re.compile(r"I opened it.*connect")).click()
         page.get_by_role("heading", name="Helper connected").wait_for()
-        page.get_by_role("link", name="Back up a board").click()
+        if capture_file or restore_helper:
+            if not capture_file or not restore_helper:
+                raise SystemExit(
+                    "BOARDEJECT_TEST_CAPTURE and BOARDEJECT_RESTORE_CLIPBOARD must be set together."
+                )
+            subprocess.run(
+                [restore_helper, capture_file],
+                check=True,
+                capture_output=True,
+                text=True,
+            )
+        if copy_freeform_selection:
+            subprocess.run(
+                [
+                    "osascript",
+                    "-e",
+                    'tell application "Freeform" to activate\n'
+                    'delay 1\n'
+                    'tell application "System Events"\n'
+                    'tell process "Freeform"\n'
+                    'key code 53\n'
+                    'click at {300, 100}\n'
+                    'keystroke "a" using command down\n'
+                    'delay 0.5\n'
+                    'keystroke "c" using command down\n'
+                    'delay 1\n'
+                    'end tell\n'
+                    'end tell',
+                ],
+                check=True,
+                capture_output=True,
+                text=True,
+            )
+        page.get_by_role("button", name="Import copied selection").click()
+        page.get_by_role("heading", name=re.compile(r"[1-9][0-9]* editable elements")).wait_for(timeout=120_000)
+        with page.expect_download() as export_event:
+            page.get_by_role("button", name="Download .excalidraw").click()
+        exported = Path(export_event.value.path())
+        export_data = json.loads(exported.read_text())
+        if export_data.get("type") != "excalidraw" or not export_data.get("elements"):
+            raise SystemExit("Production did not return an editable Excalidraw document.")
+        page.get_by_role("link", name="Archive a board").click()
         page.get_by_role("button", name="Scan Freeform").click()
         page.get_by_role("button", name=board_name).wait_for(timeout=120_000)
 
@@ -79,8 +123,8 @@ with sync_playwright() as playwright:
         page.get_by_role("heading", name="Helper connected").wait_for()
         page.get_by_role("button", name="Scan Freeform").click()
         page.get_by_role("button", name=board_name).click()
-        page.get_by_role("button", name="Create local backup").click()
-        page.get_by_role("heading", name="Backup created").wait_for(
+        page.get_by_role("button", name="Create local archive").click()
+        page.get_by_role("heading", name="Archive created").wait_for(
             timeout=120_000,
         )
         with page.expect_download() as event:
@@ -101,4 +145,4 @@ with sync_playwright() as playwright:
         context.close()
         browser.close()
 
-print("PASS: production offline, restart, error, scan, download, and verify flow")
+print("PASS: production clipboard export, offline, restart, error, scan, archive download, and verify flow")

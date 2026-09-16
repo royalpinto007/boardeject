@@ -49,7 +49,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     @objc private func openBoardEject() {
-        NSWorkspace.shared.open(URL(string: "https://boardeject.dev/#archive")!)
+        NSWorkspace.shared.open(URL(string: "https://boardeject.dev/#export")!)
     }
 
     private func openBoardEjectWhenReady(attempt: Int) {

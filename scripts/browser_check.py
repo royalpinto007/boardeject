@@ -1,10 +1,22 @@
 """Validate actual Excalidraw interactions, without fabricating native capture."""
+import base64
+import json
 import os
+from pathlib import Path
+import re
 
 from playwright.sync_api import TimeoutError as PlaywrightTimeoutError, sync_playwright
 
 BASE = os.environ.get("BOARDEJECT_TEST_URL", "http://127.0.0.1:4190").rstrip("/")
 HELPER = "http://127.0.0.1:48117/v1"
+CAPTURE = json.dumps({
+    "format": "boardeject.clipboard",
+    "version": 1,
+    "flavors": [{
+        "uti": "com.apple.freeform.CRLNativeData",
+        "base64": base64.b64encode(Path("tests/fixtures/freeform-4.5/tables/table-baseline.crlnative").read_bytes()).decode(),
+    }],
+})
 
 
 def mock_helper(route):
@@ -18,6 +30,8 @@ def mock_helper(route):
         route.fulfill(json={"service": "boardeject-local-helper", "apiVersion": 1, "token": "browser-check-token", "localOnly": True}, headers=headers)
     elif path == "/boards/scan":
         route.fulfill(json={"format": "boardeject.freeform-catalog", "boards": [{"id": "11111111-1111-1111-1111-111111111111", "displayName": "Product planning", "titleStatus": "verified", "objectCount": 37, "assetReferenceCount": 8}], "warnings": []}, headers=headers)
+    elif path == "/clipboard/capture":
+        route.fulfill(body=CAPTURE, content_type="application/vnd.boardeject.clipboard+json", headers=headers)
     elif path == "/archives/create":
         route.fulfill(body=b"local archive", content_type="application/vnd.boardeject.archive", headers={**headers, "content-disposition": 'attachment; filename="Product-planning.boardejectarchive"'})
     elif path == "/archives/verify":
@@ -33,7 +47,7 @@ def open_example(page, base=BASE):
         assert link.get_attribute("target") == "_blank"
         assert "noopener" in (link.get_attribute("rel") or "")
     assert page.locator('a[href="#export"]').get_attribute("target") is None
-    page.get_by_role("button", name="Try browser demo").click()
+    page.get_by_role("button", name="Try example").click()
     page.get_by_role("button", name="Open in Excalidraw").click()
     page.wait_for_function("() => typeof window.boardejectSnapshot === 'function'")
     page.wait_for_timeout(600)
@@ -108,18 +122,24 @@ if __name__ == "__main__":
         assert page.locator("#demo video").evaluate("video => video.currentTime > 0 && video.videoWidth > 0 && !video.error")
         page.goto(BASE + "/")
         page.get_by_role("heading", name="Install or open the helper").wait_for()
-        page.get_by_role("link", name="Back up a board").click()
+        page.get_by_role("link", name="Archive a board").click()
         page.get_by_role("heading", name="Helper connected").wait_for()
         assert page.locator('header a[href="/mac-helper"]').is_visible()
         assert page.locator("header .brand img").get_attribute("src") == "/favicon.svg"
-        clipboard_box = page.get_by_role("button", name="Use copied BoardEject capture").bounding_box()
+        page.get_by_role("button", name="Import copied selection").click()
+        page.get_by_role("heading", name=re.compile(r"editable elements")).wait_for()
+        page.get_by_text("Capture inspected", exact=False).wait_for()
+        fallback = page.get_by_text("Capture-file fallback", exact=True)
+        assert fallback.is_visible()
+        fallback.click()
+        clipboard_box = page.get_by_role("button", name="Choose capture file").bounding_box()
         helper_box = page.get_by_role("link", name="Set up the macOS helper").bounding_box()
         assert clipboard_box and helper_box
-        assert helper_box["y"] >= clipboard_box["y"] + clipboard_box["height"] + 8
+        assert clipboard_box["y"] >= helper_box["y"] + helper_box["height"] + 8
         page.get_by_role("button", name="Scan Freeform").click()
         page.get_by_role("button", name="Product planning").click()
-        page.get_by_role("button", name="Create local backup").click()
-        page.get_by_role("heading", name="Backup created").wait_for(timeout=3000)
+        page.get_by_role("button", name="Create local archive").click()
+        page.get_by_role("heading", name="Archive created").wait_for(timeout=3000)
         page.get_by_role("button", name="Verify now").click()
         try:
             page.get_by_role("heading", name="Archive verified").wait_for()

@@ -8,6 +8,7 @@ import shutil
 import sqlite3
 import struct
 import subprocess
+import tempfile
 import time
 import urllib.error
 import urllib.request
@@ -116,6 +117,20 @@ clipboard_compile = run(
 )
 if clipboard_compile.returncode != 0:
     raise SystemExit("File clipboard helper did not compile.")
+capture_helper = out / "boardeject-capture"
+capture_compile = run(
+    "compile-clipboard-capture",
+    ["xcrun", "swiftc", "apps/mac-helper/main.swift", "-o", str(capture_helper)],
+    120,
+)
+restore_helper = out / "restore-clipboard"
+restore_compile = run(
+    "compile-clipboard-restore",
+    ["xcrun", "swiftc", "tools/freeform-experiment/restore_clipboard.swift", "-o", str(restore_helper)],
+    120,
+)
+if capture_compile.returncode != 0 or restore_compile.returncode != 0:
+    raise SystemExit("Clipboard round-trip helpers did not compile.")
 probe = ui("ui-permission", 'return name of every menu bar item of menu bar 1')
 if probe.returncode != 0:
     raise SystemExit("Freeform UI automation unavailable; inspect ui-permission.json in the workflow log.")
@@ -129,6 +144,18 @@ ui(
     'return {properties of titleElement, name of every action of titleElement}',
 )
 ui("insert-marker", 'click menu item "Text Box" of menu "Insert" of menu bar item "Insert" of menu bar 1\ndelay 1\nkeystroke "BoardEject archive storage fixture"\ndelay 2\nkey code 53')
+ui(
+    "copy-genuine-export-selection",
+    'key code 53\nclick at {300, 100}\nkeystroke "a" using command down\ndelay 0.5\nkeystroke "c" using command down\ndelay 2',
+)
+genuine_export_capture = out / "genuine-export-selection.boardeject"
+genuine_capture_result = run(
+    "capture-genuine-export-selection",
+    [str(capture_helper), str(genuine_export_capture)],
+    120,
+)
+if genuine_capture_result.returncode != 0 or not genuine_export_capture.is_file():
+    raise SystemExit("A genuine Freeform clipboard selection could not be captured.")
 run(
     "image-clipboard",
     [
@@ -396,6 +423,18 @@ bridge_environment = os.environ.copy()
 bridge_environment["BOARDEJECT_FREEFORM_DATABASE"] = str(database)
 bridge_environment["BOARDEJECT_FREEFORM_ASSETS"] = str(assets_root)
 bridge_executable = os.environ.get("BOARDEJECT_BRIDGE_EXECUTABLE")
+site_url = os.environ.get("BOARDEJECT_SITE_URL", "").strip()
+if bridge_executable and not site_url:
+    packaged_app = Path(bridge_executable).parents[2]
+    preserved_app = Path(tempfile.mkdtemp(prefix="boardeject-packaged-helper-")) / packaged_app.name
+    shutil.copytree(packaged_app, preserved_app)
+    bridge_executable = str(
+        preserved_app / "Contents" / "MacOS" / Path(bridge_executable).name
+    )
+    bridge_environment["BOARDEJECT_BRIDGE_EXECUTABLE"] = bridge_executable
+    build_result = run("build-website-for-helper-demo", ["npm", "run", "build"], 180)
+    if build_result.returncode != 0:
+        raise SystemExit("The website could not be built for the genuine helper demo.")
 bridge_command = (
     [bridge_executable, "bridge"]
     if bridge_executable
@@ -427,10 +466,19 @@ if bridge_executable:
     )
     if packaged_verify.returncode != 0:
         raise SystemExit("The packaged CLI fallback could not verify its archive.")
-site_url = os.environ.get("BOARDEJECT_SITE_URL", "").strip()
+restored = run(
+    "restore-genuine-export-selection",
+    [str(restore_helper), str(genuine_export_capture)],
+    120,
+)
+if restored.returncode != 0:
+    raise SystemExit("The genuine Freeform selection could not be restored for helper validation.")
 if site_url:
     production_environment = bridge_environment.copy()
     production_environment["BOARDEJECT_SITE_URL"] = site_url
+    production_environment["BOARDEJECT_TEST_CAPTURE"] = str(genuine_export_capture)
+    production_environment["BOARDEJECT_RESTORE_CLIPBOARD"] = str(restore_helper)
+    production_environment["BOARDEJECT_COPY_FREEFORM_SELECTION"] = "1"
     production_environment["BOARDEJECT_TEST_BOARD_NAME"] = str(
         catalog_boards[1]["displayName"]
     )
@@ -482,6 +530,29 @@ try:
     bridge_token = str(bridge_status.get("token") or "")
     if bridge_status.get("localOnly") is not True or not bridge_token:
         raise SystemExit("The localhost bridge did not provide a local authenticated session.")
+    restored = run(
+        "restore-genuine-export-selection-for-bridge",
+        [str(restore_helper), str(genuine_export_capture)],
+        120,
+    )
+    if restored.returncode != 0:
+        raise SystemExit("The genuine selection could not be restored for bridge capture.")
+    bridge_capture, capture_headers = bridge_request(
+        "/clipboard/capture", "POST", b"", token=bridge_token
+    )
+    captured_envelope = json.loads(bridge_capture)
+    if (
+        captured_envelope.get("format") != "boardeject.clipboard"
+        or captured_envelope.get("version") != 1
+        or not captured_envelope.get("flavors")
+        or "boardeject.clipboard" not in capture_headers.get("content-type", "")
+    ):
+        raise SystemExit("The localhost bridge did not return a genuine clipboard capture.")
+    results["localhost-bridge-clipboard"] = {
+        "format": captured_envelope["format"],
+        "version": captured_envelope["version"],
+        "flavors": len(captured_envelope["flavors"]),
+    }
     scan_bytes, _ = bridge_request("/boards/scan", "POST", b"", token=bridge_token)
     bridge_catalog = json.loads(scan_bytes)
     if {board["id"] for board in bridge_catalog.get("boards", [])} != {board["id"] for board in catalog_boards}:
@@ -514,9 +585,6 @@ try:
     try:
         demo_url = site_url or "http://127.0.0.1:4190"
         if not site_url:
-            build_result = run("build-website-for-helper-demo", ["npm", "run", "build"], 180)
-            if build_result.returncode != 0:
-                raise SystemExit("The website could not be built for the genuine helper demo.")
             preview_process = subprocess.Popen(
                 ["npm", "run", "preview", "--", "--strictPort"],
                 stdout=subprocess.PIPE,
@@ -529,6 +597,26 @@ try:
                         break
                 except urllib.error.URLError:
                     time.sleep(0.25)
+        export_demo_result = run(
+            "record-genuine-export-demo",
+            [
+                "python3",
+                "scripts/record_export_demo.py",
+                "--replace",
+                "--output-dir",
+                str(out / "demo-export"),
+                "--base-url",
+                demo_url,
+                "--capture-file",
+                str(genuine_export_capture),
+                "--restore-helper",
+                str(restore_helper),
+                "--copy-freeform-selection",
+            ],
+            180,
+        )
+        if export_demo_result.returncode != 0:
+            raise SystemExit("The genuine clipboard export demo could not be recorded.")
         demo_result = run(
             "record-genuine-helper-demo",
             [

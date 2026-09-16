@@ -111,7 +111,7 @@ function LocalArchive() {
       setMessage(
         error instanceof Error
           ? error.message
-          : "The backup could not be created.",
+          : "The archive could not be created.",
       );
       setStep("error");
     }
@@ -129,7 +129,7 @@ function LocalArchive() {
       setMessage(
         error instanceof Error
           ? error.message
-          : "The backup could not be verified.",
+          : "The archive could not be verified.",
       );
       setStep("error");
     }
@@ -244,7 +244,7 @@ function LocalArchive() {
           </div>
           {message && <p className="utility-message">{message}</p>}
           <button disabled={!selected} onClick={create}>
-            Create local backup
+            Create local archive
           </button>
         </div>
       )}
@@ -268,7 +268,7 @@ function LocalArchive() {
             <span className="result-icon">✓</span>
             <span className="utility-kicker">{archive?.filename}</span>
           </div>
-          <h3>Backup created</h3>
+          <h3>Archive created</h3>
           <p>Your board and original referenced files are ready.</p>
           <div className="utility-actions">
             <button
@@ -284,7 +284,7 @@ function LocalArchive() {
       {step === "verifying" && (
         <div className="utility-center">
           <span className="utility-icon activity" aria-hidden="true" />
-          <h3>Verifying backup…</h3>
+          <h3>Verifying archive…</h3>
           <p>Checking every manifest hash locally.</p>
         </div>
       )}
@@ -381,12 +381,19 @@ function App() {
     };
     worker.postMessage(source);
   }
-  async function clipboard() {
+  async function importCopiedSelection() {
+    setBusy(true);
+    setStatus("Connecting to the Mac helper…");
     try {
-      parse(await navigator.clipboard.readText());
-    } catch {
+      const helper = await connectLocalHelper();
+      setStatus("Helper connected. Reading your copied selection…");
+      parse(await helper.capture());
+    } catch (error) {
+      setBusy(false);
       setStatus(
-        "Native Freeform types are not available to ordinary browser paste. Use the macOS helper, then choose its .boardeject capture below.",
+        error instanceof Error
+          ? error.message
+          : "The copied Freeform selection could not be imported.",
       );
     }
   }
@@ -440,7 +447,7 @@ function App() {
               Your Freeform boards, <span>actually yours.</span>
             </h1>
             <p className="intro">
-              Keep editing in Excalidraw, or make a verified local backup with
+              Keep editing in Excalidraw, or make a verified local archive with
               the original assets.
             </p>
             <div className="actions hero-actions">
@@ -448,7 +455,7 @@ function App() {
                 Export to Excalidraw <span>↗</span>
               </a>
               <a className="button secondary" href="#archive">
-                Back up a board <span>↓</span>
+                Archive a board <span>↓</span>
               </a>
             </div>
             <p className="hero-note">Runs locally. No account. No uploads.</p>
@@ -484,50 +491,50 @@ function App() {
             <div className="product-card-copy">
               <span className="state-label">Editable Export</span>
               <h2>Move it. Edit it. Keep going.</h2>
-              <p>Freeform capture → editable Excalidraw.</p>
+              <p>Freeform clipboard → editable Excalidraw.</p>
               <p className="workflow-note">
-                <strong>Using your board?</strong> Install the Mac helper, copy
-                your Freeform selection, then choose the saved capture here.
+                <strong>Copy in Freeform.</strong> The helper reads that
+                selection only when you click Import.
               </p>
               <div className="actions">
-                <button onClick={example} disabled={busy}>
-                  Try browser demo <span>↗</span>
+                <button onClick={importCopiedSelection} disabled={busy}>
+                  {busy ? "Importing…" : "Import copied selection"}
                 </button>
-                <button
-                  className="secondary"
-                  onClick={() => file.current?.click()}
-                  disabled={busy}
-                >
-                  Choose capture
+                <button className="secondary" onClick={example} disabled={busy}>
+                  Try example <span>↗</span>
                 </button>
               </div>
-              <input
-                hidden
-                ref={file}
-                type="file"
-                accept=".boardeject,application/json"
-                onChange={async (event) => {
-                  const selected = event.target.files?.[0];
-                  if (!selected) return;
-                  if (selected.size > 45 * 1024 * 1024)
-                    setStatus("Capture exceeds 45 MiB.");
-                  else parse(await selected.text());
-                  event.target.value = "";
-                }}
-              />
-              <button
-                className="text-button clipboard-action"
-                onClick={clipboard}
-                disabled={busy}
-              >
-                Use copied BoardEject capture
-              </button>
               <p role="status" className="status">
                 {status}
               </p>
               <a className="helper-link" href="/mac-helper">
                 Set up the macOS helper →
               </a>
+              <details className="capture-fallback">
+                <summary>Capture-file fallback</summary>
+                <p>For development or an existing private capture.</p>
+                <button
+                  className="secondary"
+                  onClick={() => file.current?.click()}
+                  disabled={busy}
+                >
+                  Choose capture file
+                </button>
+                <input
+                  hidden
+                  ref={file}
+                  type="file"
+                  accept=".boardeject,application/json"
+                  onChange={async (event) => {
+                    const selected = event.target.files?.[0];
+                    if (!selected) return;
+                    if (selected.size > 45 * 1024 * 1024)
+                      setStatus("Capture exceeds 45 MiB.");
+                    else parse(await selected.text());
+                    event.target.value = "";
+                  }}
+                />
+              </details>
             </div>
             <figure className="demo compact-demo" id="demo">
               <video
@@ -550,7 +557,7 @@ function App() {
           <article className="product-card archive-card" id="archive">
             <span className="card-number">02</span>
             <div className="product-card-copy">
-              <span className="state-label">Local Backup / Archive</span>
+              <span className="state-label">Local Archive</span>
               <h2>One board. Original files. Verified.</h2>
               <p>Freeform → local `.boardejectarchive`.</p>
               <p className="workflow-note">
@@ -692,7 +699,7 @@ function App() {
           <div>
             <span>◇</span>
             <strong>Useful output</strong>
-            <small>Edit the export. Verify the backup.</small>
+            <small>Edit the export. Verify the archive.</small>
           </div>
           <div>
             <span>↗</span>
@@ -732,7 +739,7 @@ function App() {
               .
             </p>
             <p>
-              Local backup supports the exact verified Freeform 4.5 schema.
+              Local archive supports the exact verified Freeform 4.5 schema.
               Unknown schemas fail safely. Restore, write-back and iCloud
               manipulation are unavailable. Database-native records are not
               reconstructed into an unverified Excalidraw payload.

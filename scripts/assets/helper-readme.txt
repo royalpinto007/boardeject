@@ -3,7 +3,7 @@ BoardEject for macOS
 
 This Universal app supports Apple silicon and Intel. It needs no Node.js, npm, Git clone, or local Swift compilation.
 
-Open BoardEject Helper.app. It starts the localhost-only bridge and opens boardeject.dev. Scan, choose, create, save, and verify from the website.
+Open BoardEject Helper.app. It starts the localhost-only bridge and opens boardeject.dev. Copy a Freeform selection and import it, or scan, choose, create, save, and verify an archive from the website.
 
 CLI fallback for developers:
 

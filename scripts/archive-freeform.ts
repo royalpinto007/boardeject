@@ -86,6 +86,26 @@ async function helper(work: string) {
   return output;
 }
 
+async function clipboardHelper(work: string) {
+  if (process.platform !== "darwin")
+    throw new Error("Reading the Freeform clipboard requires macOS.");
+  const packaged = process.env.BOARDEJECT_CLIPBOARD_HELPER;
+  if (packaged) return realpath(packaged);
+  const adjacent = join(dirname(process.execPath), "boardeject-capture");
+  try {
+    return await realpath(adjacent);
+  } catch {
+    // Source checkouts compile the helper below. Packaged downloads ship it.
+  }
+  const output = join(work, "boardeject-capture");
+  await run("swiftc", [
+    join(repository, "apps/mac-helper/main.swift"),
+    "-o",
+    output,
+  ]);
+  return output;
+}
+
 async function preservedAssetFiles(root: string, manifestBytes: Uint8Array) {
   const parsed = JSON.parse(new TextDecoder().decode(manifestBytes)) as {
     assets?: { file?: string }[];
@@ -137,6 +157,37 @@ async function withSnapshot<T>(
 
 export async function scanFreeformBoards() {
   return withSnapshot(async ({ catalog }) => catalog);
+}
+
+export async function captureFreeformClipboard(): Promise<string> {
+  const work = await mkdtemp(join(tmpdir(), "boardeject-clipboard-"));
+  try {
+    const executable = await clipboardHelper(work);
+    const destination = join(work, "selection.boardeject");
+    try {
+      await run(executable, [destination]);
+    } catch {
+      throw new Error(
+        "Copy one or more objects in Apple Freeform, then try again.",
+      );
+    }
+    const source = await readFile(destination, "utf8");
+    const envelope = JSON.parse(source) as {
+      format?: unknown;
+      version?: unknown;
+      flavors?: unknown;
+    };
+    if (
+      envelope.format !== "boardeject.clipboard" ||
+      envelope.version !== 1 ||
+      !Array.isArray(envelope.flavors)
+    ) {
+      throw new Error("The copied Freeform selection is not supported.");
+    }
+    return source;
+  } finally {
+    await rm(work, { recursive: true, force: true });
+  }
 }
 
 export async function createFreeformArchive(
@@ -237,6 +288,7 @@ if ((import.meta as ImportMeta & { main?: boolean }).main) {
       await import("../apps/local-bridge/server.ts");
     const bridge = createBridgeServer({
       scan: scanFreeformBoards,
+      capture: captureFreeformClipboard,
       create: createFreeformArchive,
       verify: verifyFreeformArchive,
     });
