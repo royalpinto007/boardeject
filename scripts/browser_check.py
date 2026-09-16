@@ -1,7 +1,7 @@
 """Validate actual Excalidraw interactions, without fabricating native capture."""
 import os
 
-from playwright.sync_api import sync_playwright
+from playwright.sync_api import TimeoutError as PlaywrightTimeoutError, sync_playwright
 
 BASE = os.environ.get("BOARDEJECT_TEST_URL", "http://127.0.0.1:4190").rstrip("/")
 HELPER = "http://127.0.0.1:48117/v1"
@@ -121,7 +121,12 @@ if __name__ == "__main__":
         page.get_by_role("button", name="Create local backup").click()
         page.get_by_role("heading", name="Backup created").wait_for(timeout=3000)
         page.get_by_role("button", name="Verify now").click()
-        page.get_by_role("heading", name="Archive verified").wait_for()
+        try:
+            page.get_by_role("heading", name="Archive verified").wait_for()
+        except PlaywrightTimeoutError as error:
+            state = page.locator(".archive-utility").get_attribute("data-step")
+            detail = page.locator(".archive-utility").inner_text()
+            raise AssertionError(f"Archive verification stalled in {state}: {detail}") from error
         assert "10" in page.locator(".proof-grid").inner_text()
         assert "8" in page.locator(".proof-grid").inner_text()
         for width in (360, 768, 1280):

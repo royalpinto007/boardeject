@@ -29,6 +29,8 @@ type ArchiveStep =
   | "error";
 
 function LocalArchive() {
+  const connectionPending = useRef(false);
+  const autoConnectStarted = useRef(false);
   const [step, setStep] = useState<ArchiveStep>("offline");
   const [helper, setHelper] = useState<LocalHelper>();
   const [boards, setBoards] = useState<LocalBoard[]>([]);
@@ -38,27 +40,36 @@ function LocalArchive() {
   const [message, setMessage] = useState("");
 
   async function connect(retry = true) {
+    if (connectionPending.current) return;
+    connectionPending.current = true;
     setStep("connecting");
     setMessage("");
-    const attempts = retry ? 12 : 1;
-    for (let attempt = 0; attempt < attempts; attempt += 1) {
-      try {
-        const connected = await connectLocalHelper();
-        setHelper(connected);
-        setStep("ready");
-        return;
-      } catch {
-        if (attempt + 1 < attempts)
-          await new Promise((resolve) => window.setTimeout(resolve, 750));
+    try {
+      const attempts = retry ? 12 : 1;
+      for (let attempt = 0; attempt < attempts; attempt += 1) {
+        try {
+          const connected = await connectLocalHelper();
+          setHelper(connected);
+          setStep("ready");
+          return;
+        } catch {
+          if (attempt + 1 < attempts)
+            await new Promise((resolve) => window.setTimeout(resolve, 750));
+        }
       }
+      setHelper(undefined);
+      setStep("offline");
+    } finally {
+      connectionPending.current = false;
     }
-    setHelper(undefined);
-    setStep("offline");
   }
 
   useEffect(() => {
     const activate = () => {
-      if (window.location.hash === "#archive") void connect();
+      if (window.location.hash === "#archive" && !autoConnectStarted.current) {
+        autoConnectStarted.current = true;
+        void connect();
+      }
     };
     window.addEventListener("hashchange", activate);
     const timer = window.setTimeout(activate, 350);
