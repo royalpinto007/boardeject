@@ -583,8 +583,8 @@ try:
     }
     preview_process = None
     try:
-        demo_url = site_url or "http://127.0.0.1:4190"
         if not site_url:
+            demo_url = "http://127.0.0.1:4190"
             preview_process = subprocess.Popen(
                 ["npm", "run", "preview", "--", "--strictPort"],
                 stdout=subprocess.PIPE,
@@ -597,43 +597,43 @@ try:
                         break
                 except urllib.error.URLError:
                     time.sleep(0.25)
-        export_demo_result = run(
-            "record-genuine-export-demo",
-            [
-                "python3",
-                "scripts/record_export_demo.py",
-                "--replace",
-                "--output-dir",
-                str(out / "demo-export"),
-                "--base-url",
-                demo_url,
-                "--capture-file",
-                str(genuine_export_capture),
-                "--restore-helper",
-                str(restore_helper),
-                "--copy-freeform-selection",
-            ],
-            180,
-        )
-        if export_demo_result.returncode != 0:
-            raise SystemExit("The genuine clipboard export demo could not be recorded.")
-        demo_result = run(
-            "record-genuine-helper-demo",
-            [
-                "python3",
-                "scripts/record_archive_demo.py",
-                "--replace",
-                "--output-dir",
-                str(out / "demo"),
-                "--board-name",
-                str(catalog_boards[1]["displayName"]),
-                "--base-url",
-                demo_url,
-            ],
-            180,
-        )
-        if demo_result.returncode != 0:
-            raise SystemExit("The genuine website and helper demo could not be recorded.")
+            export_demo_result = run(
+                "record-genuine-export-demo",
+                [
+                    "python3",
+                    "scripts/record_export_demo.py",
+                    "--replace",
+                    "--output-dir",
+                    str(out / "demo-export"),
+                    "--base-url",
+                    demo_url,
+                    "--capture-file",
+                    str(genuine_export_capture),
+                    "--restore-helper",
+                    str(restore_helper),
+                    "--copy-freeform-selection",
+                ],
+                180,
+            )
+            if export_demo_result.returncode != 0:
+                raise SystemExit("The genuine clipboard export demo could not be recorded.")
+            demo_result = run(
+                "record-genuine-helper-demo",
+                [
+                    "python3",
+                    "scripts/record_archive_demo.py",
+                    "--replace",
+                    "--output-dir",
+                    str(out / "demo"),
+                    "--board-name",
+                    str(catalog_boards[1]["displayName"]),
+                    "--base-url",
+                    demo_url,
+                ],
+                180,
+            )
+            if demo_result.returncode != 0:
+                raise SystemExit("The genuine website and helper demo could not be recorded.")
     finally:
         if preview_process:
             preview_process.terminate()
