@@ -104,6 +104,13 @@ export async function connectLocalHelper() {
   }
   const headers = { "X-BoardEject-Token": status.token };
   return {
+    async capture(): Promise<string> {
+      const result = await request("/clipboard/capture", {
+        method: "POST",
+        headers,
+      });
+      return result.text();
+    },
     async scan(): Promise<LocalCatalog> {
       const result = await request("/boards/scan", { method: "POST", headers });
       return result.json() as Promise<LocalCatalog>;

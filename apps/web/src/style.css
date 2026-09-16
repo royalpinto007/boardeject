@@ -721,20 +721,33 @@ a {
 .product-card-copy .actions {
   margin-top: 27px;
 }
-.clipboard-action {
-  display: flex !important;
-  width: max-content;
-  max-width: 100%;
-  margin-top: 8px;
-  padding-left: 0;
-  min-height: 32px;
-  font-size: 12px;
-}
 .helper-link {
   display: block;
   width: max-content;
   max-width: 100%;
   margin-top: 12px;
+  font-size: 12px;
+}
+.capture-fallback {
+  max-width: 470px;
+  margin-top: 18px;
+  padding-top: 14px;
+  border-top: 1px solid #d7ddd1;
+  color: #647166;
+  font-size: 12px;
+}
+.capture-fallback summary {
+  width: max-content;
+  cursor: pointer;
+  color: #36513e;
+  font-weight: 700;
+}
+.capture-fallback p {
+  margin: 10px 0;
+}
+.capture-fallback button {
+  min-height: 40px;
+  padding: 8px 14px;
   font-size: 12px;
 }
 .workflow-note {

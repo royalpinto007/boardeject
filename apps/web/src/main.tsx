@@ -381,12 +381,19 @@ function App() {
     };
     worker.postMessage(source);
   }
-  async function clipboard() {
+  async function importCopiedSelection() {
+    setBusy(true);
+    setStatus("Connecting to the Mac helper…");
     try {
-      parse(await navigator.clipboard.readText());
-    } catch {
+      const helper = await connectLocalHelper();
+      setStatus("Helper connected. Reading your copied selection…");
+      parse(await helper.capture());
+    } catch (error) {
+      setBusy(false);
       setStatus(
-        "Native Freeform types are not available to ordinary browser paste. Use the macOS helper, then choose its .boardeject capture below.",
+        error instanceof Error
+          ? error.message
+          : "The copied Freeform selection could not be imported.",
       );
     }
   }
@@ -484,50 +491,50 @@ function App() {
             <div className="product-card-copy">
               <span className="state-label">Editable Export</span>
               <h2>Move it. Edit it. Keep going.</h2>
-              <p>Freeform capture → editable Excalidraw.</p>
+              <p>Freeform clipboard → editable Excalidraw.</p>
               <p className="workflow-note">
-                <strong>Using your board?</strong> Install the Mac helper, copy
-                your Freeform selection, then choose the saved capture here.
+                <strong>Copy in Freeform.</strong> The helper reads that
+                selection only when you click Import.
               </p>
               <div className="actions">
-                <button onClick={example} disabled={busy}>
-                  Try browser demo <span>↗</span>
+                <button onClick={importCopiedSelection} disabled={busy}>
+                  {busy ? "Importing…" : "Import copied selection"}
                 </button>
-                <button
-                  className="secondary"
-                  onClick={() => file.current?.click()}
-                  disabled={busy}
-                >
-                  Choose capture
+                <button className="secondary" onClick={example} disabled={busy}>
+                  Try example <span>↗</span>
                 </button>
               </div>
-              <input
-                hidden
-                ref={file}
-                type="file"
-                accept=".boardeject,application/json"
-                onChange={async (event) => {
-                  const selected = event.target.files?.[0];
-                  if (!selected) return;
-                  if (selected.size > 45 * 1024 * 1024)
-                    setStatus("Capture exceeds 45 MiB.");
-                  else parse(await selected.text());
-                  event.target.value = "";
-                }}
-              />
-              <button
-                className="text-button clipboard-action"
-                onClick={clipboard}
-                disabled={busy}
-              >
-                Use copied BoardEject capture
-              </button>
               <p role="status" className="status">
                 {status}
               </p>
               <a className="helper-link" href="/mac-helper">
                 Set up the macOS helper →
               </a>
+              <details className="capture-fallback">
+                <summary>Capture-file fallback</summary>
+                <p>For development or an existing private capture.</p>
+                <button
+                  className="secondary"
+                  onClick={() => file.current?.click()}
+                  disabled={busy}
+                >
+                  Choose capture file
+                </button>
+                <input
+                  hidden
+                  ref={file}
+                  type="file"
+                  accept=".boardeject,application/json"
+                  onChange={async (event) => {
+                    const selected = event.target.files?.[0];
+                    if (!selected) return;
+                    if (selected.size > 45 * 1024 * 1024)
+                      setStatus("Capture exceeds 45 MiB.");
+                    else parse(await selected.text());
+                    event.target.value = "";
+                  }}
+                />
+              </details>
             </div>
             <figure className="demo compact-demo" id="demo">
               <video
