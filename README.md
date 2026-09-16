@@ -91,7 +91,7 @@ The matrix below specifies each tested boundary, including the native evidence a
 
 ### Mac helper status
 
-The helper ships as native Apple silicon and Intel downloads, plus a [Universal build](https://downloads.boardeject.dev/BoardEject-macOS-universal.zip). Open it once, allow local network access if the browser asks, and boardeject.dev detects the localhost-only bridge. You can then scan Freeform, create the selected board archive, and verify it without terminal commands. The existing CLI remains available as a fallback. The app is ad-hoc signed but not Apple-notarized, so the first launch requires the documented [Gatekeeper approval](docs/guide.md#install-the-mac-helper).
+The helper ships as a [Universal Mac DMG](https://downloads.boardeject.dev/BoardEject-macOS-universal.dmg), with a ZIP fallback. Drag it to Applications, complete the documented [Gatekeeper approval](docs/guide.md#install-the-mac-helper) once, and boardeject.dev retries its localhost-only connection automatically. The browser explains Local Network Access before connecting. You can then scan Freeform, create the selected-board archive, and verify it without terminal commands. Optional Launch at Login is available from the menu-bar helper; the CLI remains a developer fallback. The app is ad-hoc signed but not Apple-notarized.
 
 ## Support matrix
 

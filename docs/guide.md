@@ -4,11 +4,11 @@ BoardEject has two local workflows: editable export and local backup.
 
 ## Install the Mac helper
 
-Download the helper for your Mac from [boardeject.dev/mac-helper](https://boardeject.dev/mac-helper) and unzip it.
+Download the helper DMG from [boardeject.dev/mac-helper](https://boardeject.dev/mac-helper), open it, and drag BoardEject Helper to Applications.
 
 The app supports Apple silicon and Intel and needs no Node.js, npm, Git clone, Swift, or Xcode Command Line Tools.
 
-Use the smaller native download for your Mac when possible. A [Universal build](https://downloads.boardeject.dev/BoardEject-macOS-universal.zip) containing both architectures is also available.
+The DMG contains a Universal app for Apple silicon and Intel Macs. A [ZIP fallback](https://downloads.boardeject.dev/BoardEject-macOS-universal.zip) is also available.
 
 Open **BoardEject Helper.app**. It starts a localhost-only bridge, opens boardeject.dev, and stays available from the macOS menu bar. The website then shows **Helper connected** and lets you scan, choose, create, save, and verify without terminal commands.
 
@@ -16,7 +16,9 @@ Allow local network access if your browser asks. This permission lets boardeject
 
 The bridge listens only on `127.0.0.1`, accepts only approved BoardEject origins, and uses a new in-memory session token each time it starts. All Freeform database, asset, archive, and verification work stays on the Mac.
 
-The helper is ad-hoc signed but not Apple-notarized. On the first launch, double-click it once and dismiss the warning. Open **System Settings → Privacy & Security**, scroll to **Security**, click **Open Anyway**, authenticate, then confirm **Open**. macOS saves that exception for later launches. Follow [Apple's current Gatekeeper guidance](https://support.apple.com/guide/mac-help/open-a-mac-app-from-an-unidentified-developer-mh40616/mac) and approve only the helper downloaded from boardeject.dev.
+The helper is ad-hoc signed but not Apple-notarized. On the first launch, open it once and dismiss the warning. Open **System Settings → Privacy & Security**, scroll to **Security**, click **Open Anyway**, authenticate, then confirm **Open**. macOS saves that exception for later launches. Follow [Apple's current Gatekeeper guidance](https://support.apple.com/guide/mac-help/open-a-mac-app-from-an-unidentified-developer-mh40616/mac) and approve only the helper downloaded from boardeject.dev.
+
+After approval, the helper waits for its private localhost bridge, opens boardeject.dev, and the website retries detection automatically. If the browser asks for Local Network Access, allow it so boardeject.dev can reach the helper at `127.0.0.1`; this does not grant access to another computer or upload a board. Use the helper's menu-bar menu to enable **Launch at Login** if you want it ready after restarting your Mac.
 
 ## Export to editable Excalidraw
 
