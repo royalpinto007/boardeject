@@ -41,8 +41,9 @@ with tempfile.TemporaryDirectory(prefix="boardeject-export-demo-") as temporary:
         if args.base_url.startswith("https://"):
             context.grant_permissions(
                 ["local-network-access"], origin=args.base_url.rstrip("/")
-            )
+        )
         page = context.new_page()
+        recording_started = time.monotonic()
         page.goto(f"{args.base_url.rstrip('/')}?debug#export", wait_until="networkidle")
         page.get_by_role("button", name="Import copied selection").wait_for()
         if args.capture_file or args.restore_helper:
@@ -113,12 +114,13 @@ with tempfile.TemporaryDirectory(prefix="boardeject-export-demo-") as temporary:
         page.keyboard.press("Escape")
         page.wait_for_timeout(1400)
         duration = time.monotonic() - started
+        offset = max(started - recording_started - 0.15, 0)
         path = page.video.path()
         context.close()
         browser.close()
 
     subprocess.run(
-        [ffmpeg, "-y", "-i", str(path), "-an", "-t", f"{min(duration + 0.5, 15):.3f}", "-c:v", "libx264", "-crf", "20", "-pix_fmt", "yuv420p", "-movflags", "+faststart", str(output / "demo.mp4")],
+        [ffmpeg, "-y", "-ss", f"{offset:.3f}", "-i", str(path), "-an", "-t", f"{min(duration + 0.5, 15):.3f}", "-c:v", "libx264", "-crf", "20", "-pix_fmt", "yuv420p", "-movflags", "+faststart", str(output / "demo.mp4")],
         check=True,
         capture_output=True,
     )
