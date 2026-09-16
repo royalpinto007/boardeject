@@ -453,15 +453,15 @@ if bridge_executable:
     )
     if packaged_verify.returncode != 0:
         raise SystemExit("The packaged CLI fallback could not verify its archive.")
+restored = run(
+    "restore-genuine-export-selection",
+    [str(restore_helper), str(genuine_export_capture)],
+    120,
+)
+if restored.returncode != 0:
+    raise SystemExit("The genuine Freeform selection could not be restored for helper validation.")
 site_url = os.environ.get("BOARDEJECT_SITE_URL", "").strip()
 if site_url:
-    restored = run(
-        "restore-genuine-export-selection",
-        [str(restore_helper), str(genuine_export_capture)],
-        120,
-    )
-    if restored.returncode != 0:
-        raise SystemExit("The genuine Freeform selection could not be restored for production validation.")
     production_environment = bridge_environment.copy()
     production_environment["BOARDEJECT_SITE_URL"] = site_url
     production_environment["BOARDEJECT_TEST_BOARD_NAME"] = str(
