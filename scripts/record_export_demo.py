@@ -41,7 +41,7 @@ with tempfile.TemporaryDirectory(prefix="boardeject-export-demo-") as temporary:
                 ["local-network-access"], origin=args.base_url.rstrip("/")
             )
         page = context.new_page()
-        page.goto(f"{args.base_url.rstrip('/')}#export", wait_until="networkidle")
+        page.goto(f"{args.base_url.rstrip('/')}?debug#export", wait_until="networkidle")
         page.get_by_role("button", name="Import copied selection").wait_for()
         if args.capture_file or args.restore_helper:
             if not args.capture_file or not args.restore_helper:
