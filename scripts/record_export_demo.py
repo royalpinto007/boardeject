@@ -7,7 +7,7 @@ import tempfile
 import time
 from pathlib import Path
 
-from playwright.sync_api import sync_playwright
+from playwright.sync_api import TimeoutError as PlaywrightTimeoutError, sync_playwright
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--replace", action="store_true")
@@ -56,7 +56,15 @@ with tempfile.TemporaryDirectory(prefix="boardeject-export-demo-") as temporary:
             )
         started = time.monotonic()
         page.get_by_role("button", name="Import copied selection").click()
-        page.get_by_role("heading", name="1 editable elements").wait_for(timeout=120_000)
+        try:
+            page.get_by_role("heading", name="1 editable elements").wait_for(
+                timeout=30_000
+            )
+        except PlaywrightTimeoutError:
+            page.screenshot(path=str(output / "failure.png"), full_page=True)
+            (output / "failure.html").write_text(page.content())
+            status = page.get_by_role("status").first.text_content() or "No status message."
+            raise SystemExit(f"Clipboard import did not finish: {status}")
         page.wait_for_timeout(900)
         page.screenshot(path=str(output / "demo-poster.png"))
         page.get_by_role("button", name="Open in Excalidraw").click()

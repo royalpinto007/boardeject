@@ -517,6 +517,29 @@ try:
     bridge_token = str(bridge_status.get("token") or "")
     if bridge_status.get("localOnly") is not True or not bridge_token:
         raise SystemExit("The localhost bridge did not provide a local authenticated session.")
+    restored = run(
+        "restore-genuine-export-selection-for-bridge",
+        [str(restore_helper), str(genuine_export_capture)],
+        120,
+    )
+    if restored.returncode != 0:
+        raise SystemExit("The genuine selection could not be restored for bridge capture.")
+    bridge_capture, capture_headers = bridge_request(
+        "/clipboard/capture", "POST", b"", token=bridge_token
+    )
+    captured_envelope = json.loads(bridge_capture)
+    if (
+        captured_envelope.get("format") != "boardeject.clipboard"
+        or captured_envelope.get("version") != 1
+        or not captured_envelope.get("flavors")
+        or "boardeject.clipboard" not in capture_headers.get("content-type", "")
+    ):
+        raise SystemExit("The localhost bridge did not return a genuine clipboard capture.")
+    results["localhost-bridge-clipboard"] = {
+        "format": captured_envelope["format"],
+        "version": captured_envelope["version"],
+        "flavors": len(captured_envelope["flavors"]),
+    }
     scan_bytes, _ = bridge_request("/boards/scan", "POST", b"", token=bridge_token)
     bridge_catalog = json.loads(scan_bytes)
     if {board["id"] for board in bridge_catalog.get("boards", [])} != {board["id"] for board in catalog_boards}:
