@@ -8,6 +8,7 @@ import shutil
 import sqlite3
 import struct
 import subprocess
+import tempfile
 import time
 import urllib.error
 import urllib.request
@@ -422,6 +423,18 @@ bridge_environment = os.environ.copy()
 bridge_environment["BOARDEJECT_FREEFORM_DATABASE"] = str(database)
 bridge_environment["BOARDEJECT_FREEFORM_ASSETS"] = str(assets_root)
 bridge_executable = os.environ.get("BOARDEJECT_BRIDGE_EXECUTABLE")
+site_url = os.environ.get("BOARDEJECT_SITE_URL", "").strip()
+if bridge_executable and not site_url:
+    packaged_app = Path(bridge_executable).parents[2]
+    preserved_app = Path(tempfile.mkdtemp(prefix="boardeject-packaged-helper-")) / packaged_app.name
+    shutil.copytree(packaged_app, preserved_app)
+    bridge_executable = str(
+        preserved_app / "Contents" / "MacOS" / Path(bridge_executable).name
+    )
+    bridge_environment["BOARDEJECT_BRIDGE_EXECUTABLE"] = bridge_executable
+    build_result = run("build-website-for-helper-demo", ["npm", "run", "build"], 180)
+    if build_result.returncode != 0:
+        raise SystemExit("The website could not be built for the genuine helper demo.")
 bridge_command = (
     [bridge_executable, "bridge"]
     if bridge_executable
@@ -460,7 +473,6 @@ restored = run(
 )
 if restored.returncode != 0:
     raise SystemExit("The genuine Freeform selection could not be restored for helper validation.")
-site_url = os.environ.get("BOARDEJECT_SITE_URL", "").strip()
 if site_url:
     production_environment = bridge_environment.copy()
     production_environment["BOARDEJECT_SITE_URL"] = site_url
@@ -572,9 +584,6 @@ try:
     try:
         demo_url = site_url or "http://127.0.0.1:4190"
         if not site_url:
-            build_result = run("build-website-for-helper-demo", ["npm", "run", "build"], 180)
-            if build_result.returncode != 0:
-                raise SystemExit("The website could not be built for the genuine helper demo.")
             preview_process = subprocess.Popen(
                 ["npm", "run", "preview", "--", "--strictPort"],
                 stdout=subprocess.PIPE,
