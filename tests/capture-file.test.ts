@@ -73,6 +73,33 @@ it("converts the genuine labelled connector through the public capture path", ()
     endBinding: { elementId: "7FFE2E1E-4223-4DE4-9F2C-8D3FC6DC7172" },
   });
 });
+it("recognizes genuine Freeform 2.4 captures but withholds incomplete output", () => {
+  const flavors = [
+    ["com.apple.freeform.CRLNativeData", "labelled-connector.crlnative"],
+    ["com.apple.freeform.CRLDescription", "labelled-connector.crldescription"],
+  ].map(([uti, name]) => ({
+    uti,
+    base64: readFileSync(`tests/fixtures/freeform-2.4/${name}`).toString(
+      "base64",
+    ),
+  }));
+  const board = inspectCaptureFile(
+    "freeform-2.4.boardeject",
+    new TextEncoder().encode(
+      JSON.stringify({ format: "boardeject.clipboard", version: 1, flavors }),
+    ),
+  );
+  expect(board.sourceItems).toBe(3);
+  expect(board.nodes).toEqual([]);
+  expect(board.issues).toEqual(
+    expect.arrayContaining([
+      expect.objectContaining({
+        severity: "unsupported",
+        message: expect.stringMatching(/compatibility is not supported/),
+      }),
+    ]),
+  );
+});
 it.each([
   ["file.pdf", "pdf", /Choose/],
   ["capture.boardeject", "", /empty/],
