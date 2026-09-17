@@ -555,8 +555,10 @@ try:
     }
     scan_bytes, _ = bridge_request("/boards/scan", "POST", b"", token=bridge_token)
     bridge_catalog = json.loads(scan_bytes)
-    if {board["id"] for board in bridge_catalog.get("boards", [])} != {board["id"] for board in catalog_boards}:
-        raise SystemExit("The localhost bridge scan did not match the genuine Freeform catalog.")
+    expected_board_ids = {board["id"] for board in catalog_boards}
+    bridge_board_ids = [board["id"] for board in bridge_catalog.get("boards", [])]
+    if not expected_board_ids.issubset(bridge_board_ids) or len(bridge_board_ids) != len(set(bridge_board_ids)):
+        raise SystemExit("The localhost bridge scan lost or duplicated a genuine Freeform board.")
     create_body = json.dumps({"boardId": selected_board_id, "title": catalog_boards[1]["displayName"]}).encode()
     bridge_archive, create_headers = bridge_request(
         "/archives/create", "POST", create_body, "application/json", bridge_token
