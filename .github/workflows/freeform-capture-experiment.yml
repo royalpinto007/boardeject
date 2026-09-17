@@ -29,8 +29,14 @@ on:
             tables-issue-15-embedded-cells,
             ink-issue-13,
             archive-storage,
+            issue-9-real-board,
           ]
         default: tables
+      runner:
+        description: Hosted macOS image used for version provenance
+        type: choice
+        options: [macos-latest, macos-15-intel, macos-14]
+        default: macos-latest
       site_url:
         description: Optional deployed site for archive production validation
         required: false
@@ -39,7 +45,7 @@ permissions:
   contents: read
 jobs:
   probe:
-    runs-on: macos-latest
+    runs-on: ${{ inputs.runner }}
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
@@ -73,6 +79,8 @@ jobs:
             python3 tools/freeform-experiment/archive_storage.py
           elif [ "$CAPTURE_SCENARIO" = "images-text" ]; then
             python3 tools/freeform-experiment/images_text.py
+          elif [ "$CAPTURE_SCENARIO" = "issue-9-real-board" ]; then
+            python3 tools/freeform-experiment/issue9_real_board.py
           elif [ "$CAPTURE_SCENARIO" = "tables-issue-15" ]; then
             python3 tools/freeform-experiment/tables_issue15.py
           elif [ "$CAPTURE_SCENARIO" = "tables-issue-15-geometry" ]; then
