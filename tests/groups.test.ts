@@ -45,4 +45,25 @@ it("does not invent counter-transform semantics", () => {
       }),
     ]),
   ).toThrow(/unvalidated/);
+  expect(() =>
+    groupMembership([
+      item("sheared", {
+        kind: "group",
+        childIds: [],
+        counterTransform: { a: 1, b: 0.25, c: 0, d: 1, tx: 0, ty: 0 },
+      }),
+    ]),
+  ).toThrow(/unvalidated/);
+});
+it("rejects unverified group flips", () => {
+  const horizontal = {
+    ...item("horizontal", { kind: "group", childIds: [] }),
+    geometry: { horizontalFlip: true },
+  };
+  const vertical = {
+    ...item("vertical", { kind: "group", childIds: [] }),
+    geometry: { verticalFlip: true },
+  };
+  expect(() => groupMembership([horizontal])).toThrow(/unvalidated/);
+  expect(() => groupMembership([vertical])).toThrow(/unvalidated/);
 });
