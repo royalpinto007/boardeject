@@ -249,11 +249,26 @@ export function contentGroupFallback(
   }
 }
 
-function placeholderShape(value: ContentObject):
+function connectorShape(value: ContentObject):
   | {
       geometry: NonNullable<ReturnType<typeof contentGeometry>>;
       fill: string;
       kind: "rectangle" | "ellipse";
+      label?: {
+        text: string;
+        fontSize: number;
+        alignment: "center";
+        runs: Array<{
+          start: number;
+          end: number;
+          text: string;
+          fontFamily: string;
+          fontSize: number;
+          bold: boolean;
+          italic: boolean;
+          alignment: number;
+        }>;
+      };
     }
   | undefined {
   const geometry = contentGeometry(value.geometry),
@@ -268,12 +283,75 @@ function placeholderShape(value: ContentObject):
     geometry.angle !== 0 ||
     !fill ||
     !Array.isArray(attributed) ||
-    attributed
-      .filter((entry: unknown) => typeof entry === "string")
-      .join("") !== "\u200b"
+    !attributed.length ||
+    attributed.length > 256 ||
+    attributed.length % 2
   )
     return;
-  if (value.path === undefined) return { geometry, fill, kind: "rectangle" };
+  let label:
+    | {
+        text: string;
+        fontSize: number;
+        alignment: "center";
+        runs: Array<{
+          start: number;
+          end: number;
+          text: string;
+          fontFamily: string;
+          fontSize: number;
+          bold: boolean;
+          italic: boolean;
+          alignment: number;
+        }>;
+      }
+    | undefined;
+  const plain = attributed
+    .filter((entry: unknown) => typeof entry === "string")
+    .join("");
+  if (plain !== "\u200b") {
+    if (!plain || plain.length > 100000) return;
+    const runs = [];
+    let text = "";
+    for (let index = 0; index < attributed.length; index += 2) {
+      if (
+        typeof attributed[index] !== "string" ||
+        typeof attributed[index + 1]?.NSFont !== "string" ||
+        typeof attributed[index + 1]?.NSParagraphStyle !== "string"
+      )
+        return;
+      const font = fontArchive(attributed[index + 1].NSFont),
+        alignment = attributeArchive(attributed[index + 1].NSParagraphStyle)
+          .root.NSAlignment;
+      if (
+        ![
+          ".AppleSystemUIFont",
+          ".AppleSystemUIFontDemi",
+          "Helvetica-Bold",
+          "Helvetica-Oblique",
+          "Helvetica-BoldOblique",
+        ].includes(font.name) ||
+        font.size !== 18 ||
+        alignment !== 2
+      )
+        return;
+      runs.push({
+        start: text.length,
+        end: text.length + attributed[index].length,
+        text: attributed[index],
+        fontFamily: font.name,
+        fontSize: font.size,
+        bold: ["Helvetica-Bold", "Helvetica-BoldOblique"].includes(font.name),
+        italic: ["Helvetica-Oblique", "Helvetica-BoldOblique"].includes(
+          font.name,
+        ),
+        alignment,
+      });
+      text += attributed[index];
+    }
+    label = { text, fontSize: 18, alignment: "center", runs };
+  }
+  if (value.path === undefined)
+    return { geometry, fill, kind: "rectangle", label };
   const pathValue = value.path?.bezier?.path;
   if (
     value.path?.type_identifier !== "com.apple.apps.content-language.path" ||
@@ -287,7 +365,7 @@ function placeholderShape(value: ContentObject):
     Math.abs(geometry.width - geometry.height) > 0.01
   )
     return;
-  return { geometry, fill, kind: "ellipse" };
+  return { geometry, fill, kind: "ellipse", label };
 }
 
 /** Recover the genuine two-shape connector capture without correlating by
@@ -373,7 +451,7 @@ export function contentConnectorFallback(
     if (!tail || !head || tail.id === head.id) return;
     const nodes: BoardNode[] = [];
     for (const shape of shapes) {
-      const parsed = placeholderShape(shape);
+      const parsed = connectorShape(shape);
       if (!parsed) return;
       const center = {
           x: parsed.geometry.x + parsed.geometry.width / 2,
@@ -386,11 +464,12 @@ export function contentConnectorFallback(
         );
       if (matches.length !== 1 || usedIds.has(matches[0].id)) return;
       usedIds.add(matches[0].id);
+      const labelGroup = parsed.label ? `${matches[0].id}-label-group` : null;
       nodes.push({
         id: matches[0].id,
         kind: parsed.kind,
         bounds: { ...parsed.geometry, rotation: 0 },
-        groups: [],
+        groups: labelGroup ? [labelGroup] : [],
         appearance: {
           fill: parsed.fill,
           stroke: "transparent",
@@ -398,6 +477,29 @@ export function contentConnectorFallback(
           opacity: 100,
         },
       });
+      if (parsed.label)
+        nodes.push({
+          id: `${matches[0].id}-label`,
+          kind: "text",
+          bounds: {
+            x: parsed.geometry.x + 10,
+            y: parsed.geometry.y + 10,
+            width: Math.max(1, parsed.geometry.width - 20),
+            height: Math.max(1, parsed.geometry.height - 20),
+            rotation: 0,
+          },
+          groups: [labelGroup!],
+          appearance: {
+            fill: "transparent",
+            stroke: "#000000",
+            strokeWidth: 1,
+            opacity: 100,
+          },
+          text: parsed.label.text,
+          fontSize: parsed.label.fontSize,
+          textAlign: parsed.label.alignment,
+          sourceStyle: { runs: parsed.label.runs },
+        });
     }
     const connectorIds = [...nativeIds].filter((id) => !usedIds.has(id));
     if (connectorIds.length !== 1) return;
@@ -455,7 +557,7 @@ export function contentConnectorFallback(
           itemId: connectorIds[0],
           severity: "approximation",
           message:
-            "Verified Freeform 4.5 center-anchor identities remain reciprocal Excalidraw bindings. The connector is editable; routing and arrowheads use the captured straight, no-arrowhead subset.",
+            "Verified Freeform 4.5 center-anchor identities remain reciprocal Excalidraw bindings. Captured labels remain editable and grouped with their shapes; exact font metrics and vertical centering are approximated. The connector is editable; routing and arrowheads use the captured straight, no-arrowhead subset.",
         },
       ],
     };

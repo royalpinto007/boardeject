@@ -8,11 +8,14 @@ Confirmed with native payloads and screenshots:
 
 - `rich-text`: the exact string `BoardEject native text 123`, Helvetica-Bold.
 - `bound-connectors`: two shapes and a connection line with native object-ID anchors.
+- `labelled-connector`: the exact strings `Source` and `Target` inside two shapes connected by native object-ID center anchors.
 - `nested-transformed-group`: two levels of grouping, three shapes, translation.
 - `nested-transformed-group-scaled`: same hierarchy, scale 0.8, shape widths 120.
 - `nested-transformed-group-rotated`: same scaled group, angle about 315.40924 degrees.
 
-These are native regression inputs, **not a claim of conversion support**. libfreeform 1.0.0 reports minimum version 7 as unsupported and does not recover their semantic geometry. Tests preserve that fail-closed behavior. JSON evidence is inspected independently; production does not silently substitute it for CRL. Failed table attempts and unverified binary ink are deliberately excluded.
+These fixtures are not a claim of general version-7 support. libfreeform 1.0.0 reports minimum version 7 as unsupported and does not recover their semantic geometry. BoardEject uses only the explicitly verified, bounded CRL-plus-sidecar fallbacks covered by production-path tests; unknown layouts remain fail-closed. Failed table attempts and unverified binary ink are deliberately excluded.
+
+`labelled-connector` comes from [Actions run 35215774463](https://github.com/royalpinto007/boardeject/actions/runs/35215774463), using `tools/freeform-experiment/issue9_real_board.py` on macOS 26.6.2 and Freeform 4.5. The committed screenshot-confirmed recipe created the rectangle, oval, exact labels and connection line in a fresh board. The CRL, TSUDescription and content-language files match artifact SHA-256 values `571fdf6b…09390`, `d850c054…6d97f` and `6e8f29bf…01638`. They are retained byte-for-byte; rendered PNG/TIFF output, UI trees, executables and logs are excluded.
 
 `macos-pen-shape-summary.json` is the sanitized evidence summary emitted by [run 34815085421](https://github.com/royalpinto007/boardeject/actions/runs/34815085421). The screenshot and byte-for-byte native payloads confirm that Freeform 4.5 on macOS copied the Draw with Pen result as `CRLWPShapeItem`. The selection had native Freeform data but no `com.apple.drawing`, no `CRLFreehandDrawingItem`, and no eraser exposed by the menu or toolbar accessibility trees. Only the non-sensitive summary is retained here. Raw experimental payloads, screenshots, session diagnostics and executables remain outside the repository. This fixture prevents a macOS vector pen capture from being mislabeled as PencilKit ink.
 
