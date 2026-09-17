@@ -297,7 +297,13 @@ export default function CaptureTester() {
         </footer>
       </main>
       {editing && board && (
-        <Suspense fallback={<p role="status">Opening preview…</p>}>
+        <Suspense
+          fallback={
+            <p className="visually-hidden" role="status">
+              Loading editor
+            </p>
+          }
+        >
           <Editor document={convert(board)} onClose={() => setEditing(false)} />
         </Suspense>
       )}

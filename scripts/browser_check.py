@@ -154,6 +154,7 @@ if __name__ == "__main__":
             assert page.evaluate("document.documentElement.scrollWidth <= innerWidth")
         page.goto(BASE + "/test-capture")
         page.get_by_role("heading", name="Test your actual capture.").wait_for()
+        assert page.get_by_text(re.compile(r"^Opening ")).count() == 0
         assert page.locator('header a[href="/mac-helper"]').is_visible()
         assert page.locator("header .brand img").get_attribute("src") == "/favicon.svg"
         page.set_viewport_size({"width": 360, "height": 900})
