@@ -19,6 +19,28 @@ CAPTURE = json.dumps({
 })
 
 
+def labelled_connector_capture():
+    root = Path("tests/fixtures/freeform-4.5")
+    flavors = []
+    for uti, name in (
+        ("com.apple.freeform.CRLNativeData", "labelled-connector.crlnative"),
+        ("com.apple.freeform.TSUDescription", "labelled-connector.tsudescription"),
+        (
+            "com.apple.apps.content-language.canvas-object-1.0",
+            "labelled-connector.content.json",
+        ),
+    ):
+        flavors.append(
+            {
+                "uti": uti,
+                "base64": base64.b64encode((root / name).read_bytes()).decode(),
+            }
+        )
+    return json.dumps(
+        {"format": "boardeject.clipboard", "version": 1, "flavors": flavors}
+    ).encode()
+
+
 def mock_helper(route):
     path = route.request.url.removeprefix(HELPER)
     headers = {
@@ -152,7 +174,7 @@ if __name__ == "__main__":
         for width in (360, 768, 1280):
             page.set_viewport_size({"width": width, "height": 900})
             assert page.evaluate("document.documentElement.scrollWidth <= innerWidth")
-        page.goto(BASE + "/test-capture")
+        page.goto(BASE + "/test-capture?debug")
         page.get_by_role("heading", name="Test your actual capture.").wait_for()
         assert page.get_by_text(re.compile(r"^Opening ")).count() == 0
         assert page.locator('header a[href="/mac-helper"]').is_visible()
@@ -164,6 +186,54 @@ if __name__ == "__main__":
         assert abs((picker["x"] + picker["width"] / 2) - (drop["x"] + drop["width"] / 2)) < 2
         assert page.get_by_text("No file selected", exact=True).is_visible()
         assert page.evaluate("document.documentElement.scrollWidth <= innerWidth")
+        page.set_viewport_size({"width": 1440, "height": 900})
+        page.locator("#capture-file").set_input_files(
+            {
+                "name": "labelled-connector.boardeject",
+                "mimeType": "application/vnd.boardeject.clipboard+json",
+                "buffer": labelled_connector_capture(),
+            }
+        )
+        page.get_by_role("heading", name="Conversion report").wait_for()
+        assert page.locator(".capture-report").get_by_text("5", exact=True).count() >= 1
+        page.get_by_role("button", name="Preview result").click()
+        page.wait_for_function("() => typeof window.boardejectSnapshot === 'function'")
+        page.wait_for_timeout(500)
+        before = page.evaluate("window.boardejectSnapshot().elements")
+        shape_id = "468A9321-460B-41EA-93F3-305C06E26F2A"
+        arrow_id = "FE47B60B-9C6E-4D23-81EB-75E55F01C975"
+        x, y = point(page, shape_id)
+        page.mouse.move(x, y)
+        page.mouse.down()
+        page.mouse.move(x, y + 50, steps=35)
+        page.mouse.up()
+        page.wait_for_timeout(350)
+        after = page.evaluate("window.boardejectSnapshot().elements")
+        old = {element["id"]: element for element in before}
+        new = {element["id"]: element for element in after}
+        assert new[shape_id]["y"] > old[shape_id]["y"] + 40
+        assert new[arrow_id]["points"] != old[arrow_id]["points"]
+        assert new[arrow_id]["startBinding"]["elementId"] == shape_id
+        label_id = shape_id + "-label"
+        page.mouse.click(1200, 700)
+        x, y = point(page, label_id, 40, 20)
+        page.mouse.dblclick(x, y)
+        page.wait_for_timeout(200)
+        x, y = point(page, label_id, 40, 20)
+        page.mouse.dblclick(x, y)
+        page.locator("textarea").wait_for(state="visible")
+        page.keyboard.press("Control+a")
+        page.keyboard.type("Source edited")
+        page.keyboard.press("Escape")
+        page.wait_for_timeout(300)
+        assert (
+            page.evaluate(
+                "id => window.boardejectSnapshot().elements.find(e => e.id === id).text",
+                label_id,
+            )
+            == "Source edited"
+        )
+        page.get_by_role("button", name="← BoardEject", exact=True).click()
         for path, heading in (
             ("/privacy", "Privacy"),
             ("/terms", "Terms of use"),

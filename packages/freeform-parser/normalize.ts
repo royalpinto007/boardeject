@@ -3,7 +3,11 @@ import { embeddedImage, convertInk } from "./media";
 import { convertTable } from "./table";
 import { recoverNativeTables } from "./native-table";
 import { groupMembership } from "./groups";
-import { contentFallback } from "./content-fallback";
+import {
+  contentConnectorFallback,
+  contentFallback,
+  contentGroupFallback,
+} from "./content-fallback";
 import type {
   Board,
   BoardNode,
@@ -226,6 +230,18 @@ export function normalize(pasteboard: FreeformPasteboard): Board {
         issue(
           `${native.items.length - tables.length} additional native item(s) could not be mapped safely.`,
         );
+      return board;
+    }
+    const recoveredConnector = contentConnectorFallback(pasteboard);
+    if (recoveredConnector) {
+      board.nodes.push(...recoveredConnector.nodes);
+      board.issues.push(...recoveredConnector.issues);
+      return board;
+    }
+    const recoveredGroup = contentGroupFallback(pasteboard);
+    if (recoveredGroup) {
+      board.nodes.push(...recoveredGroup.nodes);
+      board.issues.push(...recoveredGroup.issues);
       return board;
     }
     const recovered = contentFallback(pasteboard);

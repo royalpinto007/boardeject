@@ -6,6 +6,8 @@ import {
 
 export const MAX_CAPTURE_BYTES = 32 * 1024 * 1024;
 export const MAX_ENVELOPE_LENGTH = 45 * 1024 * 1024;
+const LEGACY_DESCRIPTION_UTI = "com.apple.freeform.CRLDescription";
+const CURRENT_DESCRIPTION_UTI = "com.apple.freeform.TSUDescription";
 
 /** Read only our versioned envelope, never arbitrary native clipboard text. */
 export function readEnvelope(source: string): FreeformBlobs {
@@ -59,5 +61,18 @@ export function readEnvelope(source: string): FreeformBlobs {
 }
 
 export function parseCapture(source: string): FreeformPasteboard {
-  return decodePasteboard(readEnvelope(source));
+  const blobs = readEnvelope(source);
+  if (
+    !blobs.flavors.some(({ uti }) => uti === CURRENT_DESCRIPTION_UTI) &&
+    blobs.flavors.some(({ uti }) => uti === LEGACY_DESCRIPTION_UTI)
+  ) {
+    return decodePasteboard({
+      flavors: blobs.flavors.map((flavor) =>
+        flavor.uti === LEGACY_DESCRIPTION_UTI
+          ? { ...flavor, uti: CURRENT_DESCRIPTION_UTI }
+          : flavor,
+      ),
+    });
+  }
+  return decodePasteboard(blobs);
 }

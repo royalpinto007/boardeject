@@ -11,6 +11,8 @@ BoardEject v0.0.4 is a limited-scope release. The README support matrix distingu
 - Synthetic arrows have reciprocal Excalidraw element bindings.
 - Synthetic grouped objects retain group identifiers.
 - Nested identity-transform native group graphs preserve membership and reject cycles.
+- Genuine Freeform 4.5 nested-group sidecars preserve canvas-space translation, uniform scale, rotation and deepest-first grouping for the verified unflipped placeholder-shape subset.
+- A genuine Freeform 4.5 two-shape connector sidecar preserves native center-anchor identities as reciprocal Excalidraw bindings without array-order correlation.
 - Binary ink controls are decoded and sampled into editable freedraw elements.
 - Valid drawing data survives an independently unsupported native board version.
 
@@ -50,7 +52,15 @@ Apple-generated width/force data has regression coverage. The paired native Penc
 
 Genuine Freeform 4.5 captures prove the macOS Draw with Pen tool emits `CRLWPShapeItem` vector shapes, not `com.apple.drawing` or `CRLFreehandDrawingItem`. The tested macOS UI exposes no eraser. This is a platform boundary, not missing BoardEject decoding. Apple Pencil pressure and erased-ink round trips are iPad-originated behavior and remain unverified in [Issue #20](https://github.com/royalpinto007/boardeject/issues/20). Apple framework fixtures validate decoder behavior only. See the [Apple reference provenance](../tests/fixtures/apple/README.md).
 
-The upstream `native-mixed` fixture exposes three identities but no geometry. The upstream `real-board` capture declares minimum version 7, which the decoder marks unsupported. Its decoded data lacks several text bodies, connector relationships, table cell data and image bytes. BoardEject withholds export of this capture. It does not infer omitted text or turn unknown presets into rectangles.
+The upstream `native-mixed` fixture exposes three identities but no geometry. The upstream `real-board` capture declares minimum version 7, which the decoder marks unsupported. Its decoded data lacks several text bodies, connector relationships, table cell data and image bytes. BoardEject withholds export of this capture. It does not infer omitted text or turn unknown presets into rectangles. Separate genuine Freeform 4.5 sidecars now recover only the bounded connector and nested-group subsets described below.
+
+Genuine macOS 14.8.9 and Freeform 2.4 captures use the legacy `com.apple.freeform.CRLDescription` clipboard flavor. BoardEject recognizes that exact flavor for decoding and diagnostics. The captures still declare minimum version 7 and provide no content-language sidecar; labelled connectors omit editable label bodies and anchor relationships, text omits its editable body, and image clipboard data omits original asset bytes. These captures therefore remain fail-closed. The tested Freeform 2.4 UI also exposes no Table menu, so it cannot provide table compatibility evidence.
+
+### Verified connector and nested-group sidecars
+
+The original connector capture contains two shapes and one connection line. A second genuine capture adds the exact labels `Source` and `Target`. BoardEject does not join either capture by array position. Each native anchor UUID must exist in the CRL item set, each endpoint must uniquely equal one shape center, and exactly one native identity must remain for the connector. That produces reciprocal Excalidraw bindings. Labels remain editable and grouped with their shapes; exact font metrics and vertical centering are approximated. The production browser check imports the labelled capture through `/test-capture`, moves a captured shape, verifies that the native-ID-bound arrow follows, and edits its label. Ambiguous centers, other routing, arrowheads and unknown structures fail closed.
+
+Three nested-group captures establish translation, then uniform scale, then rotation. Their leaf geometry changes directly in canvas space, so BoardEject preserves those leaf bounds and must not apply the group transform a second time. Derived child identities retain deepest-first Excalidraw grouping. The fallback requires the verified version-1 content-language hierarchy, matching group scale, canvas-space child angles, solid fills and placeholder-only text. Flips, labels, shear, malformed geometry and unknown child types reject the complete group. The supported-version native adapter continues to reject nonidentity `counterTransform` values because these sidecars do not establish that separate field's semantics.
 
 The native adapter currently accepts only explicit supported versions, bounded canvas-space geometry, a small explicit shape-preset mapping, recovered plain text, and connectors with recovered endpoints. These adapter paths still need per-element native fixtures and real-device validation. They are not a support promise.
 
@@ -58,7 +68,7 @@ The native adapter currently accepts only explicit supported versions, bounded c
 
 Adapter tests now cover embedded PNG/JPEG data, affine-transformed rendered ink samples, and complete axis-aligned table grids with merged cells. These tests use explicit decoded model inputs, not captured native records. They must not be represented as proof of end-to-end Freeform support.
 
-- Nonidentity native group transforms (membership is implemented)
+- Native `counterTransform` composition, group flips/shear and group variants outside the verified content-language subset
 - PencilKit masks and variable-width strokes (centerline endpoint sampling now matches a checked-in Apple framework reference; broader stroke cases remain unvalidated)
 - Native image resource/effect variants outside the verified single-object case
 - Native merged cells and attached item classes beyond verified text boxes

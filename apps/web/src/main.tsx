@@ -731,8 +731,8 @@ function App() {
             <summary>View technical details</summary>
             <p>
               Editable export supports verified shapes, text, tables, assets,
-              ink and connector subsets. Some styling and geometry are
-              approximated. Freeform 4.5 version-7 boards are supported only
+              ink, connector and nested-group subsets. Some styling and geometry
+              are approximated. Freeform 4.5 version-7 boards are supported only
               through documented fixture-backed paths. Apple Pencil pressure and
               erased ink still need iPad-originated validation in{" "}
               <a

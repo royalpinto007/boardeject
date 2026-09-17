@@ -1,0 +1,13 @@
+{
+  "macOS": "14.8.9 (23J631)",
+  "freeform": "2.4",
+  "clipboardDescriptionUTI": "com.apple.freeform.CRLDescription",
+  "contentLanguageSidecar": false,
+  "nativeMinimumVersion": 7,
+  "tableMenuAvailable": false,
+  "runs": {
+    "labelledConnector": 35216500964,
+    "imageAndText": 35216652342,
+    "tableAvailability": 35216655392
+  }
+}
