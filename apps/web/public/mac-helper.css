@@ -438,3 +438,12 @@
     gap: 12px 24px;
   }
 }
+.architecture-downloads {
+  color: #637059;
+  font-size: 0.84rem;
+}
+
+.architecture-downloads a {
+  color: inherit;
+  text-underline-offset: 3px;
+}

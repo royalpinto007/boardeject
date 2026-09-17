@@ -1,6 +1,6 @@
 # BoardEject archive format
 
-Status: format version 1, supported in BoardEject v0.0.3. Archive creation is limited to genuinely verified source schemas and fails closed otherwise.
+Status: format version 1, supported since BoardEject v0.0.3. Archive creation is limited to genuinely verified source schemas and fails closed otherwise.
 
 `*.boardejectarchive` is a ZIP-compatible container. Format version 1 uses a canonical JSON manifest and SHA-256 integrity records so verification does not require Apple Freeform or macOS.
 

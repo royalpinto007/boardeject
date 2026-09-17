@@ -35,13 +35,10 @@ Use **Capture-file fallback** or [Capture Tester](https://boardeject.dev/test-ca
 
 ## Archive a Freeform board
 
-From the unzipped helper directory, run:
-
-```sh
-./boardeject-mac scan
-./boardeject-mac create BOARD_UUID ~/Desktop/Board.boardejectarchive
-./boardeject-mac verify ~/Desktop/Board.boardejectarchive
-```
+1. Open [boardeject.dev](https://boardeject.dev/#archive) with BoardEject Helper running.
+2. Click **Scan Freeform** and choose a board.
+3. Click **Create local archive**, then save the downloaded `.boardejectarchive`.
+4. Click **Verify now** to check every manifest entry, asset hash, missing file, and corruption result.
 
 The archive helper creates a stable private copy of the Freeform database, WAL, and SHM files.
 
@@ -54,6 +51,8 @@ Unknown schemas fail closed, existing output files are never overwritten, and te
 Restore, write-back, iCloud manipulation, and database repair are not supported.
 
 The archive path currently supports only the exact verified Freeform 4.5 schema described in the [fidelity and evidence document](fidelity.md).
+
+The packaged `boardeject-mac scan`, `create`, and `verify` commands remain available as a developer fallback, but they are not required for the normal website flow.
 
 ## Build from source
 

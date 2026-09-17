@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.0.4 - 2026-09-17
+
+- Added direct Freeform clipboard import through the authenticated localhost Mac helper, with no manual capture file in the normal export flow.
+- Added the website-driven archive flow for scanning real boards, creating and downloading a selected-board archive, and verifying it locally.
+- Added DMG onboarding with automatic website opening, Local Network Access guidance, helper reconnect states, and optional Launch at Login.
+- Added Universal, Apple silicon, and Intel helper packages while retaining the command-line fallback for developers.
+- Kept clipboard conversion, database access, archive creation, and verification local to the user's Mac with no board uploads or cloud processing.
+
 ## 0.0.3 - 2026-09-15
 
 - Added local Freeform 4.5 board discovery and strict verified title decoding with a safe UUID fallback.

@@ -447,7 +447,7 @@ function App() {
         <section className="hero product-hero" aria-labelledby="hero-title">
           <div className="hero-copy">
             <span className="preview-badge">
-              <span /> Open source · v0.0.3
+              <span /> Open source · v0.0.4
             </span>
             <h1 id="hero-title">
               Your Freeform boards, <span>actually yours.</span>
@@ -720,7 +720,7 @@ function App() {
           aria-labelledby="preview-title"
         >
           <div>
-            <span className="preview-badge">Current status · v0.0.3</span>
+            <span className="preview-badge">Current status · v0.0.4</span>
             <h2 id="preview-title">Honest about the edges.</h2>
             <p>
               Supported content stays useful. Anything uncertain appears in the
