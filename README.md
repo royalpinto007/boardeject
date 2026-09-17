@@ -78,11 +78,11 @@ Supported fixture-backed shapes, text, tables, assets, ink, and connectors are c
 
 ### Archive status
 
-**v0.0.4 provides a website-driven Local Freeform Archive for the exact verified Freeform 4.5 schema alongside direct clipboard export through the Mac helper.** The export demo uses a genuine supported Freeform 4.5 text selection; it does not imply support for every object. Freeform 4.5 version-7 data is not generally supported. Only the fixture-backed table and single-object sidecar fallbacks described below are recovered. See the [support matrix](#support-matrix) and [fidelity report](docs/fidelity.md) before importing real work.
+**v0.0.4 provides a website-driven Local Freeform Archive for the exact verified Freeform 4.5 schema alongside direct clipboard export through the Mac helper.** The export demo uses a genuine supported Freeform 4.5 text selection; it does not imply support for every object. Freeform 4.5 version-7 data is not generally supported. Only the fixture-backed table, single-object, nested-group and connector sidecar fallbacks described below are recovered. See the [support matrix](#support-matrix) and [fidelity report](docs/fidelity.md) before importing real work.
 
 ## Known limitations
 
-- Arbitrary version-7 boards, native connectors on those boards and nonidentity native group transforms are not supported.
+- Arbitrary version-7 boards remain unsupported. Connector recovery is limited to the verified two-shape center-anchor sidecar, and nested transforms are limited to the verified unflipped translation, uniform-scale and rotation sidecars.
 - Mixed styles and exact fonts remain metadata; image shadow blur and some table edges/padding are approximations.
 - iPad-originated Apple Pencil pressure and erased-ink round trips remain unverified in [#20](https://github.com/royalpinto007/boardeject/issues/20).
 - PDF is not supported input. Raw clipboard payloads may lack companion assets.
@@ -114,15 +114,15 @@ These paths require the complete capture sidecars, not standalone CRL. They do n
 | --- | --- |
 | Editable Excalidraw output | Browser-tested shape movement, following bound arrows and text editing. The public export demo imports a genuine supported Freeform 4.5 text selection through the packaged helper. |
 | Shapes and text | Explicit preset mapping and recovered plain text on supported decoded inputs. Verified single-object plain, mixed and multiline native text remains editable with first-run size/alignment. Native run boundaries, font names, sizes, bold and italic descriptors are retained in metadata. Excalidraw cannot visually render mixed weight/italic runs. [#9](https://github.com/royalpinto007/boardeject/issues/9), [#14](https://github.com/royalpinto007/boardeject/issues/14). |
-| Connectors | Reciprocal output bindings tested. Real captures contain matching object-ID anchors; those version-7 boards remain rejected. [#9](https://github.com/royalpinto007/boardeject/issues/9). |
-| Groups/transforms | Identity-transform membership tested. Real nested scale/rotation captures exist; nonidentity native transform conversion is not supported. [#8](https://github.com/royalpinto007/boardeject/issues/8). |
+| Connectors | The genuine two-shape Freeform 4.5 capture maps native center-anchor UUIDs to unique shape centers and produces reciprocal Excalidraw bindings without array-order correlation. Other routing, arrowhead and multi-object variants remain unsupported. A labelled real-board fixture remains [#9](https://github.com/royalpinto007/boardeject/issues/9). |
+| Groups/transforms | Genuine Freeform 4.5 translation, uniform-scale and rotation differentials preserve canvas-space leaf geometry and deepest-first editable groups. The verified fallback accepts unflipped placeholder shapes only; labels, flips, shear and unknown hierarchies fail closed. Native supported-version group membership still rejects unvalidated counter transforms. [#8](https://github.com/royalpinto007/boardeject/issues/8). |
 | Splines and ink | Centerline spline endpoints match 25 Apple PencilKit reference samples. Supported decoded ink produces freedraw output. Genuine Freeform 4.5 macOS evidence identifies Draw with Pen output as `CRLWPShapeItem` vector shapes, with no `com.apple.drawing` or `CRLFreehandDrawingItem`. |
 | Width/force decoding and mask safety | Apple-generated width/force data decoding has regression coverage. The tested geometric mask is detected and the stroke omitted with a report, rather than incorrectly restoring hidden ink. Output remains a uniform-width approximation. |
 | Pressure-sensitive / erased ink | **iPad-originated Apple Pencil pressure and erased-ink round trips remain unverified.** Freeform 4.5 on macOS exposes neither PencilKit ink output nor an eraser in the tested flow. Apple framework fixtures validate decoding, not a Freeform round trip. Follow [#20](https://github.com/royalpinto007/boardeject/issues/20). |
 | Images/assets | Verified single-object native PNG resources retain original pixels and the captured Bézier mask in an editable/movable SVG image asset. Captured shadow offset/color/opacity are retained; blur is calibrated but approximate. Effects are not independent Excalidraw controls. Other resources, crops/transforms and shadow variants remain unsupported. [#14](https://github.com/royalpinto007/boardeject/issues/14). |
 | Tables | **Verified subset:** editable cell IDs/text, unequal dimensions, insert/delete/reorder, multiline/empty content, font metadata/alignment, solid text/background colors, border visibility/width/color/solid-or-dotted style, multiple tables, and attached text boxes. Outer-only edges and attachment padding are approximated. Freeform 4.5 exposes no table merge or rotation operation; other attachment classes fail safely. [#15](https://github.com/royalpinto007/boardeject/issues/15). |
 | Reporting and privacy | Unsupported elements/versions reported; no fabricated replacement output. Browser processing, no accounts, board uploads or cloud storage. |
-| Freeform version compatibility | Compatible native versions reported by libfreeform use the normal adapter. Genuine Freeform 4.5 captures declare minimum version 7, which is not generally supported. Only verified table and single-object image/text sidecar fallbacks are recovered; other version-7 structures are withheld. Cross-version validation remains [#6](https://github.com/royalpinto007/boardeject/issues/6). |
+| Freeform version compatibility | Compatible native versions reported by libfreeform use the normal adapter. Genuine Freeform 4.5 captures declare minimum version 7, which is not generally supported. Only verified table, single-object image/text, nested-group and two-shape connector sidecar fallbacks are recovered; other version-7 structures are withheld. Cross-version validation remains [#6](https://github.com/royalpinto007/boardeject/issues/6). |
 | Local Archive | Freeform 4.5 schema version 16 with fingerprint `921b22ba…f433` supports verified board discovery, strict title decoding with UUID fallback, selected-board-only extraction, original image/PDF/video/file preservation, deterministic archives and independent integrity verification. Unknown schemas fail closed. No restore or database-native Excalidraw conversion. |
 
 See [fidelity and native evidence](docs/fidelity.md), [privacy](https://boardeject.dev/privacy) and [terms](https://boardeject.dev/terms).
@@ -166,7 +166,7 @@ The public export MP4/GIF is a real browser recording generated by `scripts/reco
 ## Roadmap
 
 - Extend **Local Freeform Archive** only when additional Freeform database schemas have genuine native validation. See the [safety boundary](docs/guide.md) and stable [archive format](docs/archive-format.md).
-- Add fixture-backed native conversion for labelled shapes, connectors and nonidentity group transforms.
+- Extend the verified connector and nested-group sidecars beyond the current bounded subsets, including a labelled real-board fixture in [#9](https://github.com/royalpinto007/boardeject/issues/9).
 - Validate Freeform clipboard captures across additional macOS versions.
 - Validate iPad-originated Apple Pencil pressure and erasure in [#20](https://github.com/royalpinto007/boardeject/issues/20).
 - Sign and notarize the Universal Mac helper for a smoother first install.
