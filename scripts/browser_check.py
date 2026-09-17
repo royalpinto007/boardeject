@@ -179,6 +179,10 @@ if __name__ == "__main__":
             assert page.locator("header .brand img").get_attribute("src") == "/favicon.svg"
             if path == "/mac-helper":
                 assert page.locator('header a[href="/mac-helper"]').count() == 0
+                for architecture in ("arm64", "x86_64"):
+                    assert page.locator(
+                        f'a[href*="BoardEject-macOS-{architecture}.dmg"]'
+                    ).is_visible()
                 assert page.locator(".package-icon").get_attribute("src") == "/favicon.svg"
                 download_link = page.get_by_role("link", name="Download Mac helper").first
                 assert download_link.get_attribute("href") == "https://downloads.boardeject.dev/BoardEject-macOS-universal.dmg"
