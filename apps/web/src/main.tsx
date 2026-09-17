@@ -3,6 +3,7 @@ import { createRoot } from "react-dom/client";
 import { exampleBoard } from "../../../examples/board";
 import type { Board } from "../../../packages/board-model/index";
 import { convert } from "../../../packages/excalidraw-converter/index";
+import CaptureTester from "./capture-tester";
 import {
   connectLocalHelper,
   type CreatedArchive,
@@ -14,7 +15,6 @@ import {
 import "./style.css";
 Object.assign(window, { EXCALIDRAW_ASSET_PATH: "/vendor/excalidraw/" });
 const Editor = lazy(() => import("./editor"));
-const CaptureTester = lazy(() => import("./capture-tester"));
 
 type ArchiveStep =
   | "connecting"
@@ -416,7 +416,13 @@ function App() {
         Skip to content
       </a>
       {editing && board && (
-        <Suspense fallback={<p role="status">Opening Excalidraw…</p>}>
+        <Suspense
+          fallback={
+            <p className="visually-hidden" role="status">
+              Loading editor
+            </p>
+          }
+        >
           <Editor document={convert(board)} onClose={() => setEditing(false)} />
         </Suspense>
       )}
@@ -793,11 +799,5 @@ function App() {
   );
 }
 createRoot(document.getElementById("root")!).render(
-  /^\/test-capture\/?$/.test(location.pathname) ? (
-    <Suspense fallback={<p role="status">Opening Capture Tester…</p>}>
-      <CaptureTester />
-    </Suspense>
-  ) : (
-    <App />
-  ),
+  /^\/test-capture\/?$/.test(location.pathname) ? <CaptureTester /> : <App />,
 );
