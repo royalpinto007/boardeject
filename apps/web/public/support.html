@@ -30,12 +30,8 @@
       </nav>
     </header>
     <main>
-      <p class="setup-kicker">Current support</p>
-      <h1>Useful where verified. Safe where uncertain.</h1>
-      <p class="setup-intro">
-        BoardEject reports unsupported content instead of silently pretending
-        every conversion is perfect.
-      </p>
+      <h1>What’s supported?</h1>
+      <p class="setup-intro">Check your result. Keep your original board.</p>
       <div class="support-cards">
         <section>
           <h2>Editable export</h2>
@@ -44,11 +40,14 @@
             editable text, tables, images, groups, transforms, connectors, and
             ink.
           </p>
-          <p>
-            Some rich-text styling, shadows, table behavior, and geometry use
-            documented editable approximations. Apple Pencil pressure and erased
-            ink remain unverified from iPad-originated captures.
-          </p>
+          <details>
+            <summary>Export limitations</summary>
+            <p>
+              Some rich-text styling, shadows, table behavior, and geometry use
+              documented editable approximations. Apple Pencil pressure and
+              erased ink remain unverified from iPad-originated captures.
+            </p>
+          </details>
         </section>
         <section>
           <h2>Local archive</h2>
@@ -57,17 +56,19 @@
             snapshots the live store without modifying it and archives only the
             selected board with reachable original assets and integrity hashes.
           </p>
-          <p>
-            Unknown schemas stop safely. Restore, write-back, iCloud
-            manipulation, and unverified database-to-Excalidraw reconstruction
-            are not supported.
-          </p>
+          <details>
+            <summary>Archive limitations</summary>
+            <p>
+              Unknown schemas stop safely. Restore, write-back, iCloud
+              manipulation, and unverified database-to-Excalidraw reconstruction
+              are not supported.
+            </p>
+          </details>
         </section>
       </div>
-      <h2>Need the detailed evidence?</h2>
+      <h2>Full support matrix</h2>
       <p>
-        Implementation notes, fixture provenance, and the complete support
-        matrix remain available in the
+        See the tests, evidence, and limitations in the
         <a
           href="https://github.com/royalpinto007/boardeject#support-matrix"
           target="_blank"

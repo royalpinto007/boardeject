@@ -223,6 +223,15 @@ pre {
 code {
   overflow-wrap: anywhere;
 }
+main details {
+  margin: 20px 0;
+}
+main summary {
+  cursor: pointer;
+  min-height: 44px;
+  align-content: center;
+  font-weight: 600;
+}
 @media (max-width: 700px) {
   .setup-choice,
   .support-cards {

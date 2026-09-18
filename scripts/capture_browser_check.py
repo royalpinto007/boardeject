@@ -13,7 +13,7 @@ with sync_playwright() as p:
     page.on("response", lambda response: external_responses.append(response.url) if not response.url.startswith(base + "/") else None)
     response = page.goto(base + "/test-capture")
     assert response.status == 200
-    page.get_by_role("heading", name="Test your actual capture.").wait_for()
+    page.get_by_role("heading", name="Test a capture.").wait_for()
     picker = page.locator("#capture-file")
     picker.set_input_files("tests/fixtures/upstream/real-board.crlnative")
     page.get_by_role("heading", name="Conversion report").wait_for()
@@ -29,6 +29,7 @@ with sync_playwright() as p:
     assert page.get_by_role("button", name="Download .excalidraw").count() == 0
     picker.set_input_files("tests/fixtures/apple/variable-width.drawing")
     page.get_by_role("button", name="Download .excalidraw").wait_for()
+    page.locator(".capture-report > details > summary").first.click()
     assert "uniform Excalidraw stroke" in page.locator(".capture-report").inner_text()
     # Drop existing upstream ink decoder fixture, never a fabricated native capture.
     data = list(Path("tests/fixtures/upstream/ink-pen.drawing").read_bytes())
@@ -49,6 +50,8 @@ with sync_playwright() as p:
     page.locator(".excalidraw").wait_for()
     page.get_by_role("button", name="← BoardEject", exact=True).click()
     picker.set_input_files("tests/fixtures/freeform-4.5/tables/table-baseline.crlnative")
+    page.get_by_role("button", name="Download .excalidraw").wait_for()
+    page.locator(".capture-report > details > summary").first.click()
     page.get_by_text("Recovered a validated table layout", exact=False).wait_for()
     with page.expect_download() as table_event:
         page.get_by_role("button", name="Download .excalidraw").click()

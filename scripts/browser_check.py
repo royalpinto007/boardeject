@@ -155,7 +155,7 @@ if __name__ == "__main__":
         assert fallback.is_visible()
         fallback.click()
         clipboard_box = page.get_by_role("button", name="Choose capture file").bounding_box()
-        helper_box = page.get_by_role("link", name="Set up the macOS helper").bounding_box()
+        helper_box = page.get_by_role("link", name="Install the Mac helper").bounding_box()
         assert clipboard_box and helper_box
         assert clipboard_box["y"] >= helper_box["y"] + helper_box["height"] + 8
         page.get_by_role("button", name="Scan Freeform").click()
@@ -175,7 +175,7 @@ if __name__ == "__main__":
             page.set_viewport_size({"width": width, "height": 900})
             assert page.evaluate("document.documentElement.scrollWidth <= innerWidth")
         page.goto(BASE + "/test-capture?debug")
-        page.get_by_role("heading", name="Test your actual capture.").wait_for()
+        page.get_by_role("heading", name="Test a capture.").wait_for()
         assert page.get_by_text(re.compile(r"^Opening ")).count() == 0
         assert page.locator('header a[href="/mac-helper"]').is_visible()
         assert page.locator("header .brand img").get_attribute("src") == "/favicon.svg"
@@ -238,7 +238,7 @@ if __name__ == "__main__":
             ("/privacy", "Privacy"),
             ("/terms", "Terms of use"),
             ("/mac-helper", "BoardEject for your Mac."),
-            ("/support", "Useful where verified. Safe where uncertain."),
+            ("/support", "What’s supported?"),
             ("/license", "MIT License"),
             ("/samples/source", "Sample source and license"),
         ):
@@ -258,9 +258,11 @@ if __name__ == "__main__":
                 assert download_link.get_attribute("href") == "https://downloads.boardeject.dev/BoardEject-macOS-universal.dmg"
                 zip_link = page.get_by_role("link", name="Prefer a ZIP?")
                 assert zip_link.get_attribute("href") == "https://downloads.boardeject.dev/BoardEject-macOS-universal.zip"
+                page.locator("#first-open summary").click()
                 page.get_by_role("heading", name="Approve the unsigned helper once.").wait_for()
                 page.get_by_role("heading", name="Open Anyway once").wait_for()
-                page.get_by_text("Launch at Login is optional", exact=False).wait_for()
+                page.locator(".source-build summary").click()
+                page.get_by_text("Launch at Login is available", exact=False).wait_for()
                 assert page.get_by_role("link", name="Apple's Gatekeeper guidance ↗").get_attribute("href").startswith("https://support.apple.com/")
             else:
                 assert page.locator('header a[href="/mac-helper"]').is_visible()

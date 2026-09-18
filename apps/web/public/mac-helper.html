@@ -32,11 +32,9 @@
     <main class="helper-main">
       <section class="helper-hero">
         <div class="helper-copy">
-          <p class="setup-kicker">BoardEject for macOS</p>
           <h1>BoardEject for your Mac.</h1>
           <p class="setup-intro">
-            Download, approve once, then use your real Freeform boards from
-            boardeject.dev.
+            Install once. Export and archive from your browser.
           </p>
           <div class="helper-actions">
             <a
@@ -61,15 +59,14 @@
                 >Intel</a
               ></span
             >
-            <a class="text-link" href="#use-helper">See how it works</a>
           </div>
           <div class="helper-trust">
             <span>Local only</span><span>No account</span
             ><span>No uploads</span>
           </div>
           <p class="unsigned-note">
-            Unnotarized build. macOS asks for one manual approval on first open.
-            <a href="#first-open">See the exact steps</a>
+            Not notarized. macOS requires approval once.
+            <a href="#first-open">How to open it →</a>
           </p>
         </div>
         <div class="mac-stage" aria-label="BoardEject helper package preview">
@@ -95,9 +92,9 @@
         </div>
       </section>
 
-      <section class="gatekeeper-card" id="first-open">
+      <details class="gatekeeper-card" id="first-open">
+        <summary>First open: approve the helper</summary>
         <div>
-          <p class="setup-kicker">First open</p>
           <h2>Approve the unsigned helper once.</h2>
           <p>
             BoardEject is ad-hoc signed but not Apple-notarized. macOS blocks
@@ -121,66 +118,43 @@
             >Apple's Gatekeeper guidance ↗</a
           >.
         </p>
-      </section>
+      </details>
 
       <section class="helper-install" id="use-helper">
         <div>
           <span class="step-number">01</span>
           <h2>Download</h2>
-          <p>
-            Open the DMG and drag BoardEject Helper to Applications. No
-            developer tools needed.
-          </p>
+          <p>Drag BoardEject Helper into Applications.</p>
         </div>
         <div>
           <span class="step-number">02</span>
           <h2>Open Anyway once</h2>
-          <p>
-            Approve the unsigned helper in Privacy &amp; Security. This is only
-            required on the first launch.
-          </p>
+          <p>Approve it in System Settings → Privacy &amp; Security.</p>
         </div>
         <div>
           <span class="step-number">03</span>
           <h2>Use BoardEject</h2>
           <p>
-            The helper opens this site and retries the local connection. Before
-            allowing Local Network Access, your browser explains that it only
-            connects to the helper on this Mac. Launch at Login is optional in
-            the helper's menu-bar menu.
+            The helper opens BoardEject. Allow Local Network Access to connect
+            to it on this Mac.
           </p>
         </div>
       </section>
 
       <section class="workflow-shell">
         <div class="workflow-heading">
-          <p class="setup-kicker">Two local workflows</p>
-          <h2>Choose what to keep.</h2>
+          <h2>You’re ready.</h2>
         </div>
         <div class="setup-choice">
           <section>
-            <span>Editable export</span>
             <h2>Freeform → Excalidraw</h2>
-            <ol>
-              <li>Copy your selection in Freeform.</li>
-              <li>Click Import copied selection on BoardEject.</li>
-              <li>Review and download the editable result.</li>
-            </ol>
+            <p>Copy → Import → Download.</p>
             <a class="setup-button" href="/#export">Export a selection →</a>
           </section>
           <section>
-            <span>Local archive</span>
             <h2>Freeform → verified archive</h2>
-            <ol>
-              <li>Open BoardEject Helper once.</li>
-              <li>Scan and choose a board on the website.</li>
-              <li>Create, save, and verify the archive locally.</li>
-            </ol>
-            <a
-              class="setup-button"
-              href="https://downloads.boardeject.dev/BoardEject-macOS-universal.dmg"
-              >Download Mac helper ↓</a
-            >
+            <p>Scan → Choose → Create → Verify.</p>
+            <a class="setup-button" href="/#archive">Archive a board →</a>
           </section>
         </div>
       </section>
@@ -198,8 +172,10 @@
       </section>
 
       <details class="source-build">
-        <summary>Build from source</summary>
+        <summary>More options</summary>
         <div>
+          <p>Launch at Login is available in the helper’s menu-bar menu.</p>
+          <h2>Build from source</h2>
           <p>
             Developers can audit and compile BoardEject with Node 22+, Swift,
             and Xcode Command Line Tools.
