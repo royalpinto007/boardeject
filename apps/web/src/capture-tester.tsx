@@ -120,9 +120,9 @@ export default function CaptureTester() {
       </header>
       <main className="capture-tester">
         <span className="preview-badge">Experimental / Capture Tester</span>
-        <h1>Test your actual capture.</h1>
+        <h1>Test a capture.</h1>
         <p className="capture-intro">
-          Turn a capture into editable Excalidraw, right on your device.
+          Choose a file. Get editable Excalidraw. Nothing is uploaded.
         </p>
         <details className="capture-help">
           <summary>Supported files and conversion limits</summary>
@@ -150,9 +150,7 @@ export default function CaptureTester() {
           <span className="capture-icon" aria-hidden="true">
             ↥
           </span>
-          <strong className="capture-drop-title">
-            Choose a capture or drop it here
-          </strong>
+          <strong className="capture-drop-title">Drop your capture here</strong>
           <input
             id="capture-file"
             className="capture-file-input"
@@ -170,10 +168,7 @@ export default function CaptureTester() {
           <span className="capture-file-name" aria-live="polite">
             {fileName}
           </span>
-          <small>
-            32 MiB raw payload / 45 MiB envelope. New selections replace the
-            previous result.
-          </small>
+          <small>Up to 32 MiB raw / 45 MiB capture.</small>
         </section>
         <div className="capture-samples" aria-label="Sample captures">
           <span>Try a sample</span>
@@ -234,23 +229,29 @@ export default function CaptureTester() {
                 </dd>
               </div>
             </dl>
-            <p>
-              Counts reflect decoder output, not every visible object in
-              Freeform. Report counts are diagnostics, not unique element
-              counts.
-            </p>
-            {board.issues.length ? (
-              <ul>
-                {board.issues.map((issue, index) => (
-                  <li key={index}>
-                    <strong>{issue.severity}</strong>
-                    {issue.itemId ? ` (${issue.itemId})` : ""}: {issue.message}
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <p>No conversion warnings reported. Still inspect your result.</p>
-            )}
+            <details open={!board.nodes.length}>
+              <summary>Conversion details ({board.issues.length})</summary>
+              <p>
+                Counts reflect decoder output, not every visible object in
+                Freeform. Report counts are diagnostics, not unique element
+                counts.
+              </p>
+              {board.issues.length ? (
+                <ul>
+                  {board.issues.map((issue, index) => (
+                    <li key={index}>
+                      <strong>{issue.severity}</strong>
+                      {issue.itemId ? ` (${issue.itemId})` : ""}:{" "}
+                      {issue.message}
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p>
+                  No conversion warnings reported. Still inspect your result.
+                </p>
+              )}
+            </details>
             {board.nodes.length ? (
               <>
                 <details>
@@ -265,10 +266,7 @@ export default function CaptureTester() {
                 </details>
               </>
             ) : (
-              <p>
-                No editable output was recovered. Preview and download are
-                unavailable. Review the unsupported/error reports above.
-              </p>
+              <p>No editable output. See conversion details above.</p>
             )}
           </section>
         )}

@@ -223,14 +223,22 @@
   font-size: 14px;
 }
 .gatekeeper-card {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 48px;
+  display: block;
   margin: 72px 0 0;
   padding: 40px;
   border: 1px solid #d9ddcf;
   border-radius: 20px;
   background: #fbfaf6;
+}
+.gatekeeper-card summary {
+  cursor: pointer;
+  font-weight: 600;
+  min-height: 44px;
+  align-content: center;
+}
+.gatekeeper-card[open] > div,
+.gatekeeper-card[open] > p {
+  margin-top: 24px;
 }
 .gatekeeper-card h2 {
   margin: 10px 0 12px;

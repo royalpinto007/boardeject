@@ -169,9 +169,8 @@ function LocalArchive() {
           </span>
           <h3>Install or open the helper</h3>
           <p>
-            Your browser may ask for Local Network Access. This only lets
-            boardeject.dev reach BoardEject Helper on this Mac. No board data
-            leaves your device.
+            Allow Local Network Access to connect to the helper on this Mac.
+            Your boards stay here.
           </p>
           <div className="utility-actions">
             <a className="button" href="/mac-helper">
@@ -453,8 +452,7 @@ function App() {
               Your Freeform boards, <span>actually yours.</span>
             </h1>
             <p className="intro">
-              Keep editing in Excalidraw, or make a verified local archive with
-              the original assets.
+              Export to Excalidraw. Archive your originals.
             </p>
             <div className="actions hero-actions">
               <a className="button" href="#export">
@@ -495,13 +493,8 @@ function App() {
           <article className="product-card" id="export">
             <span className="card-number">01</span>
             <div className="product-card-copy">
-              <span className="state-label">Editable Export</span>
-              <h2>Move it. Edit it. Keep going.</h2>
-              <p>Freeform clipboard → editable Excalidraw.</p>
-              <p className="workflow-note">
-                <strong>Copy in Freeform.</strong> The helper reads that
-                selection only when you click Import.
-              </p>
+              <h2>Export to Excalidraw.</h2>
+              <p>Copy in Freeform, then import with the Mac helper.</p>
               <div className="actions">
                 <button onClick={importCopiedSelection} disabled={busy}>
                   {busy ? "Importing…" : "Import copied selection"}
@@ -514,11 +507,10 @@ function App() {
                 {status}
               </p>
               <a className="helper-link" href="/mac-helper">
-                Set up the macOS helper →
+                Install the Mac helper →
               </a>
               <details className="capture-fallback">
                 <summary>Capture-file fallback</summary>
-                <p>For development or an existing private capture.</p>
                 <button
                   className="secondary"
                   onClick={() => file.current?.click()}
@@ -554,8 +546,7 @@ function App() {
                 <source src="/media/demo.mp4" type="video/mp4" />
               </video>
               <figcaption>
-                <strong>A shape moves. Its arrow follows.</strong>
-                <span>Actual BoardEject output · Example board</span>
+                <span>Demo · Example board</span>
               </figcaption>
             </figure>
           </article>
@@ -563,18 +554,8 @@ function App() {
           <article className="product-card archive-card" id="archive">
             <span className="card-number">02</span>
             <div className="product-card-copy">
-              <span className="state-label">Local Archive</span>
-              <h2>One board. Original files. Verified.</h2>
-              <p>Freeform → local `.boardejectarchive`.</p>
-              <p className="workflow-note">
-                <strong>Use your real boards here.</strong> The website connects
-                to the helper on this Mac. Nothing is uploaded.
-              </p>
-              <div className="actions">
-                <a className="button" href="/mac-helper">
-                  Get the Mac helper <span>→</span>
-                </a>
-              </div>
+              <h2>Archive your board.</h2>
+              <p>Keep your board and original files in one verified archive.</p>
               <p className="fine">
                 Freeform 4.5 verified. Restore is not supported.
               </p>
@@ -676,10 +657,6 @@ function App() {
                     Download .excalidraw ↓
                   </button>
                 </div>
-                <p className="fine">
-                  Open the downloaded file in Excalidraw. This preview is not an
-                  editor.
-                </p>
               </>
             )}
             {board.source !== "synthetic-example" && (
@@ -700,17 +677,14 @@ function App() {
           <div>
             <span>◎</span>
             <strong>Stays on your device</strong>
-            <small>No board or archive uploads.</small>
           </div>
           <div>
             <span>◇</span>
             <strong>Useful output</strong>
-            <small>Edit the export. Verify the archive.</small>
           </div>
           <div>
             <span>↗</span>
             <strong>Open source</strong>
-            <small>Inspect every conversion and check.</small>
           </div>
         </section>
 
@@ -720,11 +694,9 @@ function App() {
           aria-labelledby="preview-title"
         >
           <div>
-            <span className="preview-badge">Current status · v0.0.4</span>
-            <h2 id="preview-title">Honest about the edges.</h2>
+            <h2 id="preview-title">What’s supported?</h2>
             <p>
-              Supported content stays useful. Anything uncertain appears in the
-              result instead of being silently flattened.
+              Some elements are approximated or unsupported. Review your result.
             </p>
           </div>
           <details className="technical-details">
