@@ -818,7 +818,7 @@ a {
 }
 .utility-center p,
 .utility-content p {
-  color: #69766a;
+  color: #55664f;
   font-size: 13px;
 }
 .utility-icon,
@@ -834,7 +834,7 @@ a {
 }
 .utility-icon.offline {
   background: #eceee8;
-  color: #687267;
+  color: #55664f;
 }
 .utility-icon.success {
   border-radius: 50%;
