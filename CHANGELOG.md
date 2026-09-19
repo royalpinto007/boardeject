@@ -1,5 +1,15 @@
 # Changelog
 
+## Unreleased
+
+- Fixed archive verification crashing on manifests with malformed file or asset records; they now fail closed with reported errors.
+- Added deterministic adversarial coverage over clipboard capture and archive verification boundaries.
+- Added export and backup guide pages with search metadata, and registered them in the sitemap.
+- Added automatic site deployment to Cloudflare Pages on push to main.
+- Shortened the README, added search keywords, and fixed the social preview version label.
+- Raised site text contrast to WCAG AA, allowed the analytics beacon in the CSP, and reduced poster image weight.
+- Kept restore, write-back, iCloud manipulation, and unverified ink and version support explicitly out of scope.
+
 ## 0.0.4 - 2026-09-17
 
 - Added direct Freeform clipboard import through the authenticated localhost Mac helper, with no manual capture file in the normal export flow.
