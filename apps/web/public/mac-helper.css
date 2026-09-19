@@ -99,7 +99,7 @@
 .unsigned-note {
   max-width: 500px;
   margin: 18px 0 0;
-  color: #69766d;
+  color: #55664f;
   font-size: 13px;
 }
 .unsigned-note a {
@@ -194,7 +194,7 @@
   font-size: 13px;
 }
 .package-status small {
-  color: #728071;
+  color: #55664f;
 }
 .helper-install {
   display: grid;
@@ -210,7 +210,7 @@
   border-left: 1px solid #d9ddcf;
 }
 .step-number {
-  color: #77906a;
+  color: #5a6a57;
   font: 12px monospace;
 }
 .helper-install h2 {
@@ -299,7 +299,7 @@
   gap: 5px;
 }
 .helper-boundary span {
-  color: #69766d;
+  color: #55664f;
   font-size: 13px;
 }
 .source-build {

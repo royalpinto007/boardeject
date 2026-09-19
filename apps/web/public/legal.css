@@ -147,7 +147,7 @@ a:focus-visible {
 }
 .setup-kicker {
   margin-bottom: 8px;
-  color: #638052;
+  color: #55664f;
   font-size: 13px;
   font-weight: 700;
   text-transform: uppercase;
@@ -174,7 +174,7 @@ a:focus-visible {
   background: #fbfaf6;
 }
 .setup-choice section > span {
-  color: #638052;
+  color: #55664f;
   font-size: 12px;
   font-weight: 700;
   text-transform: uppercase;
