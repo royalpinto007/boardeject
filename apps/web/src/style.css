@@ -171,7 +171,7 @@ a {
 .fine {
   font-size: 11px;
   line-height: 1.65;
-  color: #65715f;
+  color: #55664f;
 }
 .demo {
   margin: 0;
@@ -225,7 +225,7 @@ a {
 }
 .demo figcaption span {
   font-size: 10px;
-  color: #5f7152;
+  color: #55664f;
 }
 .flow {
   display: flex;
@@ -236,14 +236,14 @@ a {
   border-bottom: 1px solid #d9ddcf;
   padding: 25px 0;
   font-size: 12px;
-  color: #65715d;
+  color: #55664f;
 }
 .flow strong {
   color: #31513a;
   font-weight: 600;
 }
 .flow > span:nth-child(even) {
-  color: #8a997e;
+  color: #5a6a57;
 }
 .workspace {
   display: grid;
@@ -261,7 +261,7 @@ a {
   margin: 0 0 22px;
 }
 .workspace-copy > p {
-  color: #65705f;
+  color: #55664f;
   font-size: 15px;
   line-height: 1.75;
   max-width: 340px;
@@ -290,7 +290,7 @@ a {
   height: 40px;
   border-radius: 8px;
   font-size: 24px;
-  color: #5f784d;
+  color: #5a6a57;
   margin-bottom: 20px;
 }
 .landing h3 {
@@ -302,7 +302,7 @@ a {
 .import > p {
   font-size: 13px;
   line-height: 1.6;
-  color: #68745f;
+  color: #55664f;
 }
 .import .actions {
   flex-direction: column;
@@ -330,7 +330,7 @@ a {
 }
 .result > p {
   font-size: 13px;
-  color: #65715f;
+  color: #55664f;
 }
 .preview {
   background: white;
@@ -646,7 +646,7 @@ a {
 .hero-file span,
 .hero-file small {
   display: block;
-  color: #75816f;
+  color: #55664f;
   font-size: 11px;
 }
 .hero-file strong {
@@ -677,7 +677,7 @@ a {
   color: #c8d6c8;
 }
 .hero-arrow {
-  color: #78906c;
+  color: #5a6a57;
   font-size: 25px;
 }
 .choice-grid {
@@ -706,7 +706,7 @@ a {
   position: absolute;
   top: 24px;
   right: 28px;
-  color: #8d9a86;
+  color: #5a6a57;
   font: 12px monospace;
 }
 .product-card-copy h2 {
@@ -715,7 +715,7 @@ a {
   margin: 8px 0 14px;
 }
 .product-card-copy > p:not(.fine):not(.status) {
-  color: #647166;
+  color: #55664f;
   font-size: 17px;
 }
 .product-card-copy .actions {
@@ -733,7 +733,7 @@ a {
   margin-top: 18px;
   padding-top: 14px;
   border-top: 1px solid #d7ddd1;
-  color: #647166;
+  color: #55664f;
   font-size: 12px;
 }
 .capture-fallback summary {
@@ -1062,7 +1062,7 @@ a {
 .utility-disclosure {
   margin: auto 7px 3px;
   text-align: center;
-  color: #7c887b;
+  color: #55664f;
   font-size: 9px;
 }
 .utility-message {
@@ -1209,7 +1209,7 @@ a {
 }
 .trust-strip small {
   margin-top: 5px;
-  color: #6b776b;
+  color: #55664f;
 }
 .support-compact {
   display: grid;
@@ -1221,7 +1221,7 @@ a {
 }
 .support-compact > div > p {
   max-width: 500px;
-  color: #65705f;
+  color: #55664f;
   line-height: 1.7;
 }
 .technical-details {
@@ -1237,7 +1237,7 @@ a {
   font-weight: 600;
 }
 .technical-details p {
-  color: #65705f;
+  color: #55664f;
   line-height: 1.7;
 }
 .detail-links {
