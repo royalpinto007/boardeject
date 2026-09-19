@@ -345,8 +345,14 @@ export async function verifyArchive(
   let filesChecked = 0;
   let corrupted = 0;
   if (manifest?.files && Array.isArray(manifest.files)) {
+    const records = manifest.files.filter(
+      (file): file is ArchiveFileRecord =>
+        !!file && typeof file === "object" && typeof file.path === "string",
+    );
+    if (records.length !== manifest.files.length)
+      errors.push("Manifest contains invalid file records.");
     const paths = new Set<string>();
-    for (const file of manifest.files) {
+    for (const file of records) {
       if (!isSafeArchivePath(file.path) || paths.has(file.path)) {
         errors.push(`Invalid or duplicate file record: ${file.path}`);
         continue;
@@ -369,7 +375,11 @@ export async function verifyArchive(
     }
   } else if (manifest) errors.push("Manifest file records are missing.");
   if (manifest?.files) {
-    const declared = new Set(manifest.files.map((file) => file.path));
+    const declared = new Set(
+      manifest.files.map((file) =>
+        file && typeof file === "object" ? file.path : undefined,
+      ),
+    );
     for (const path of Object.keys(entries))
       if (
         path !== "manifest.json" &&
@@ -382,9 +392,16 @@ export async function verifyArchive(
   let assetsVerified = 0;
   let missing = 0;
   if (manifest?.assets && Array.isArray(manifest.assets)) {
-    const byId = new Map(
-      manifest.assets.map((asset) => [asset.nativeId, asset]),
+    const records = manifest.assets.filter(
+      (asset): asset is ArchiveAssetRecord =>
+        !!asset &&
+        typeof asset === "object" &&
+        typeof asset.nativeId === "string" &&
+        Array.isArray(asset.objectIds),
     );
+    if (records.length !== manifest.assets.length)
+      errors.push("Manifest contains invalid asset records.");
+    const byId = new Map(records.map((asset) => [asset.nativeId, asset]));
     const objectBytes = entries["metadata/objects.json"];
     const objects = objectBytes
       ? parseJson<unknown[]>(objectBytes, "metadata/objects.json", errors)
@@ -398,7 +415,7 @@ export async function verifyArchive(
           )
         : [],
     );
-    for (const asset of manifest.assets) {
+    for (const asset of records) {
       for (const objectId of asset.objectIds)
         if (!objectIds.has(objectId))
           errors.push(
