@@ -1,0 +1,185 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>How to Back Up Apple Freeform Boards Locally | BoardEject</title>
+    <meta
+      name="description"
+      content="Back up Apple Freeform boards as verified local archives with BoardEject. Selected-board-only snapshots with original assets and integrity hashes. No account, no uploads."
+    />
+    <link
+      rel="canonical"
+      href="https://boardeject.dev/backup-freeform-boards"
+    />
+    <meta
+      property="og:title"
+      content="How to Back Up Apple Freeform Boards Locally"
+    />
+    <meta
+      property="og:description"
+      content="Verified local Freeform archive with original assets and integrity hashes. Your boards stay on your device."
+    />
+    <meta property="og:type" content="article" />
+    <meta
+      property="og:url"
+      content="https://boardeject.dev/backup-freeform-boards"
+    />
+    <meta
+      property="og:image"
+      content="https://boardeject.dev/social-preview.png"
+    />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="/legal.css" />
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "HowTo",
+        "name": "How to back up Apple Freeform boards locally",
+        "description": "Create a verified local archive of a selected Apple Freeform board using BoardEject, without modifying the live database.",
+        "tool": [
+          { "@type": "HowToTool", "name": "Apple Freeform" },
+          { "@type": "HowToTool", "name": "BoardEject Mac helper" }
+        ],
+        "step": [
+          {
+            "@type": "HowToStep",
+            "name": "Scan Freeform",
+            "text": "Open BoardEject with the helper running and click Scan Freeform."
+          },
+          {
+            "@type": "HowToStep",
+            "name": "Choose a board",
+            "text": "Pick exactly the board to preserve. Only the selected board is extracted."
+          },
+          {
+            "@type": "HowToStep",
+            "name": "Create the local archive",
+            "text": "Click Create local archive and save the .boardejectarchive file."
+          },
+          {
+            "@type": "HowToStep",
+            "name": "Verify integrity",
+            "text": "Click Verify now to check every asset hash, missing file, and corruption result."
+          }
+        ]
+      }
+    </script>
+  </head>
+  <body>
+    <header>
+      <a class="brand" href="/"
+        ><img src="/favicon.svg" width="30" height="30" alt="" /> BoardEject</a
+      >
+      <nav aria-label="Main navigation">
+        <a href="/mac-helper">Mac helper</a>
+        <a href="/test-capture">Test a capture ↗</a>
+        <a
+          class="nav-source"
+          href="https://github.com/royalpinto007/boardeject"
+          target="_blank"
+          rel="noopener noreferrer"
+          >GitHub ↗</a
+        >
+      </nav>
+    </header>
+    <main>
+      <h1>How to back up Apple Freeform boards locally</h1>
+      <p class="setup-intro">
+        Freeform keeps your boards in iCloud with no portable backup file.
+        BoardEject creates a verified
+        <a href="/#archive">local archive</a> of exactly the board you choose,
+        with original assets and integrity hashes. No account, no uploads.
+      </p>
+      <h2>Steps</h2>
+      <ol>
+        <li>
+          Open <a href="/#archive">BoardEject</a> with the
+          <a href="/mac-helper">Mac helper</a> running and click
+          <strong>Scan Freeform</strong>.
+        </li>
+        <li>Choose the board to preserve.</li>
+        <li>
+          Click <strong>Create local archive</strong> and save the
+          <code>.boardejectarchive</code> file.
+        </li>
+        <li>
+          Click <strong>Verify now</strong> to check asset hashes, missing
+          files, and corruption.
+        </li>
+      </ol>
+      <h2>What the archive contains</h2>
+      <p>
+        Only the selected board: its native records, reachable original assets,
+        verification metadata, and hashes. The helper snapshots the database
+        files and works read-only, so your live Freeform data is never modified.
+        Only the exact verified Freeform 4.5 schema is accepted; unknown
+        versions stop safely instead of writing a bad backup. See
+        <a href="/support">support and limitations</a>.
+      </p>
+      <h2>Frequently asked</h2>
+      <h3>Does Freeform have a backup feature?</h3>
+      <p>
+        No portable one. Boards sync through iCloud, but Apple offers no
+        per-board backup file you can keep or verify yourself.
+      </p>
+      <h3>Is my board uploaded anywhere?</h3>
+      <p>
+        No. Scanning, archiving, and verification run on your Mac. See the
+        <a href="/privacy">privacy policy</a>.
+      </p>
+      <h3>Can I restore the archive back into Freeform?</h3>
+      <p>
+        No. Restore and write-back are not supported. The archive is
+        independently verifiable proof of what your board contained, plus the
+        original assets.
+      </p>
+      <h3>What if my Freeform version is not supported?</h3>
+      <p>
+        Archive creation fails closed with a clear report. It never writes a
+        partial or guessed archive.
+      </p>
+      <h2>Also need editable export?</h2>
+      <p>
+        For getting boards out as editable files, see
+        <a href="/export-freeform-to-excalidraw"
+          >how to export Freeform to Excalidraw</a
+        >. BoardEject is
+        <a
+          href="https://github.com/royalpinto007/boardeject"
+          target="_blank"
+          rel="noopener noreferrer"
+          >open source on GitHub ↗</a
+        >.
+      </p>
+    </main>
+    <footer class="site-footer">
+      <div>
+        <a class="brand" href="/"
+          ><img src="/favicon.svg" width="30" height="30" alt="" />
+          BoardEject</a
+        >
+        <p>Your board. Your format.</p>
+      </div>
+      <div class="footer-links">
+        <a href="/mac-helper">Mac helper</a><a href="/privacy">Privacy</a
+        ><a href="/terms">Terms</a
+        ><a
+          href="https://github.com/royalpinto007/boardeject"
+          target="_blank"
+          rel="noopener noreferrer"
+          >Source code ↗</a
+        ><a
+          href="https://www.buymeacoffee.com/royalpinto007"
+          target="_blank"
+          rel="noopener noreferrer"
+          >Buy me a coffee ↗</a
+        >
+      </div>
+      <p class="footer-disclaimer">
+        Independent open-source project. Not affiliated with Apple or
+        Excalidraw.
+      </p>
+    </footer>
+  </body>
+</html>
