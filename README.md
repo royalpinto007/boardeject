@@ -1,6 +1,6 @@
-# BoardEject
+# BoardEject - Export Apple Freeform to Excalidraw
 
-**Your board. Your format.**
+**Freeform to Excalidraw converter and verified local archive. Your board. Your format.**
 
 Export Apple Freeform boards to editable Excalidraw files, or save a board as a verified local archive. Local-first with no account and no board uploads.
 
