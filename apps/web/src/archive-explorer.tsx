@@ -240,6 +240,21 @@ export default function ArchiveExplorer() {
           <h1>Your board, unpacked.</h1>
           <p>Open an archive. Verify it. Get your original files.</p>
           <small>On this device. No uploads or Mac required.</small>
+          <details className="archive-included">
+            <summary>See it work</summary>
+            <video
+              className="explorer-demo"
+              controls
+              preload="none"
+              poster="/media/explorer-poster.png"
+              src="/media/explorer-demo.mp4"
+              aria-label="Demo: open a genuine Freeform archive and extract originals"
+            />
+            <p>
+              Recorded with a genuine Freeform 4.5 archive. Your own file is
+              opened below.
+            </p>
+          </details>
         </section>
         <section
           className={`archive-drop ${dragging ? "is-dragging" : ""}`}
@@ -344,6 +359,14 @@ export default function ArchiveExplorer() {
                     onClick={() => {
                       try {
                         setExtracting(true);
+                        timer.current = setTimeout(() => {
+                          stop();
+                          setExtracting(false);
+                          setError(
+                            "Packaging took too long. Reopen the archive or download individual files.",
+                          );
+                        }, 60000);
+                        if (!task.current) throw new Error("Reopen archive");
                         task.current?.postMessage({
                           id: sequence.current,
                           extract: true,

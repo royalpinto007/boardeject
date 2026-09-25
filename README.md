@@ -38,6 +38,10 @@ The archive contains only the selected board with original assets and verificati
 
 ### Explore an archive
 
+![Genuine Freeform archive verified and original files extracted locally](docs/explorer-demo.gif)
+
+_Real archive from Freeform 4.5. [Watch MP4](docs/explorer-demo.mp4). No helper is needed to inspect this saved archive._
+
 1. Open [Archive Explorer](https://boardeject.dev/open) and choose your `.boardejectarchive`.
 2. Review integrity checks, board details, and missing-file warnings.
 3. Preview supported original media and download individual files or a ZIP of the originals.

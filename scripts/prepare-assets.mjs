@@ -5,6 +5,8 @@ for (const asset of [
   "demo-poster.png",
   "archive-demo.mp4",
   "archive-poster.png",
+  "explorer-demo.mp4",
+  "explorer-poster.png",
 ]) {
   cpSync(`docs/${asset}`, `apps/web/public/media/${asset}`);
 }

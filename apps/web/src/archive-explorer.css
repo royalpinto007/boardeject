@@ -20,6 +20,13 @@
 .archive-included summary {
   cursor: pointer;
 }
+.explorer-demo {
+  display: block;
+  margin-top: 16px;
+  max-width: 100%;
+  border: 1px solid #dce0d5;
+  border-radius: 8px;
+}
 .archive-status h2:focus {
   outline: none;
 }
