@@ -4,7 +4,7 @@
 
 Export Apple Freeform boards to editable Excalidraw files, or save a board as a verified local archive. Local-first with no account and no board uploads.
 
-[Live site](https://boardeject.dev) · [Export](https://boardeject.dev/#export) · [Archive](https://boardeject.dev/#archive) · [Mac helper](https://boardeject.dev/mac-helper) · [Test a capture](https://boardeject.dev/test-capture) · [Sample output](examples/example.excalidraw)
+[Live site](https://boardeject.dev) · [Export](https://boardeject.dev/#export) · [Archive](https://boardeject.dev/#archive) · [Open archive](https://boardeject.dev/open) · [Mac helper](https://boardeject.dev/mac-helper) · [Test a capture](https://boardeject.dev/test-capture) · [Sample output](examples/example.excalidraw)
 
 ![Move a shape, watch its connected arrow follow, then edit text](docs/demo.gif)
 
@@ -36,9 +36,17 @@ No Mac handy? Use **Try example board** on the site, or test an existing `.board
 
 The archive contains only the selected board with original assets and verification metadata. It never modifies the live Freeform database. Restore into Freeform is not supported. Details: [guide](docs/guide.md) and [archive format](docs/archive-format.md).
 
+### Explore an archive
+
+1. Open [Archive Explorer](https://boardeject.dev/open) and choose your `.boardejectarchive`.
+2. Review integrity checks, board details, and missing-file warnings.
+3. Preview supported original media and download individual files or a ZIP of the originals.
+
+No Mac or helper needed to open an existing archive. After the page loads, inspection works offline until you close or refresh it. Included board previews and Excalidraw files are available only when the archive contains them; Explorer does not reconstruct a board from database records. Browser inspection is limited to 256 MiB compressed and expanded, and 10,000 ZIP entries. Hashes verify integrity, not authorship.
+
 ## Status
 
-Verified scope for v0.0.4:
+Verified scope for v0.0.5:
 
 - Supported: shapes, text, tables, images with mask/shadow subset, ink, two-shape connectors, and nested-group subset from genuine Freeform 4.5 captures.
 - Not supported: arbitrary version-7 boards, PDF input, restore or write-back, iCloud edits, table merge/rotation, exact fonts and mixed-style rendering.

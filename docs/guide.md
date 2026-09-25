@@ -54,7 +54,21 @@ The archive path currently supports only the exact verified Freeform 4.5 schema 
 
 The packaged `boardeject-mac scan`, `create`, and `verify` commands remain available as a developer fallback, but they are not required for the normal website flow.
 
-## Build from source
+## Open an existing archive
+
+Use [Archive Explorer](https://boardeject.dev/open) on any supported modern desktop or mobile browser: choose one `.boardejectarchive`, wait for verification, then browse and download originals.
+
+No helper is required for this flow. Once loaded, the page can inspect files offline until closed or refreshed. Nothing is uploaded or automatically persisted. Reopening the website requires connectivity; this is not an installed offline app.
+
+Images, PDFs, video and audio can be previewed when recognized and supported by your browser. SVG, HTML and unknown types are download-only. PDF preview availability varies by browser; download the original if it cannot be displayed. Only open downloaded files you trust.
+
+Missing originals remain visible and unavailable. Corrupt or unsupported archives do not expose previews or extraction. Filenames are sanitized and collisions receive a numeric suffix; original bytes are unchanged. A ZIP of originals is an extraction convenience, not a replacement for the native `.boardejectarchive`.
+
+Board previews and editable exports are shown only if already included. Current database-native archives do not create an Excalidraw export from unverified clipboard mappings. To edit an included export, download it and open it in Excalidraw.
+
+Browser limits are 256 MiB for both the input and total expanded data, 10,000 ZIP entries, and a 60-second verification timeout. Use the helper CLI to verify larger archives. SHA-256 detects changes against the enclosed manifest, not who created an archive.
+
+## Developer setup
 
 Developers can clone the repository, install Node 22.12 or newer, and run `npm ci`.
 
