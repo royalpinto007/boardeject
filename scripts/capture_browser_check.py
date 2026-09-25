@@ -1,5 +1,6 @@
 """Exercise real file selection/drop against existing public regression inputs."""
 import os
+from browser_check import hosting_script
 from pathlib import Path
 from playwright.sync_api import sync_playwright
 
@@ -7,10 +8,13 @@ base = os.environ.get("BOARDEJECT_TEST_URL", "http://127.0.0.1:4190").rstrip("/"
 with sync_playwright() as p:
     browser = p.chromium.launch(channel="chrome", headless=True)
     page = browser.new_page(viewport={"width": 1280, "height": 900}, accept_downloads=True)
+    # Isolate converter network behavior from Cloudflare's host-injected RUM.
+    # Do not allowlist POST requests: any upload by the application still fails.
+    page.route("https://static.cloudflareinsights.com/**", lambda route: route.abort())
     requests, errors, external_responses = [], [], []
     page.on("request", lambda request: requests.append((request.method, request.url)))
     page.on("pageerror", lambda error: errors.append(str(error)))
-    page.on("response", lambda response: external_responses.append(response.url) if not response.url.startswith(base + "/") else None)
+    page.on("response", lambda response: external_responses.append(response.url) if not response.url.startswith(base + "/") and not hosting_script(response) else None)
     response = page.goto(base + "/test-capture")
     assert response.status == 200
     page.get_by_role("heading", name="Test a capture.").wait_for()
@@ -137,6 +141,6 @@ with sync_playwright() as p:
     if base.startswith("http://127.0.0.1"):
         assert not external_attempts, external_attempts
     if external_attempts:
-        print(f"NOTE: {len(external_attempts)} external request attempts received no response (CSP-blocked); no uploads occurred")
+        print(f"NOTE: {len(external_attempts)} external attempts; only the host-injected GET analytics script may receive a response; no uploads occurred")
     browser.close()
-    print(f"PASS: {len(native_captures)} genuine native captures, file selection, safe failures, ink, preview/download, responsive layout, no uploads/external responses")
+    print(f"PASS: {len(native_captures)} genuine native captures, file selection, safe failures, ink, preview/download, responsive layout, no uploads/unapproved external responses")
