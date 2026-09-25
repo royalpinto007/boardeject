@@ -448,7 +448,7 @@ function App() {
         <section className="hero product-hero" aria-labelledby="hero-title">
           <div className="hero-copy">
             <span className="preview-badge">
-              <span /> Open source · v0.0.4
+              <span /> Open source · v0.0.5
             </span>
             <h1 id="hero-title">
               Your Freeform boards, <span>actually yours.</span>
