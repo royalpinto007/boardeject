@@ -9,6 +9,7 @@ import {
 export const EXPLORER_MAX_BYTES = 256 * 1024 * 1024;
 export interface ExplorerAsset {
   name: string;
+  displayName?: string;
   nativeId: string;
   bytes?: Uint8Array;
   previewType?: string;
@@ -153,6 +154,11 @@ export async function inspectArchive(
     const ids = new Set<string>();
     const used = new Set<string>();
     for (const asset of manifest.assets) {
+      if (
+        asset.originalFilename !== undefined &&
+        typeof asset.originalFilename !== "string"
+      )
+        return failure("Asset filename must be text.");
       if (!asset.nativeId || ids.has(asset.nativeId))
         return failure("Invalid or duplicate asset identity.");
       ids.add(asset.nativeId);
@@ -193,6 +199,9 @@ export async function inspectArchive(
           : undefined;
       result.assets.push({
         name,
+        displayName:
+          asset.originalFilename ||
+          `${content && previewType(content)?.startsWith("image/") ? "Image" : content && previewType(content)?.startsWith("video/") ? "Video" : content && previewType(content) === "application/pdf" ? "PDF document" : "File"} ${result.assets.length + 1}`,
         nativeId: asset.nativeId,
         status: asset.status,
         bytes: content,

@@ -42,6 +42,10 @@ writeFileSync(
     .replaceAll(
       "BoardEject | Your board. Your format.",
       "Open a Freeform archive | BoardEject",
+    )
+    .replace(
+      /(<meta\s+(?:name|property)="(?:description|og:description|twitter:description)"\s+content=")[^"]*/g,
+      "$1Open a .boardejectarchive, verify integrity, preview original files, and download assets locally. No Mac or helper required.",
     ),
 );
 for (const name of [

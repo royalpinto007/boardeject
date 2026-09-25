@@ -41,6 +41,59 @@ const input = (): ArchiveInput => ({
 });
 
 describe("archive explorer", () => {
+  it("rejects oversized expanded entries before inflation", async () => {
+    const zip = zipSync({ large: new Uint8Array(1) });
+    const view = new DataView(zip.buffer);
+    for (let i = 0; i < zip.length - 24; i++) {
+      if (view.getUint32(i, true) === 0x02014b50)
+        view.setUint32(i + 24, EXPLORER_MAX_BYTES + 1, true);
+    }
+    expect((await inspectArchive(zip)).verification.errors.join()).toContain(
+      "Expanded archive exceeds",
+    );
+  });
+  it("rejects duplicate ZIP entry names", async () => {
+    const zip = zipSync(
+      { aa: new Uint8Array(1), ab: new Uint8Array(1) },
+      { level: 0 },
+    );
+    for (let i = 0; i < zip.length - 1; i++)
+      if (zip[i] === 97 && zip[i + 1] === 98) zip[i + 1] = 97;
+    expect((await inspectArchive(zip)).verification.errors.join()).toContain(
+      "duplicate paths",
+    );
+  });
+  it.each(["board", "native", "export", "asset", "filename"])(
+    "rejects inconsistent %s metadata even when rehashed",
+    async (field) => {
+      const entries = unzipSync(await createArchive(input()));
+      const manifest = JSON.parse(
+        new TextDecoder().decode(entries["manifest.json"]),
+      );
+      if (field === "board") manifest.board.title = "Different";
+      if (field === "native") {
+        delete entries["native/board/native-records.json"];
+        manifest.files = manifest.files.filter(
+          (f: { path: string }) =>
+            f.path !== "native/board/native-records.json",
+        );
+      }
+      if (field === "export")
+        manifest.excalidrawExport = { available: true, path: "absent" };
+      if (field === "asset") manifest.assets[0].bytes = 9999;
+      if (field === "filename")
+        manifest.assets[0].originalFilename = { bad: true };
+      entries["manifest.json"] = strToU8(JSON.stringify(manifest));
+      entries["integrity.json"] = strToU8(
+        JSON.stringify({
+          manifestSha256: await sha256(entries["manifest.json"]),
+        }),
+      );
+      expect((await inspectArchive(zipSync(entries))).verification.valid).toBe(
+        false,
+      );
+    },
+  );
   it("rejects checksummed but incomplete native containers", async () => {
     const manifest = strToU8(
       JSON.stringify({

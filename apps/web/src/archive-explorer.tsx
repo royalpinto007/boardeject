@@ -57,15 +57,25 @@ function Asset({ asset }: { asset: ExplorerAsset }) {
   return (
     <li className="archive-asset">
       <div className="archive-asset-info">
-        <span aria-hidden="true" className="archive-file-icon">
-          {asset.previewType?.startsWith("image/")
-            ? "▧"
-            : asset.previewType?.startsWith("video/")
-              ? "▷"
-              : "▤"}
-        </span>
+        {asset.bytes && asset.previewType?.startsWith("image/") ? (
+          <span className="archive-thumbnail">
+            <Media
+              bytes={asset.bytes}
+              type={asset.previewType}
+              name={asset.name}
+            />
+          </span>
+        ) : (
+          <span aria-hidden="true" className="archive-file-icon">
+            {asset.previewType?.startsWith("image/")
+              ? "▧"
+              : asset.previewType?.startsWith("video/")
+                ? "▷"
+                : "▤"}
+          </span>
+        )}
         <div>
-          <strong>{asset.name}</strong>
+          <strong title={asset.name}>{asset.displayName || asset.name}</strong>
           <small>
             {asset.bytes ? size(asset.bytes.length) : "Original file missing"}
             {asset.status === "duplicate" ? " · Shared original" : ""}
@@ -170,6 +180,7 @@ export default function ArchiveExplorer() {
         if (id !== sequence.current) return;
         stop();
         setBusy(false);
+        setExtracting(false);
         setError(message);
       };
       timer.current = setTimeout(
@@ -295,7 +306,7 @@ export default function ArchiveExplorer() {
                 </h2>
                 <p>
                   {report.valid
-                    ? `${report.filesChecked} files intact · ${report.assetsVerified} asset references verified`
+                    ? `${report.filesChecked} files intact · ${report.assetsVerified} assets verified`
                     : "Files cannot be previewed or extracted until integrity checks pass."}
                 </p>
               </div>
@@ -317,13 +328,14 @@ export default function ArchiveExplorer() {
               <>
                 <div className="archive-board">
                   <div>
-                    <p className="eyebrow">Preserved board</p>
+                    <p className="eyebrow">Your archive</p>
                     <h2>{manifest.board.title}</h2>
                     <p>
                       {Number.isFinite(Date.parse(manifest.createdAt))
                         ? new Date(manifest.createdAt).toLocaleString()
                         : "Archive date unavailable"}{" "}
-                      · {manifest.board.objectCount} objects
+                      · {manifest.board.objectCount}{" "}
+                      {manifest.board.objectCount === 1 ? "object" : "objects"}
                     </p>
                   </div>
                   <button
@@ -337,6 +349,7 @@ export default function ArchiveExplorer() {
                           extract: true,
                         });
                       } catch {
+                        setExtracting(false);
                         setError(
                           "Could not package the assets. Download individual files instead.",
                         );
@@ -354,11 +367,7 @@ export default function ArchiveExplorer() {
                       name="Included board preview"
                     />
                   </div>
-                ) : (
-                  <p className="archive-caption">
-                    No board preview was included. Original files are below.
-                  </p>
-                )}
+                ) : null}
                 {result.exportBytes ? (
                   <div className="archive-export">
                     <strong>Editable export included</strong>
@@ -378,11 +387,19 @@ export default function ArchiveExplorer() {
                       Open the downloaded file in Excalidraw to edit it.
                     </small>
                   </div>
-                ) : (
-                  <p className="archive-caption">
-                    No editable export included. Native archive records cannot
-                    yet be converted to Excalidraw.
-                  </p>
+                ) : null}
+                {(!result.preview || !result.exportBytes) && (
+                  <details className="archive-included">
+                    <summary>What’s included?</summary>
+                    <p>
+                      {!result.preview && "No board preview was included. "}
+                      {!result.exportBytes &&
+                        "No editable export was included. Native archive records cannot yet be converted to Excalidraw. "}
+                      Original files are preserved below. Descriptive file
+                      labels are used when native filenames are unavailable;
+                      hover or download to see stored names.
+                    </p>
+                  </details>
                 )}
                 <h2 className="archive-files-title">
                   Original files <span>{result.assets.length}</span>

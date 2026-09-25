@@ -40,6 +40,20 @@ const bytes = await createArchive({
       objectIds: ["object"],
       originalFilename: "missing.pdf",
     },
+    {
+      nativeId: "html",
+      objectIds: ["object"],
+      originalFilename: "active.html",
+      bytes: strToU8('<img src="https://example.invalid/leak">'),
+    },
+    {
+      nativeId: "svg",
+      objectIds: ["object"],
+      originalFilename: "active.svg",
+      bytes: strToU8(
+        '<svg xmlns="http://www.w3.org/2000/svg"><image href="https://example.invalid/leak"/></svg>',
+      ),
+    },
   ],
 });
 await writeFile(`${dir}/valid.boardejectarchive`, bytes);
