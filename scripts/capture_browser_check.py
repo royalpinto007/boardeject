@@ -8,6 +8,9 @@ base = os.environ.get("BOARDEJECT_TEST_URL", "http://127.0.0.1:4190").rstrip("/"
 with sync_playwright() as p:
     browser = p.chromium.launch(channel="chrome", headless=True)
     page = browser.new_page(viewport={"width": 1280, "height": 900}, accept_downloads=True)
+    # Isolate converter network behavior from Cloudflare's host-injected RUM.
+    # Do not allowlist POST requests: any upload by the application still fails.
+    page.route("https://static.cloudflareinsights.com/**", lambda route: route.abort())
     requests, errors, external_responses = [], [], []
     page.on("request", lambda request: requests.append((request.method, request.url)))
     page.on("pageerror", lambda error: errors.append(str(error)))
