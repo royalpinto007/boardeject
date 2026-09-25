@@ -2,6 +2,13 @@
 
 ## Unreleased
 
+## 0.0.5 - 2026-09-25
+
+- Added Archive Explorer at `/open`: independently verify an existing `.boardejectarchive`, browse original assets, preview supported media, and download individual files or a ZIP of originals.
+- Added local browser processing without a Mac/helper, offline inspection after the page loads, missing-file warnings, and optional included preview/export downloads.
+- Added bounded worker-based verification and extraction, safe download names, strict required-record checks, and adversarial ZIP/metadata regression tests.
+- Kept archive format version 1, existing helper compatibility, no restore/write-back, and no unverified database-to-Excalidraw conversion.
+
 - Fixed archive verification crashing on manifests with malformed file or asset records; they now fail closed with reported errors.
 - Added deterministic adversarial coverage over clipboard capture and archive verification boundaries.
 - Added export and backup guide pages with search metadata, and registered them in the sitemap.

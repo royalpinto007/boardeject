@@ -42,19 +42,21 @@
     </header>
     <main>
       <h1>Privacy</h1>
-      <p class="date">Last updated: 13 September 2026</p>
+      <p class="date">Last updated: 25 September 2026</p>
       <p>
         BoardEject is maintained by Royal Pinto. This notice covers
-        boardeject.dev, its browser converter, and the optional clipboard
-        helper.
+        boardeject.dev, its browser converter, Archive Explorer, and the
+        optional Mac helper.
       </p>
       <h2>Your board stays on your device</h2>
       <p>
         The converter processes selected captures in your browser. BoardEject
         has no board-upload endpoint, account system, or cloud board storage.
-        The macOS helper reads the clipboard only when you run it and saves a
-        file to the location you choose. Browser clipboard access is requested
-        when you choose the import action.
+        The macOS helper reads the clipboard only after your import action.
+        Archive creation reads local Freeform data through its authenticated
+        localhost bridge, not a BoardEject server. Archive Explorer reads files
+        you select in browser memory, verifies them locally, and creates local
+        downloads. It does not upload or automatically persist archive contents.
       </p>
       <p>
         The embedded Excalidraw interface runs on this site. Opening it does not

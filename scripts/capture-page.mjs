@@ -17,6 +17,37 @@ writeFileSync(
   ),
 );
 mkdirSync("dist/samples", { recursive: true });
+const explorerFallback = `<!-- static-fallback:start -->
+<div class="static-fallback"><header class="static-nav"><a class="static-brand" href="/"><img src="/favicon.svg" width="30" height="30" alt="" />BoardEject</a><a href="/mac-helper">Mac helper</a></header><main class="static-page"><p class="static-kicker">Archive Explorer</p><h1>Your board, unpacked.</h1><p>Open a .boardejectarchive to verify it, browse original files, and download assets. Everything stays on your device.</p><p>Enable JavaScript to choose your archive. No Mac or helper required to open an existing archive.</p><a href="/">Create an archive →</a></main></div>
+<!-- static-fallback:end -->`;
+writeFileSync(
+  "dist/open.html",
+  home
+    .replace(
+      /<!-- static-fallback:start -->[\s\S]*<!-- static-fallback:end -->/,
+      explorerFallback,
+    )
+    .replace(
+      /<title>[^<]*<\/title>/,
+      "<title>Open a Freeform archive | BoardEject</title>",
+    )
+    .replaceAll(
+      'href="https://boardeject.dev/"',
+      'href="https://boardeject.dev/open"',
+    )
+    .replace(
+      'property="og:url" content="https://boardeject.dev/"',
+      'property="og:url" content="https://boardeject.dev/open"',
+    )
+    .replaceAll(
+      "BoardEject | Your board. Your format.",
+      "Open a Freeform archive | BoardEject",
+    )
+    .replace(
+      /(<meta\s+(?:name|property)="(?:description|og:description|twitter:description)"\s+content=")[^"]*/g,
+      "$1Open a .boardejectarchive, verify integrity, preview original files, and download assets locally. No Mac or helper required.",
+    ),
+);
 for (const name of [
   "ink-pen.drawing",
   "real-board.crlnative",

@@ -13,6 +13,7 @@ import {
   saveArchive,
 } from "./local-helper";
 import "./style.css";
+import ArchiveExplorer from "./archive-explorer";
 Object.assign(window, { EXCALIDRAW_ASSET_PATH: "/vendor/excalidraw/" });
 const Editor = lazy(() => import("./editor"));
 
@@ -430,6 +431,7 @@ function App() {
           <img src="/favicon.svg" width="30" height="30" alt="" /> BoardEject
         </a>
         <nav aria-label="Main navigation">
+          <a href="/open">Open archive</a>
           <a href="/mac-helper">Mac helper</a>
           <a href="/test-capture">Test a capture ↗</a>
           <a
@@ -446,7 +448,7 @@ function App() {
         <section className="hero product-hero" aria-labelledby="hero-title">
           <div className="hero-copy">
             <span className="preview-badge">
-              <span /> Open source · v0.0.4
+              <span /> Open source · v0.0.5
             </span>
             <h1 id="hero-title">
               Your Freeform boards, <span>actually yours.</span>
@@ -561,6 +563,9 @@ function App() {
               </p>
             </div>
             <LocalArchive />
+            <p className="fine">
+              <a href="/open">Already have an archive? Open it →</a>
+            </p>
           </article>
         </section>
         {board && (
@@ -771,5 +776,11 @@ function App() {
   );
 }
 createRoot(document.getElementById("root")!).render(
-  /^\/test-capture\/?$/.test(location.pathname) ? <CaptureTester /> : <App />,
+  /^\/open\/?$/.test(location.pathname) ? (
+    <ArchiveExplorer />
+  ) : /^\/test-capture\/?$/.test(location.pathname) ? (
+    <CaptureTester />
+  ) : (
+    <App />
+  ),
 );

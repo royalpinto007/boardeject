@@ -63,6 +63,8 @@ Archive paths must be relative, use `/`, and contain no empty, `.` or `..` segme
 
 ## Compatibility
 
+BoardEject v0.0.5 adds [Archive Explorer](https://boardeject.dev/open) without changing archive format version 1. The browser reader requires the native record set and matching board/object metadata, verifies declared assets before exposure, bounds compressed/expanded sizes and bulk extraction, and treats media signatures rather than extensions as preview hints. Existing archives remain the preservation layer; extracted asset ZIPs are only a convenience.
+
 Version 1 readers reject an unsupported major manifest version. Additive fields may be introduced only when older readers can ignore them safely. A breaking layout or semantic change requires a new manifest version and a documented migration strategy.
 
 The source database adapter is a separate compatibility boundary. Archive creation requires `schemaStatus: "verified"`, a database user version and a structural fingerprint. Unknown schemas fail closed.
