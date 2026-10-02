@@ -8,7 +8,7 @@ jobs:
     runs-on: macos-latest
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           persist-credentials: false
       - name: Inspect runner
@@ -31,7 +31,7 @@ jobs:
           "$RUNNER_TEMP/boardeject-native-tool" "$RUNNER_TEMP/boardeject-native" 2>&1 | tee "$RUNNER_TEMP/boardeject-native/run.log"
       - name: Upload native evidence
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: boardeject-native-${{ github.run_id }}
           path: ${{ runner.temp }}/boardeject-native/
